@@ -1,0 +1,41 @@
+{
+  "challenges": [
+    1,
+    5,
+    8
+  ],
+  "entries": {
+    "1": {
+      "media": {
+        "poster": "showcase/entry-document.png"
+      }
+    },
+    "5": {},
+    "8": {}
+  },
+  "title": "Faded Passport",
+  "pitch": "A border-crossing game in which your passport photo dissolves, through a quantum TeleBlur, into the home you can't return to.",
+  "description": "",
+  "technical": "A mobile-first React + Vite web app with Vercel serverless functions as a proxy to the Moth Atlas API, so the API key never reaches the browser. The player's portrait, a photo of home and a hand-drawn face mask are cropped to 512×512 and sent to the telablur-v1 engine, which encodes both images in one quantum state and rotates a selector qubit between them. Years away set strength; the drawn outline sets the mask; the measured change inside the mask picks the officer's refusal.",
+  "enginesViaPlatform": [],
+  "hardware": "auto",
+  "genAI": {
+    "used": true,
+    "tools": [
+      "Claude Code"
+    ],
+    "notes": "Code written with Claude Code; all images come from the player's own photos."
+  },
+  "nonMothApis": [],
+  "media": {
+    "poster": null,
+    "images": [],
+    "slides": null
+  },
+  "links": {
+    "repo": null,
+    "demo": null,
+    "video": null
+  },
+  "status": "building"
+}

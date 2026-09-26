@@ -123,7 +123,7 @@ for (const f of readdirSync(repo).filter((f) => /^tsconfig.*\.json$/.test(f) && 
   const p = join(repo, f);
   writeFileSync(p, readFileSync(p, "utf8").replaceAll("../../tsconfig.base.json", "./tsconfig.base.json"));
 }
-cpSync(join(ROOT, ".env.example"), join(repo, ".env.example"));
+if (!existsSync(join(repo, ".env.example"))) cpSync(join(ROOT, ".env.example"), join(repo, ".env.example"));
 writeFileSync(join(repo, ".gitignore"), "node_modules/\n.env\n.env.local\noutput/\ndist/\n.vercel/\n");
 if (!existsSync(join(repo, "README.md"))) problems.push("app has no README.md for judges");
 

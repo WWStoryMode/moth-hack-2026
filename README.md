@@ -33,14 +33,14 @@ Generated from each app's `submission.json`; run `pnpm tracker` to refresh.
 <!-- tracker:start -->
 | # | Challenge | App folder | Engines used | Status | Submission link |
 |---|---|---|---|---|---|
-| 01 | One image, one engine <sub>Beginner</sub> | — | — | — | — |
+| 01 | One image, one engine <sub>Beginner</sub> | [`faded-passport`](apps/faded-passport) | `telablur-v1` | building | — |
 | 02 | Make it audible <sub>Beginner</sub> | — | — | — | — |
 | 03 | Three dimensions <sub>Beginner</sub> | — | — | — | — |
 | 04 | Moving image <sub>Intermediate</sub> | — | — | — | — |
-| 05 | Quantum game <sub>Intermediate</sub> | — | — | — | — |
+| 05 | Quantum game <sub>Intermediate</sub> | [`faded-passport`](apps/faded-passport) | `telablur-v1` | building | — |
 | 06 | Daisy Chain <sub>Intermediate</sub> | — | — | — | — |
 | 07 | Make a VST or AU <sub>Intermediate</sub> | — | — | — | — |
-| 08 | Make a web app <sub>Intermediate</sub> | — | — | — | — |
+| 08 | Make a web app <sub>Intermediate</sub> | [`faded-passport`](apps/faded-passport) | `telablur-v1` | building | — |
 | 09 | Quantum-native 1 <sub>Expert</sub> | — | — | — | — |
 | 10 | Quantum-native 2 <sub>Expert</sub> | — | — | — | — |
 <!-- tracker:end -->

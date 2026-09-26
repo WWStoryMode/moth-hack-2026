@@ -106,6 +106,14 @@ The docs I could read did not show:
 
 First step: write a small script that uses the API key to fetch the engine's metadata (the Engine schema includes `params_schema` and `input_files`) or the telablur section of `openapi.json`, and print the real schema. Update this plan with what you find.
 
+**✅ Verified 2026-09-26 from the pinned spec (`packages/atlas-client/openapi.json`, v0.41.0):**
+1. `direction`: `"full"` (default) · `"vertical"` (only y-qubits rotated) · `"horizontal"` (only x-qubits).
+2. Third slot: **`mask`**, optional. Must match `image1`'s size. Soft blend: black keeps image1, white is fully
+   morphed, grey blends. RGB masks are converted to luminance. `image1` and `image2` are required.
+- `strength` is limited to **0–1** by the schema. `size` is 8–1024. There is no `mode`: it runs on a simulator.
+- Output = `(1-mask)·image1 + mask·teleblurred`, at the input size.
+- First live run (synthetic images, 10 years, strength 0.599): 14 s end to end, about 3 s of that on the job itself.
+
 ## Mapping years → strength
 
 Start with a log curve, then tune by eye on real outputs:
