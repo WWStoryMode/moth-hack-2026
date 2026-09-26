@@ -1,0 +1,20 @@
+node_modules/
+.env
+.env.*
+!.env.example
+output/
+dist/
+.DS_Store
+*.log
+
+# Large media: keep showcase files under ~5 MB in git; bigger ones go in the
+# export folder / demo video. List them here or per-app in showcase/.gitignore.
+*.mov
+*.mp4
+*.wav
+*.aiff
+
+# Python (for notebook challenges)
+.venv/
+__pycache__/
+.ipynb_checkpoints/

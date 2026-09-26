@@ -1,0 +1,14 @@
+{
+  "challenge": null,
+  "title": "",
+  "pitch": "",
+  "description": "",
+  "technical": "",
+  "enginesViaPlatform": [],
+  "hardware": "auto",
+  "genAI": { "used": true, "tools": ["Claude Code"], "notes": "" },
+  "nonMothApis": [],
+  "media": { "poster": "showcase/poster.png", "images": [], "slides": null },
+  "links": { "repo": null, "demo": null, "video": null },
+  "status": "idea"
+}

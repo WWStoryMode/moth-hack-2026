@@ -1,0 +1,17 @@
+{
+  "name": "@moth-hack/atlas-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Typed client for the Moth Quantum Atlas API",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "gen:types": "curl -sf https://api.mothquantum.com/openapi.json -o openapi.json && openapi-typescript openapi.json -o src/generated/schema.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.13.0"
+  }
+}

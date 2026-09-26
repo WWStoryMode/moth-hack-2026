@@ -1,0 +1,117 @@
+// Shared helpers for new-app / tracker / export: the submission.json shape, the challenge
+// list from https://hack.mothquantum.com, and provenance collection.
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
+
+export const ROOT = fileURLToPath(new URL("../../", import.meta.url));
+export const APPS_DIR = join(ROOT, "apps");
+
+export const CHALLENGES = [
+  { n: 1, tier: "Beginner", name: "One image, one engine" },
+  { n: 2, tier: "Beginner", name: "Make it audible" },
+  { n: 3, tier: "Beginner", name: "Three dimensions" },
+  { n: 4, tier: "Intermediate", name: "Moving image" },
+  { n: 5, tier: "Intermediate", name: "Quantum game" },
+  { n: 6, tier: "Intermediate", name: "Daisy Chain" },
+  { n: 7, tier: "Intermediate", name: "Make a VST or AU" },
+  { n: 8, tier: "Intermediate", name: "Make a web app" },
+  { n: 9, tier: "Expert", name: "Quantum-native 1" },
+  { n: 10, tier: "Expert", name: "Quantum-native 2" },
+] as const;
+
+export type Status = "idea" | "building" | "ready" | "submitted";
+
+/** Mirrors the "Tell us about your project" + media sections of the submission form. */
+export interface Submission {
+  /** Challenge number 1–10, or null for sandbox apps that are never submitted. */
+  challenge: number | null;
+  title: string;
+  /** One sentence. */
+  pitch: string;
+  /** 100–200 words: concept, artifacts produced, motivation. */
+  description: string;
+  /** 50–100 words: tools and techniques, including which Atlas engines. */
+  technical: string;
+  /** Engines used outside the API (e.g. in the browser at platform.mothquantum.com). */
+  enginesViaPlatform: string[];
+  /** Set "qpu" if you ran on hardware outside the API; "auto" reads it from provenance. */
+  hardware: "auto" | "emu" | "qpu" | "both";
+  genAI: { used: boolean; tools: string[]; notes: string };
+  nonMothApis: { name: string; details: string }[];
+  media: { poster: string | null; images: string[]; slides: string | null };
+  links: { repo: string | null; demo: string | null; video: string | null };
+  status: Status;
+}
+
+export interface AppInfo {
+  name: string;
+  dir: string;
+  submission: Submission;
+}
+
+export function listApps(): AppInfo[] {
+  return readdirSync(APPS_DIR)
+    .filter((n) => !n.startsWith("_") && existsSync(join(APPS_DIR, n, "submission.json")))
+    .sort()
+    .map((name) => loadApp(name));
+}
+
+export function loadApp(name: string): AppInfo {
+  const dir = join(APPS_DIR, name);
+  const file = join(dir, "submission.json");
+  if (!existsSync(file)) throw new Error(`apps/${name}/submission.json not found`);
+  return { name, dir, submission: JSON.parse(readFileSync(file, "utf8")) as Submission };
+}
+
+export interface ProvenanceRecord {
+  engineId: string;
+  jobId: string;
+  mode: "emu" | "qpu" | null;
+  params: Record<string, unknown> | null;
+  file: string;
+}
+
+function walk(dir: string): string[] {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir).flatMap((n) => {
+    const p = join(dir, n);
+    return statSync(p).isDirectory() ? (n === "node_modules" ? [] : walk(p)) : [p];
+  });
+}
+
+/** Provenance from `*.provenance.json` and saveRun() files in an app's output/ and showcase/. */
+export function collectProvenance(appDir: string): ProvenanceRecord[] {
+  const files = [...walk(join(appDir, "output")), ...walk(join(appDir, "showcase"))].filter((f) =>
+    f.endsWith(".json"),
+  );
+  const out: ProvenanceRecord[] = [];
+  for (const f of files) {
+    try {
+      const json = JSON.parse(readFileSync(f, "utf8"));
+      const p = f.endsWith(".provenance.json") ? json : json?.provenance;
+      if (p?.engineId && p?.jobId) out.push({ ...p, file: relative(appDir, f) });
+    } catch {
+      // Not JSON we understand; skip.
+    }
+  }
+  return out;
+}
+
+export function enginesUsed(app: AppInfo, provenance = collectProvenance(app.dir)): string[] {
+  return [...new Set([...provenance.map((p) => p.engineId), ...app.submission.enginesViaPlatform])].sort();
+}
+
+/** Answer for the form's "QPU or emulation?" question. */
+export function hardwareAnswer(app: AppInfo, provenance = collectProvenance(app.dir)): string {
+  const h = app.submission.hardware;
+  if (h !== "auto") return { emu: "Emulation", qpu: "QPU", both: "Both" }[h];
+  const qpu = provenance.some((p) => p.mode === "qpu");
+  const emu = provenance.some((p) => p.mode !== "qpu");
+  return qpu && emu ? "Both" : qpu ? "QPU" : emu ? "Emulation" : "Unknown (no runs recorded)";
+}
+
+export function challengeLabel(n: number | null): string {
+  const c = CHALLENGES.find((c) => c.n === n);
+  return c ? `${String(c.n).padStart(2, "0")} ${c.name}` : "— (sandbox)";
+}

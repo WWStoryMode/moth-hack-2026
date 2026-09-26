@@ -1,0 +1,22 @@
+{
+  "name": "moth-hack-2026",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.11.0",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "first-call": "pnpm --filter @moth-hack/first-call start",
+    "typecheck": "tsc -p tsconfig.json && pnpm -r --parallel typecheck",
+    "gen:types": "pnpm --filter @moth-hack/atlas-client gen:types",
+    "new-app": "tsx scripts/new-app.ts",
+    "tracker": "tsx scripts/tracker.ts",
+    "export": "tsx scripts/export.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.0",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3"
+  }
+}
