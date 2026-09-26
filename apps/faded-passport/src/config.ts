@@ -30,9 +30,10 @@ export type TelablurParams = ReturnType<typeof telablurParams>;
 
 /**
  * Verdict: mean |morphed − portrait| inside the mask, 0–1. Below `medium` → low line, etc.
- * Starting guesses — tune on real outputs (the value is logged in dev).
+ * Provisional: the first synthetic test (strength 0.599) measured 0.245. Tune on real photos
+ * (the value is logged in the browser console in dev).
  */
-export const VERDICT_THRESHOLDS = { medium: 0.06, high: 0.15 } as const;
+export const VERDICT_THRESHOLDS = { medium: 0.1, high: 0.2 } as const;
 
 /** Client polling: docs recommend every 2–5 s. */
 export const POLL = { intervalMs: 2000, timeoutMs: 180_000 } as const;

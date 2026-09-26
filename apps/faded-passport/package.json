@@ -6,6 +6,7 @@
   "description": "A border crossing where your face fades into the home you can't return to. TeleBlur on the Moth Atlas API.",
   "scripts": {
     "dev": "vite",
+    "dev:phone": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.app.json",

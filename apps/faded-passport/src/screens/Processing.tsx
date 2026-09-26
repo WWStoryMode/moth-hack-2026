@@ -1,0 +1,19 @@
+// While TeleBlur runs, the officer examines your papers.
+import { Officer } from "../components/Officer.tsx";
+import { Paper } from "../components/Paper.tsx";
+import { Stamp } from "../components/Stamp.tsx";
+import { S } from "../strings.ts";
+
+export function ProcessingScreen(props: { elapsedMs: number; portraitUrl: string }) {
+  const lines = S.processing.officer;
+  const line = props.elapsedMs > 60_000 ? S.processing.slow : lines[Math.min(lines.length - 1, Math.floor(props.elapsedMs / 4000))]!;
+  return (
+    <Paper>
+      <Officer line={line} />
+      <div className="examine">
+        <img className="photo" src={props.portraitUrl} alt="" />
+        <Stamp hovering />
+      </div>
+    </Paper>
+  );
+}
