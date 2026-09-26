@@ -1,11 +1,12 @@
-// pnpm new-app c03-my-idea   → scaffolds apps/c03-my-idea from apps/_template
-// Names starting cNN- are linked to challenge NN; anything else is a sandbox app.
+// pnpm new-app <name> [--challenges 1,8]   → scaffolds apps/<name> from apps/_template
+// Name apps after the project. A cNN- prefix also works as a shortcut for --challenges NN.
 import { cpSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { join } from "node:path";
 import { APPS_DIR, ROOT, challengeLabel, type Submission } from "./lib/submission.ts";
 
 const name = process.argv[2];
+const flag = process.argv.indexOf("--challenges");
 if (!name || !/^[a-z0-9][a-z0-9-]*$/.test(name)) {
   console.error("Usage: pnpm new-app <kebab-name>   e.g. pnpm new-app c01-quantum-portrait");
   process.exit(1);
@@ -17,11 +18,13 @@ if (existsSync(dir)) {
 }
 
 const match = /^c(\d{2})-/.exec(name);
-const challenge = match ? Number(match[1]) : null;
-if (challenge !== null && (challenge < 1 || challenge > 10)) {
-  console.error(`Challenge number must be 01–10 (got ${match?.[1]})`);
+const challenges =
+  flag > 0 ? (process.argv[flag + 1] ?? "").split(",").map(Number) : match ? [Number(match[1])] : [];
+if (challenges.some((c) => !Number.isInteger(c) || c < 1 || c > 10)) {
+  console.error("Challenge numbers must be 1–10");
   process.exit(1);
 }
+const challenge = challenges[0] ?? null;
 
 cpSync(join(APPS_DIR, "_template"), dir, { recursive: true, filter: (src) => !src.includes("node_modules") });
 
@@ -37,9 +40,9 @@ for (const file of ["package.json", "README.md", "CLAUDE.md", "src/index.ts"]) {
 }
 const subFile = join(dir, "submission.json");
 const sub = JSON.parse(readFileSync(subFile, "utf8")) as Submission;
-sub.challenge = challenge;
+sub.challenges = challenges;
 writeFileSync(subFile, JSON.stringify(sub, null, 2) + "\n");
 
 execSync("pnpm install", { cwd: ROOT, stdio: "inherit" });
 execSync("pnpm tracker", { cwd: ROOT, stdio: "inherit" });
-console.log(`\nCreated apps/${name} (${challengeLabel(challenge)}). Run it: pnpm --filter @moth-hack/${name} start`);
+console.log(`\nCreated apps/${name} (${challenges.map(challengeLabel).join(", ") || "sandbox"}). Run it: pnpm --filter @moth-hack/${name} start`);

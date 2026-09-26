@@ -1,9 +1,9 @@
-// pnpm export <app> [--no-verify]
+// pnpm export <app> [--challenge N] [--no-verify]
 //
-// Builds, for one app:
-//   dist/submissions/<app>/repo/   standalone project (atlas-client vendored) → push as its own public repo
+// Builds, for one app (and one of its challenge entries):
+//   dist/submissions/<app>/repo/       standalone project (atlas-client vendored) → push as its own public repo
 //   dist/submissions/<app>/repo.zip
-//   dist/submissions/<app>/form/   FORM.md (answers in form order) + poster/images/slides to upload
+//   dist/submissions/<app>/form-NN/    FORM.md (answers in form order) + poster/images/slides to upload
 // and checks the entry against the submission form's rules. Nothing is pushed or uploaded.
 import { execSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -13,6 +13,7 @@ import {
   challengeLabel,
   collectProvenance,
   enginesUsed,
+  entryFor,
   hardwareAnswer,
   loadApp,
 } from "./lib/submission.ts";
@@ -21,17 +22,28 @@ const args = process.argv.slice(2);
 const name = args.find((a) => !a.startsWith("--"));
 const verify = !args.includes("--no-verify");
 if (!name) {
-  console.error("Usage: pnpm export <app> [--no-verify]");
+  console.error("Usage: pnpm export <app> [--challenge N] [--no-verify]");
   process.exit(1);
 }
 
 const app = loadApp(name);
-const sub = app.submission;
+const flag = args.indexOf("--challenge");
+const challenges = app.submission.challenges;
+const challenge = flag >= 0 ? Number(args[flag + 1]) : challenges.length === 1 ? challenges[0] : undefined;
+if (challenge === undefined || !challenges.includes(challenge)) {
+  console.error(
+    challenges.length
+      ? `apps/${name} is entered for challenges ${challenges.join(", ")}; pick one with --challenge N`
+      : `apps/${name} has no challenges in submission.json (sandbox apps can't be exported)`,
+  );
+  process.exit(1);
+}
+const sub = entryFor(app.submission, challenge);
 const provenance = collectProvenance(app.dir);
 const out = join(ROOT, "dist", "submissions", name);
 const repo = join(out, "repo");
-const form = join(out, "form");
-rmSync(out, { recursive: true, force: true });
+const form = join(out, `form-${String(challenge).padStart(2, "0")}`);
+for (const p of [repo, join(out, "repo.zip"), form]) rmSync(p, { recursive: true, force: true });
 mkdirSync(repo, { recursive: true });
 mkdirSync(form, { recursive: true });
 
@@ -40,7 +52,6 @@ const problems: string[] = [];
 const words = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
 const sentences = (s: string) => (s.trim().match(/[.!?](\s|$)/g) ?? []).length;
 
-if (sub.challenge === null) problems.push("challenge is null — sandbox apps can't be submitted");
 if (!sub.title.trim()) problems.push("title is empty");
 if (!sub.pitch.trim()) problems.push("pitch is empty");
 else if (sentences(sub.pitch) > 1) problems.push(`pitch should be one sentence (found ${sentences(sub.pitch)})`);
@@ -70,7 +81,8 @@ for (const img of sub.media.images) if (!existsSync(join(app.dir, img))) problem
 if (sub.media.slides && extname(sub.media.slides).toLowerCase() !== ".pdf") problems.push("slides must be a PDF");
 
 // ─── Standalone repo ──────────────────────────────────────────────────────────────
-const SKIP = new Set(["node_modules", "output", "CLAUDE.md", "submission.json", "tsconfig.json", "package.json"]);
+// The app's own tsconfig*.json / vite.config.ts / api/ are kept; only workspace links are rewritten.
+const SKIP = new Set(["node_modules", "output", "dist", "CLAUDE.md", "BRIEF.md", "submission.json", "package.json", ".env"]);
 for (const entry of readdirSync(app.dir)) {
   if (!SKIP.has(entry)) cpSync(join(app.dir, entry), join(repo, entry), { recursive: true });
 }
@@ -97,7 +109,7 @@ writeFileSync(
       type: "module",
       description: sub.pitch || undefined,
       engines: { node: ">=20.12" },
-      scripts: { ...appPkg.scripts, typecheck: "tsc -p tsconfig.json" },
+      scripts: appPkg.scripts,
       dependencies: deps,
       devDependencies: { ...rootPkg.devDependencies, ...(appPkg.devDependencies ?? {}) },
     },
@@ -106,13 +118,13 @@ writeFileSync(
   ) + "\n",
 );
 
-const base = JSON.parse(readFileSync(join(ROOT, "tsconfig.base.json"), "utf8"));
-writeFileSync(
-  join(repo, "tsconfig.json"),
-  JSON.stringify({ ...base, include: ["src/**/*.ts", "vendor/atlas-client/src/**/*.ts"] }, null, 2) + "\n",
-);
+cpSync(join(ROOT, "tsconfig.base.json"), join(repo, "tsconfig.base.json"));
+for (const f of readdirSync(repo).filter((f) => /^tsconfig.*\.json$/.test(f) && f !== "tsconfig.base.json")) {
+  const p = join(repo, f);
+  writeFileSync(p, readFileSync(p, "utf8").replaceAll("../../tsconfig.base.json", "./tsconfig.base.json"));
+}
 cpSync(join(ROOT, ".env.example"), join(repo, ".env.example"));
-writeFileSync(join(repo, ".gitignore"), "node_modules/\n.env\noutput/\n");
+writeFileSync(join(repo, ".gitignore"), "node_modules/\n.env\n.env.local\noutput/\ndist/\n.vercel/\n");
 if (!existsSync(join(repo, "README.md"))) problems.push("app has no README.md for judges");
 
 // ─── Secret scan: never ship a key ────────────────────────────────────────────────
@@ -141,7 +153,7 @@ if (verify) {
 }
 execSync(`zip -qr ../repo.zip . -x 'node_modules/*'`, { cwd: repo });
 
-console.log(`\nExported ${relative(ROOT, out)}/  (repo/, repo.zip, form/FORM.md)`);
+console.log(`\nExported ${relative(ROOT, out)}/  (repo/, repo.zip, ${basename(form)}/FORM.md)`);
 if (problems.length) console.log(`\n⚠ Not ready to submit:\n  - ${problems.join("\n  - ")}`);
 else console.log("\n✓ All form checks pass.");
 

@@ -2,17 +2,17 @@
 // and its provenance files. Edit submission.json, not the table.
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { CHALLENGES, ROOT, enginesUsed, listApps } from "./lib/submission.ts";
+import { CHALLENGES, ROOT, enginesUsed, entryFor, listApps, type AppInfo } from "./lib/submission.ts";
 
 const START = "<!-- tracker:start -->";
 const END = "<!-- tracker:end -->";
 
 const apps = listApps();
 const rows = CHALLENGES.map((c) => {
-  const mine = apps.filter((a) => a.submission.challenge === c.n);
-  const cell = (f: (a: (typeof mine)[number]) => string) => (mine.length ? mine.map(f).join("<br>") : "—");
-  const links = (a: (typeof mine)[number]) => {
-    const l = a.submission.links;
+  const mine = apps.filter((a) => a.submission.challenges.includes(c.n));
+  const cell = (f: (a: AppInfo) => string) => (mine.length ? mine.map(f).join("<br>") : "—");
+  const links = (a: AppInfo) => {
+    const l = entryFor(a.submission, c.n).links;
     const parts = [l.repo && `[repo](${l.repo})`, l.demo && `[demo](${l.demo})`, l.video && `[video](${l.video})`];
     return parts.filter(Boolean).join(" · ") || "—";
   };
@@ -21,7 +21,7 @@ const rows = CHALLENGES.map((c) => {
     `${c.name} <sub>${c.tier}</sub>`,
     cell((a) => `[\`${a.name}\`](apps/${a.name})`),
     cell((a) => enginesUsed(a).map((e) => `\`${e}\``).join(", ") || "—"),
-    cell((a) => a.submission.status),
+    cell((a) => entryFor(a.submission, c.n).status),
     cell(links),
   ];
 });

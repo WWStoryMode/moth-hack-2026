@@ -47,12 +47,13 @@ packages/atlas-client   typed API client (submitJob, getStatus, waitForJob, getR
                         uploadAsset, downloadOutputs, getMe, saveRun, loadEnv)
 apps/_template          copied by `pnpm new-app`
 apps/first-call         sandbox: first coin-toss call (never submitted)
-apps/cNN-<slug>         one app per challenge entry (NN = challenge 01–10)
+apps/<project>          one app per project, named after the project; submission.json lists the
+                        challenges it's entered for (one project can go to several)
 scripts/                new-app, tracker, export
 ```
 - **Each app has its own `CLAUDE.md`** (goal, engines, status, open questions). Read it before working in that app
   and keep it updated.
-- Each challenge app has `submission.json`, which mirrors the submission form, plus a committed `showcase/`
+- Each submitted app has `submission.json`, which mirrors the submission form, plus a committed `showcase/`
   for chosen outputs (poster etc.). Files over ~5 MB (video/audio) stay out of git; they're gitignored by extension.
 - Non-TS apps are fine (Python notebook for challenge 10, JUCE/C++ plugin for 07): give them their own tooling
   inside the app folder, with no `package.json` needed. A notebook should call the API directly with `requests`
@@ -61,10 +62,11 @@ scripts/                new-app, tracker, export
 ## Commands
 - `pnpm typecheck` checks the whole workspace
 - `pnpm first-call` runs the coin-toss sandbox
-- `pnpm new-app c03-my-idea` scaffolds an app for challenge 03
+- `pnpm new-app my-idea --challenges 1,8` scaffolds an app (a `c03-` name prefix = `--challenges 3`)
 - `pnpm --filter @moth-hack/<app> start` runs an app
 - `pnpm tracker` regenerates the README table from `submission.json` files
-- `pnpm export <app>` writes `dist/submissions/<app>/{repo/, repo.zip, form/FORM.md}` and checks the form rules.
+- `pnpm export <app> [--challenge N]` writes `dist/submissions/<app>/{repo/, repo.zip, form-NN/FORM.md}` and checks
+  the form rules for that entry (`entries` in submission.json overrides shared fields per challenge).
   Pushing `repo/` to a public GitHub repo is a separate step; always confirm with the user first.
 - After submitting: `git tag submitted/<app>`
 

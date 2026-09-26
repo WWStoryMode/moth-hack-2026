@@ -1,4 +1,4 @@
-import { readFile, stat, writeFile, mkdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { basename, extname, join } from "node:path";
 import { MothApiError, MothJobError, MothTimeoutError, toApiError } from "./errors.ts";
 import { buildProvenance, writeProvenance, type Provenance } from "./provenance.ts";
@@ -222,11 +222,18 @@ export class MothClient {
     if (!contentType) {
       throw new Error(`Can't infer a content type for ${basename(filePath)}; pass { contentType }.`);
     }
-    const { size } = await stat(filePath);
-    const createBody: CreateAssetRequest = {
+    return this.uploadAssetBytes(await readFile(filePath), {
       filename: opts.filename ?? basename(filePath),
-      content_type: contentType,
-      size_bytes: size,
+      contentType,
+    });
+  }
+
+  /** Same three-step upload as `uploadAsset`, from bytes already in memory (e.g. in a server function). */
+  async uploadAssetBytes(bytes: Uint8Array, opts: { filename: string; contentType: string }): Promise<Asset> {
+    const createBody: CreateAssetRequest = {
+      filename: opts.filename,
+      content_type: opts.contentType,
+      size_bytes: bytes.byteLength,
     };
     const created = await this.request<CreateAssetResponse>("POST", "/assets", { body: createBody });
 
@@ -238,11 +245,16 @@ export class MothClient {
     const put = await fetch(created.upload.url, {
       method: created.upload.method,
       headers,
-      body: await readFile(filePath),
+      body: bytes,
     });
     if (!put.ok) throw await toApiError(put, created.upload.method, `presigned upload (${created.asset_id})`);
 
     return this.request<Asset>("POST", `/assets/${encodeURIComponent(created.asset_id)}/complete`);
+  }
+
+  /** DELETE /assets/{assetId} — removes the stored file (uploads and job outputs both count toward quota). */
+  async deleteAsset(assetId: string): Promise<void> {
+    await this.request<void>("DELETE", `/assets/${encodeURIComponent(assetId)}`, { retry: true });
   }
 }
 

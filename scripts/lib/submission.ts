@@ -22,10 +22,15 @@ export const CHALLENGES = [
 
 export type Status = "idea" | "building" | "ready" | "submitted";
 
+/** The per-entry fields of the form; `entries` in submission.json can override these per challenge. */
+export type EntryFields = Pick<Submission, "title" | "pitch" | "description" | "technical" | "media" | "links" | "status">;
+
 /** Mirrors the "Tell us about your project" + media sections of the submission form. */
 export interface Submission {
-  /** Challenge number 1–10, or null for sandbox apps that are never submitted. */
-  challenge: number | null;
+  /** Challenges (1–10) this project is entered for — one form entry each. Empty = sandbox. */
+  challenges: number[];
+  /** Optional per-challenge overrides, keyed by challenge number ("1", "8"…). */
+  entries?: Record<string, Partial<EntryFields>>;
   title: string;
   /** One sentence. */
   pitch: string;
@@ -62,6 +67,23 @@ export function loadApp(name: string): AppInfo {
   const file = join(dir, "submission.json");
   if (!existsSync(file)) throw new Error(`apps/${name}/submission.json not found`);
   return { name, dir, submission: JSON.parse(readFileSync(file, "utf8")) as Submission };
+}
+
+/** One form entry: shared fields merged with that challenge's overrides. */
+export interface Entry extends Omit<Submission, "challenges" | "entries"> {
+  challenge: number;
+}
+
+export function entryFor(sub: Submission, challenge: number): Entry {
+  const { challenges: _c, entries, ...shared } = sub;
+  const o = entries?.[String(challenge)] ?? {};
+  return {
+    ...shared,
+    ...o,
+    media: { ...shared.media, ...o.media },
+    links: { ...shared.links, ...o.links },
+    challenge,
+  };
 }
 
 export interface ProvenanceRecord {
@@ -103,7 +125,7 @@ export function enginesUsed(app: AppInfo, provenance = collectProvenance(app.dir
 }
 
 /** Answer for the form's "QPU or emulation?" question. */
-export function hardwareAnswer(app: AppInfo, provenance = collectProvenance(app.dir)): string {
+export function hardwareAnswer(app: AppInfo, provenance: ProvenanceRecord[] = collectProvenance(app.dir)): string {
   const h = app.submission.hardware;
   if (h !== "auto") return { emu: "Emulation", qpu: "QPU", both: "Both" }[h];
   const qpu = provenance.some((p) => p.mode === "qpu");
