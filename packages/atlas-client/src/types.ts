@@ -60,4 +60,9 @@ export interface CoinTossResult {
   heads: number;
   tails: number;
   shots: number;
+  // Not on the docs page; seen in a live response (job be2523ba…, 2026-09-26). Optional in case they change.
+  /** Simulator/hardware that ran it, e.g. "aer" (Qiskit's simulator) in emu mode. */
+  backend?: string;
+  ibm_job_id?: string;
+  mode?: "emu" | "qpu";
 }

@@ -8,4 +8,5 @@ Sandbox app, never submitted (no `submission.json`).
   so each measurement ("shot") is a fair coin flip.
 - **Params:** `{ mode: "emu", shots: 20 }`
 - **Output:** `apps/first-call/output/<timestamp>-coin-toss-v1.json` (provenance + result)
-- **Status:** built and typechecked; not yet run (waiting for the user's API key in `.env`).
+- **Status:** done. First live run 2026-09-26 (job be2523ba…): 11 heads / 9 tails from 20 shots, ~1 s on the
+  `aer` simulator. The response also had undocumented `backend`, `ibm_job_id` and `mode` fields.
