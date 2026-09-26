@@ -1,0 +1,5 @@
+{
+  "//": "Node side: Vercel functions (api/), server/, scripts/, vite config. Vercel compiles api/ with this file.",
+  "extends": "../../tsconfig.base.json",
+  "include": ["api/**/*.ts", "server/**/*.ts", "scripts/**/*.ts", "src/config.ts", "vite.config.ts"]
+}
