@@ -61,7 +61,7 @@ export async function renderMask(strokes: Stroke[], feather = MASK.feather): Pro
 
 /**
  * The mask TeleBlur actually receives (see MASK in config.ts). In "portrait" mode each pixel is
- * luminance(portrait) + offset, where the drawn outline sets the offset: −0.5 outside, +0.5 inside.
+ * luminance(portrait) + offset, where the drawn outline sets the offset (MASK.offset: black outside, white inside).
  */
 export async function engineMask(portraitUrl: string, outline: Blob): Promise<Blob> {
   if (MASK.mode === "outline") return outline;
