@@ -100,7 +100,7 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
   border: 5px double var(--red);
   transform: rotate(-12deg);
   opacity: .88;
-  background: rgba(239,230,210,.25);
+  background: rgba(239,230,210,.625); /* paper-coloured backing: 37.5% see-through */
   text-transform: uppercase;
 }
 .stamp strong { font: 900 28px var(--serif); letter-spacing: .04em; }
