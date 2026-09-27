@@ -31,7 +31,7 @@ export const MASK = {
 
 export const YEARS = { min: 1, max: 40, initial: 10 } as const;
 
-/** 0 at YEARS.min → 1 at YEARS.max on a log curve: memory changes fast at first, then slowly. */
+/** 0 at YEARS.min → 1 at YEARS.max on a log curve (used by size). */
 function yearsCurve(years: number): number {
   const y = Math.min(YEARS.max, Math.max(YEARS.min, Math.round(years)));
   return Math.log(y) / Math.log(YEARS.max);
@@ -42,10 +42,13 @@ export const STRENGTH = { atMinYears: 0.1, atMaxYears: 1.0 } as const;
 
 /**
  * Years away → TeleBlur strength: how far the selector qubit rotates from "you" toward "home".
- * 0.10 @1y · 0.49 @5y · 0.66 @10y · 0.83 @20y · 1.00 @40y. Rounded so the strip shows the exact value sent.
+ * Slow start, fast end (squared, linear in years): you barely fade for years, then all at once.
+ * 0.10 @1y · 0.11 @5y · 0.15 @10y · 0.31 @20y · 0.56 @30y · 1.00 @40y. Rounded so the strip shows the exact value sent.
  */
 export function yearsToStrength(years: number): number {
-  const s = STRENGTH.atMinYears + (STRENGTH.atMaxYears - STRENGTH.atMinYears) * yearsCurve(years);
+  const y = Math.min(YEARS.max, Math.max(YEARS.min, Math.round(years)));
+  const t = (y - YEARS.min) / (YEARS.max - YEARS.min);
+  const s = STRENGTH.atMinYears + (STRENGTH.atMaxYears - STRENGTH.atMinYears) * t * t;
   return Math.round(s * 1000) / 1000;
 }
 
@@ -56,7 +59,7 @@ export const TELABLUR_SIZE = { atMinYears: 8, atMaxYears: 128 } as const;
  * Years away → TeleBlur `size`, its pixel budget per pass. Our 512² region is larger, so with
  * downscale=true TeleBlur shrinks it to size×size, morphs it, and scales it back up: small size =
  * blocky morph on few qubits (8 → 8×8 grid, ~7 qubits), 128 → 128×128 grid (~15 qubits).
- * 8 @1y · 60 @5y · 83 @10y · 105 @20y · 128 @40y (same log curve as strength).
+ * 8 @1y · 60 @5y · 83 @10y · 105 @20y · 128 @40y (log curve).
  */
 export function yearsToTelablurSize(years: number): number {
   const { atMinYears: a, atMaxYears: b } = TELABLUR_SIZE;
