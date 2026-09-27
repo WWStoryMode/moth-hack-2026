@@ -1,10 +1,10 @@
 // "Who are you?" — the player draws around their face. That outline becomes TeleBlur's mask:
 // the quantum morph only happens inside it, so the player chooses what of themselves fades.
 import { useEffect, useRef, useState } from "react";
-import { MASK, SIZE } from "../config.ts";
+import { SIZE } from "../config.ts";
 import { Officer } from "../components/Officer.tsx";
 import { Paper } from "../components/Paper.tsx";
-import { areaFraction, engineMask, renderMask, smooth, tracePath, type Point, type Stroke } from "../lib/mask.ts";
+import { areaFraction, engineMask, maskRangeLabel, renderMask, smooth, tracePath, type Point, type Stroke } from "../lib/mask.ts";
 import { S } from "../strings.ts";
 
 const MIN_AREA = 0.02; // a face outline smaller than 2% of the photo is almost certainly a slip
@@ -132,8 +132,8 @@ export function MaskScreen(props: { portraitUrl: string; onDone: (masks: { outli
           <img src={preview.outline} alt="Your drawn outline" />
           <img src={preview.engine} alt="The mask sent to TeleBlur" />
           <figcaption>
-            Left: your outline. Right: the {SIZE}×{SIZE} mask sent to TeleBlur (portrait brightness {MASK.offset.black} outside,
-            +{MASK.offset.white} inside). White = morphed into home, black = your photo unchanged, grey = in between.
+            Left: your outline. Right: the {SIZE}×{SIZE} mask sent to TeleBlur (portrait brightness {maskRangeLabel()}).
+            White = morphed into home, black = your photo unchanged, grey = in between.
           </figcaption>
         </figure>
       )}

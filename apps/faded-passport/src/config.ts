@@ -13,14 +13,15 @@ export const DIRECTION = "full" as const;
 export const FIXED_PARAMS = { downscale: true, mask_bin_size: 4, mask_min_region: 16 } as const;
 
 /**
- * The mask sent to TeleBlur. "portrait": the portrait's own luminance, shifted by the drawn outline
- * (black → offset.black, white → offset.white, grey edge in between), clamped to 0–1. So the face
- * morphs strongly but its dark features resist, and bright background areas leak a little home.
- * "outline": just the drawn outline (white face, black elsewhere).
+ * The mask sent to TeleBlur. "portrait": the portrait's own luminance, adjusted by the drawn outline
+ * (outside → range.black, inside → range.white, feathered edge in between), clamped to 0–1.
+ * `blend` "multiply": luminance × factor · "add": luminance + offset.
+ * Bright areas morph into home; dark features resist. "outline": just the drawn outline.
  */
 export const MASK = {
   mode: "portrait" as "portrait" | "outline",
-  offset: { black: -0.25, white: 0 },
+  blend: "multiply" as "multiply" | "add",
+  range: { black: 0.75, white: 1 },
   /** Feather width of the drawn outline, px. */
   feather: 16,
 };

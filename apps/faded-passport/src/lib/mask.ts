@@ -61,22 +61,22 @@ export async function renderMask(strokes: Stroke[], feather = MASK.feather): Pro
 
 /**
  * The mask TeleBlur actually receives (see MASK in config.ts). In "portrait" mode each pixel is
- * luminance(portrait) + offset, where the drawn outline sets the offset (MASK.offset: black outside, white inside).
+ * luminance(portrait) × (or +) a value the drawn outline sets: MASK.range.black outside, .white inside.
  */
 export async function engineMask(portraitUrl: string, outline: Blob): Promise<Blob> {
   if (MASK.mode === "outline") return outline;
   const outlineUrl = URL.createObjectURL(outline);
   try {
     const [p, m] = await Promise.all([pixels(portraitUrl), pixels(outlineUrl)]);
-    const { black, white } = MASK.offset;
+    const { black, white } = MASK.range;
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = SIZE;
     const ctx = canvas.getContext("2d")!;
     const out = ctx.createImageData(SIZE, SIZE);
     for (let i = 0; i < p.length; i += 4) {
       const luma = (0.2126 * p[i]! + 0.7152 * p[i + 1]! + 0.0722 * p[i + 2]!) / 255; // Rec. 709
-      const offset = black + (m[i]! / 255) * (white - black);
-      const v = Math.round(Math.min(1, Math.max(0, luma + offset)) * 255);
+      const k = black + (m[i]! / 255) * (white - black); // outline: 0 outside → 1 inside
+      const v = Math.round(Math.min(1, Math.max(0, MASK.blend === "multiply" ? luma * k : luma + k)) * 255);
       out.data[i] = out.data[i + 1] = out.data[i + 2] = v;
       out.data[i + 3] = 255;
     }
@@ -87,9 +87,14 @@ export async function engineMask(portraitUrl: string, outline: Blob): Promise<Bl
   }
 }
 
+/** e.g. "×0.75 outside → ×1 inside" or "−0.25 outside → +0 inside". */
+export function maskRangeLabel(): string {
+  const { black, white } = MASK.range;
+  const f = (v: number) => (MASK.blend === "multiply" ? `×${v}` : `${v < 0 ? "−" : "+"}${Math.abs(v)}`);
+  return `${f(black)} outside → ${f(white)} inside`;
+}
+
 /** Human-readable description of the mask for the document's parameter strip. */
 export function maskLabel(): string {
-  return MASK.mode === "portrait"
-    ? `mask portrait luminance ${MASK.offset.black >= 0 ? "+" : ""}${MASK.offset.black}…+${MASK.offset.white} by drawn face`
-    : "mask drawn face";
+  return MASK.mode === "portrait" ? `mask portrait luminance ${maskRangeLabel()} (drawn face)` : "mask drawn face";
 }
