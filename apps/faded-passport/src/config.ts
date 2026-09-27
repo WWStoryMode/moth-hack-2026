@@ -22,7 +22,7 @@ export const MASK = {
   mode: "portrait" as "portrait" | "outline",
   offset: { black: -0.25, white: 0.25 },
   /** Feather width of the drawn outline, px. */
-  feather: 8,
+  feather: 16,
 };
 
 export const YEARS = { min: 1, max: 40, initial: 10 } as const;
