@@ -21,7 +21,7 @@ export const FIXED_PARAMS = { downscale: true, mask_bin_size: 4, mask_min_region
 export const MASK = {
   mode: "portrait" as "portrait" | "outline",
   blend: "multiply" as "multiply" | "add",
-  range: { black: 0.75, white: 1 },
+  range: { black: 0.75, white: 1.25 },
   /** Feather width of the drawn outline, px. */
   feather: 16,
 };
