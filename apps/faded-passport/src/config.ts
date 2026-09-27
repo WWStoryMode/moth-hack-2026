@@ -30,11 +30,13 @@ export const YEARS = { min: 1, max: 40, initial: 10 } as const;
 
 /**
  * Years away → TeleBlur strength (0–1). Log curve: memory fades fast at first, then slowly.
- * ≈ 0.10 @1y · 0.45 @5y · 0.60 @10y · 0.75 @20y · 0.90 @40y. Rounded so the strip shows the exact value sent.
+ * 0.10 @1y · 0.49 @5y · 0.66 @10y · 0.83 @20y · 1.00 @40y. Rounded so the strip shows the exact value sent.
  */
 export function yearsToStrength(years: number): number {
   const y = Math.min(YEARS.max, Math.max(YEARS.min, Math.round(years)));
-  return Math.round((0.1 + (0.8 * Math.log(y)) / Math.log(YEARS.max)) * 1000) / 1000;
+  const min = 0.1; // at YEARS.min
+  const max = 1.0; // at YEARS.max (TeleBlur's schema maximum)
+  return Math.round((min + ((max - min) * Math.log(y)) / Math.log(YEARS.max)) * 1000) / 1000;
 }
 
 export function telablurParams(years: number) {

@@ -20,7 +20,7 @@ interference into grid-like, blocky echoes of home inside your face.
 
 | In the story | In TeleBlur |
 |---|---|
-| **How long since you last came home?** (1–40 years) | `strength`, how far the selector qubit is rotated. A log curve: `0.1 + 0.8·ln(years)/ln(40)`, so the first years fade you fastest |
+| **How long since you last came home?** (1–40 years) | `strength`, how far the selector qubit is rotated. A log curve: `0.1 + 0.9·ln(years)/ln(40)`, so the first years fade you fastest |
 | **Who are you?** You draw around your face | `mask`. The morph happens only inside your outline, with a feathered edge (grey = soft blend) |
 | **Passport, please** / **Where are you going?** | `image1` (your portrait) morphs toward `image2` (home) |
 | **The officer's verdict** | Computed from the output: how much the morph changed the face inside your mask picks the refusal reason |
