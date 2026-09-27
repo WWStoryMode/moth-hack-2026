@@ -5,7 +5,7 @@
 // extra "selector" qubit whose 0/1 says "portrait" or "home". Rotating that selector qubit by
 // `strength` mixes the two pictures at the level of amplitudes (the numbers a quantum state is
 // made of), not by fading pixels — so the portrait doesn't just cross-fade, it bleeds into home.
-import { createClient, loadEnv, type MothClient } from "@moth-hack/atlas-client";
+import { createClient, loadEnv, type MothClient } from "./atlas.ts";
 import { ENGINE, telablurParams, type TelablurParams } from "../src/config.ts";
 import { assertOpen, checkImage, checkYears } from "./guards.ts";
 import { HttpError, json } from "./http.ts";

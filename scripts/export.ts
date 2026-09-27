@@ -118,6 +118,15 @@ writeFileSync(
   ) + "\n",
 );
 
+// Apps may import the client source by relative path (see apps/faded-passport/server/atlas.ts);
+// point those at the vendored copy.
+for (const f of walk(repo).filter((f) => /\.(ts|tsx)$/.test(f) && !f.includes(`${join("vendor", "")}`))) {
+  const text = readFileSync(f, "utf8");
+  if (!text.includes("packages/atlas-client/src/")) continue;
+  const rel = relative(join(f, ".."), join(vendor, "src")).split("\\").join("/");
+  writeFileSync(f, text.replace(/(?:\.\.\/)+packages\/atlas-client\/src\//g, `${rel.startsWith(".") ? rel : `./${rel}`}/`));
+}
+
 cpSync(join(ROOT, "tsconfig.base.json"), join(repo, "tsconfig.base.json"));
 for (const f of readdirSync(repo).filter((f) => /^tsconfig.*\.json$/.test(f) && f !== "tsconfig.base.json")) {
   const p = join(repo, f);

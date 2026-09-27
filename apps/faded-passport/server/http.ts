@@ -1,4 +1,4 @@
-import { MothApiError, MothJobError } from "@moth-hack/atlas-client";
+import { MothApiError, MothJobError } from "./atlas.ts";
 
 /** An error with a status and a stable `code` the client maps to in-story dialogue. */
 export class HttpError extends Error {
