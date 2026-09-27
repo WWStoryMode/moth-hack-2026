@@ -53,7 +53,7 @@ export async function submit(request: Request): Promise<Response> {
   }
   const [a1, a2, am] = assets as [string, string, string];
 
-  const params = telablurParams(years); // strength comes from years on the server, never from the client
+  const params = telablurParams(years); // strength and size come from years on the server, never from the client
   try {
     const job = await m.submitJob(ENGINE, params, { input_files: { image1: a1, image2: a2, mask: am } });
     const body: SubmitResponse = { ticket: issueTicket({ jobId: job.job_id, assets, years }), jobId: job.job_id, params };

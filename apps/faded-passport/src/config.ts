@@ -3,7 +3,10 @@
 
 export const ENGINE = "telablur-v1" as const;
 
-/** Both images and the mask are cropped to SIZE×SIZE; TeleBlur's `size` (pixel budget per pass) matches. */
+/**
+ * Both images and the mask are cropped to SIZE×SIZE pixels. (TeleBlur's own `size` param is separate:
+ * it comes from the years, see yearsToTelablurSize.)
+ */
 export const SIZE = 512;
 
 /** Documented enum: "full" | "vertical" | "horizontal". */
@@ -28,19 +31,40 @@ export const MASK = {
 
 export const YEARS = { min: 1, max: 40, initial: 10 } as const;
 
+/** 0 at YEARS.min → 1 at YEARS.max on a log curve: memory changes fast at first, then slowly. */
+function yearsCurve(years: number): number {
+  const y = Math.min(YEARS.max, Math.max(YEARS.min, Math.round(years)));
+  return Math.log(y) / Math.log(YEARS.max);
+}
+
+/** strength range (TeleBlur schema: 0–1). */
+export const STRENGTH = { atMinYears: 0.1, atMaxYears: 1.0 } as const;
+
 /**
- * Years away → TeleBlur strength (0–1). Log curve: memory fades fast at first, then slowly.
+ * Years away → TeleBlur strength: how far the selector qubit rotates from "you" toward "home".
  * 0.10 @1y · 0.49 @5y · 0.66 @10y · 0.83 @20y · 1.00 @40y. Rounded so the strip shows the exact value sent.
  */
 export function yearsToStrength(years: number): number {
-  const y = Math.min(YEARS.max, Math.max(YEARS.min, Math.round(years)));
-  const min = 0.1; // at YEARS.min
-  const max = 1.0; // at YEARS.max (TeleBlur's schema maximum)
-  return Math.round((min + ((max - min) * Math.log(y)) / Math.log(YEARS.max)) * 1000) / 1000;
+  const s = STRENGTH.atMinYears + (STRENGTH.atMaxYears - STRENGTH.atMinYears) * yearsCurve(years);
+  return Math.round(s * 1000) / 1000;
+}
+
+/** TeleBlur `size` range (schema: 8–1024). */
+export const TELABLUR_SIZE = { atMinYears: 8, atMaxYears: 128 } as const;
+
+/**
+ * Years away → TeleBlur `size`, its pixel budget per pass. Our 512² region is larger, so with
+ * downscale=true TeleBlur shrinks it to size×size, morphs it, and scales it back up: small size =
+ * blocky morph on few qubits (8 → 8×8 grid, ~7 qubits), 128 → 128×128 grid (~15 qubits).
+ * 8 @1y · 60 @5y · 83 @10y · 105 @20y · 128 @40y (same log curve as strength).
+ */
+export function yearsToTelablurSize(years: number): number {
+  const { atMinYears: a, atMaxYears: b } = TELABLUR_SIZE;
+  return Math.round(a + (b - a) * yearsCurve(years));
 }
 
 export function telablurParams(years: number) {
-  return { ...FIXED_PARAMS, direction: DIRECTION, size: SIZE, strength: yearsToStrength(years) };
+  return { ...FIXED_PARAMS, direction: DIRECTION, size: yearsToTelablurSize(years), strength: yearsToStrength(years) };
 }
 export type TelablurParams = ReturnType<typeof telablurParams>;
 
