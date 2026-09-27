@@ -51,6 +51,18 @@ pnpm --filter @moth-hack/faded-passport dev:phone  # also on your LAN, to test o
 `pnpm --filter @moth-hack/faded-passport try [--years N]` runs one TeleBlur job from the terminal using
 synthetic images (1 credit) and saves the result + provenance to `output/`.
 
+**Sweep all the years on one set of photos.** Open the app with `?debug`, and on the home step press
+**Download inputs (debug)**. That saves the exact 512² portrait, home, mask and outline the app would send. Then:
+
+```sh
+pnpm --filter @moth-hack/faded-passport sweep ~/Downloads/faded-passport-inputs-….zip --years 1-40
+#   --years "1,5-40:5" (1, 5, 10 … 40) · --concurrency 4 · --yes (skip the prompt) · --dry-run (no credits)
+```
+
+It costs 1 credit per year and asks before starting. It uploads the inputs once and writes
+`output/sweep-<time>/` with `yNN.png` + provenance, `summary.csv`/`.json` (strength, size, change, verdict per
+year), and `contact-sheet.png`. Everything is deleted from Moth afterwards.
+
 ## Environment variables
 
 | Name | Where | Purpose |

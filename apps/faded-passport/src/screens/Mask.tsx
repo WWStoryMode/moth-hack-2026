@@ -4,13 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { SIZE } from "../config.ts";
 import { Officer } from "../components/Officer.tsx";
 import { Paper } from "../components/Paper.tsx";
+import { DEBUG } from "../lib/debug.ts"; // ?debug: preview the outline and the exact mask sent to TeleBlur
 import { areaFraction, engineMask, maskRangeLabel, renderMask, smooth, tracePath, type Point, type Stroke } from "../lib/mask.ts";
 import { S } from "../strings.ts";
 
 const MIN_AREA = 0.02; // a face outline smaller than 2% of the photo is almost certainly a slip
-
-/** Add ?debug to the URL to preview the outline and the exact mask PNG that will be sent to TeleBlur. */
-const DEBUG = typeof location !== "undefined" && new URLSearchParams(location.search).has("debug");
 
 /** `outline`: the drawn face (for the verdict); `engine`: the mask actually sent to TeleBlur. */
 export function MaskScreen(props: { portraitUrl: string; onDone: (masks: { outline: Blob; engine: Blob }) => void }) {

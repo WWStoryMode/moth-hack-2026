@@ -1,5 +1,5 @@
 // Shared by "Passport, please" (portrait, front camera) and "Where are you going?" (home, rear camera).
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Officer } from "../components/Officer.tsx";
 import { Paper } from "../components/Paper.tsx";
 import { PhotoPicker } from "../components/PhotoPicker.tsx";
@@ -14,6 +14,8 @@ export function PhotoStep(props: {
   type: "image/png" | "image/jpeg";
   alt: string;
   onDone: (photo: Prepared) => void;
+  /** Rendered under the photo once one is chosen (used for the ?debug input download). */
+  extra?: (photo: Prepared) => ReactNode;
 }) {
   const [photo, setPhoto] = useState<Prepared | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +25,7 @@ export function PhotoStep(props: {
       <Officer line={t.officer} />
       <p className="hint">{error ?? t.hint}</p>
       {photo && <img className="photo" src={photo.url} alt={props.alt} />}
+      {photo && props.extra?.(photo)}
       <PhotoPicker
         camera={props.camera}
         takeLabel={photo ? t.retake : t.take}

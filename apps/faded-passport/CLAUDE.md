@@ -17,5 +17,7 @@ for repo rules.
 - **Tuning TODO:** verdict thresholds (0.10 / 0.20) are provisional; the synthetic test gave 0.245 at strength 0.6.
   The years curve may be too strong (the face is nearly all home by 10 years). Tune on real photos; the dev
   console logs `strength → masked change`.
+- **Sweep:** `?debug` home step → "Download inputs" zip → `pnpm sweep <zip> --years …` (1 credit/year, `--dry-run`
+  is free). Summary CSV has the change + verdict per year, which is the data for tuning thresholds.
 - **Open risks:** Vercel compiling the workspace `.ts` package (fallback: esbuild-bundle `api/`). The lasso on a
   real phone hasn't been tested. The itch.io build needs `VITE_API_BASE` + CORS (stretch).

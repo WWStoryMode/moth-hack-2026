@@ -1,8 +1,10 @@
 // The crossing, step by step: title → story → years → portrait → mask → home → TeleBlur → verdict → document.
 import { useMemo, useState } from "react";
+import { DebugInputs } from "./components/DebugInputs.tsx";
 import { Officer } from "./components/Officer.tsx";
 import { Paper } from "./components/Paper.tsx";
 import { BorderError, submit, waitForMorph, type Job } from "./lib/api.ts";
+import { DEBUG } from "./lib/debug.ts";
 import { maskedChange, reasonFor } from "./lib/diff.ts";
 import type { DocumentInput } from "./lib/document.ts";
 import type { Prepared } from "./lib/image.ts";
@@ -99,7 +101,12 @@ export function App() {
           }} />
       );
     case "home":
-      return <PhotoStep step="4 / 4" text={S.home} camera="environment" type="image/jpeg" alt="Home" onDone={cross} />;
+      return (
+        <PhotoStep step="4 / 4" text={S.home} camera="environment" type="image/jpeg" alt="Home" onDone={cross}
+          extra={DEBUG && portrait && mask && face
+            ? (h) => <DebugInputs portrait={portrait} home={h} mask={mask} outline={face} years={years} />
+            : undefined} />
+      );
     case "processing":
       return portrait && <ProcessingScreen elapsedMs={elapsed} portraitUrl={portrait.url} />;
     case "verdict":

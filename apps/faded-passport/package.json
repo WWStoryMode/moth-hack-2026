@@ -10,7 +10,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.app.json",
-    "try": "tsx scripts/try.ts"
+    "try": "tsx scripts/try.ts",
+    "sweep": "tsx scripts/sweep.ts"
   },
   "dependencies": {
     "@moth-hack/atlas-client": "workspace:*",
