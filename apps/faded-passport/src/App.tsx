@@ -1,4 +1,4 @@
-// The crossing, step by step: years → portrait → mask → home → TeleBlur → verdict → document.
+// The crossing, step by step: title → story → years → portrait → mask → home → TeleBlur → verdict → document.
 import { useMemo, useState } from "react";
 import { Officer } from "./components/Officer.tsx";
 import { Paper } from "./components/Paper.tsx";
@@ -11,10 +11,12 @@ import { IntroScreen } from "./screens/Intro.tsx";
 import { MaskScreen } from "./screens/Mask.tsx";
 import { PhotoStep } from "./screens/PhotoStep.tsx";
 import { ProcessingScreen } from "./screens/Processing.tsx";
+import { StoryScreen } from "./screens/Story.tsx";
+import { TitleScreen } from "./screens/Title.tsx";
 import { VerdictScreen } from "./screens/Verdict.tsx";
 import { S } from "./strings.ts";
 
-type Step = "intro" | "portrait" | "mask" | "home" | "processing" | "verdict" | "document" | "error";
+type Step = "title" | "story" | "intro" | "portrait" | "mask" | "home" | "processing" | "verdict" | "document" | "error";
 
 interface Outcome {
   job: Job;
@@ -23,7 +25,7 @@ interface Outcome {
 }
 
 export function App() {
-  const [step, setStep] = useState<Step>("intro");
+  const [step, setStep] = useState<Step>("title");
   const [years, setYears] = useState(10);
   const [portrait, setPortrait] = useState<Prepared | null>(null);
   const [mask, setMask] = useState<Prepared | null>(null);
@@ -39,7 +41,7 @@ export function App() {
     setMask(null);
     setHome(null);
     setOutcome(null);
-    setStep("intro");
+    setStep("intro"); // a replay skips the title and story
   };
 
   const cross = async (homePhoto: Prepared) => {
@@ -72,6 +74,10 @@ export function App() {
   );
 
   switch (step) {
+    case "title":
+      return <TitleScreen onBegin={() => setStep("story")} />;
+    case "story":
+      return <StoryScreen onDone={() => setStep("intro")} />;
     case "intro":
       return <IntroScreen onStart={(y) => { setYears(y); setStep("portrait"); }} />;
     case "portrait":

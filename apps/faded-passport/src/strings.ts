@@ -5,8 +5,26 @@ export const S = {
   bureau: "Bureau of Returns",
   form: "Form 40-Y · Application to return home",
 
+  titlePage: {
+    tagline: "A border crossing, in reverse.",
+    begin: "Begin",
+    credit: "A quantum story made with Moth Quantum's TeleBlur engine",
+  },
+
+  /** Shown one paragraph at a time. */
+  story: {
+    paragraphs: [
+      "You left a long time ago. You meant to come back sooner.",
+      "Since then, the streets have been renamed. The bakery is a phone shop. Your mother's number rings somewhere else.",
+      "You still carry the passport. The photo in it is of someone who no longer exists.",
+      "Now you are standing at the border, in a queue that has not moved in years.",
+    ],
+    next: "Go on",
+    enter: "Step up to the desk",
+  },
+
   intro: {
-    lead: "You are standing in a queue that has not moved in years.",
+    lead: "The officer doesn't look up.",
     question: "How long since you last came home?",
     years: (n: number) => (n === 1 ? "1 year" : `${n} years`),
     privacy: "Photos are sent to Moth Quantum's API for processing and deleted afterwards. This app stores nothing.",

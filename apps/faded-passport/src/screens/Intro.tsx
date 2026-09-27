@@ -9,8 +9,6 @@ export function IntroScreen(props: { onStart: (years: number) => void }) {
   const [years, setYears] = useState<number>(YEARS.initial);
   return (
     <Paper>
-      <h1>{S.title}</h1>
-      <p className="form-id">{S.form}</p>
       <p className="lead">{S.intro.lead}</p>
       <label className="question" htmlFor="years">{S.intro.question}</label>
       <output className="years" htmlFor="years">{S.intro.years(years)}</output>
@@ -25,7 +23,6 @@ export function IntroScreen(props: { onStart: (years: number) => void }) {
       />
       <p className="fineprint">telablur-v1 strength {yearsToStrength(years).toFixed(3)}</p>
       <button type="button" className="primary" onClick={() => props.onStart(years)}>{S.intro.start}</button>
-      <p className="fineprint">{S.intro.privacy}</p>
     </Paper>
   );
 }
