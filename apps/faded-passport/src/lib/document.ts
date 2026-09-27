@@ -3,6 +3,7 @@
 import { ENGINE, type TelablurParams } from "../config.ts";
 import { S } from "../strings.ts";
 import { loadImage, toBlob } from "./image.ts";
+import { maskLabel } from "./mask.ts";
 
 export interface DocumentInput {
   morphUrl: string;
@@ -82,20 +83,21 @@ export async function composeDocument(d: DocumentInput): Promise<Blob> {
   stamp(ctx, W - 330, 1140, d.years);
 
   // Parameter strip: human-readable line + machine-readable (MRZ-style) zone.
-  rule(ctx, 1480);
+  rule(ctx, 1470);
   const p = d.params;
   ctx.fillStyle = FAINT;
   ctx.font = `18px ${MONO}`;
   ctx.fillText(
     `${S.document.processedBy} · ${ENGINE} · strength ${p.strength} · size ${p.size} · direction ${p.direction}`,
     90,
-    1515,
+    1500,
   );
   ctx.fillText(
-    `downscale ${p.downscale} · mask_bin_size ${p.mask_bin_size} · mask_min_region ${p.mask_min_region} · simulator · job ${d.jobId}`,
+    `downscale ${p.downscale} · mask_bin_size ${p.mask_bin_size} · mask_min_region ${p.mask_min_region} · simulator`,
     90,
-    1542,
+    1526,
   );
+  ctx.fillText(`${maskLabel()} · job ${d.jobId}`, 90, 1552);
   ctx.fillStyle = "#f6f1e4";
   ctx.fillRect(70, 1570, W - 140, 130);
   ctx.fillStyle = INK;

@@ -1,5 +1,5 @@
-import { SIZE } from "../config.ts";
-import { toBlob } from "./image.ts";
+import { MASK, SIZE } from "../config.ts";
+import { pixels, toBlob } from "./image.ts";
 
 export type Point = { x: number; y: number };
 export type Stroke = Point[];
@@ -42,7 +42,7 @@ export function tracePath(ctx: CanvasRenderingContext2D, stroke: Stroke, dx = 0)
  * soft blend (black keeps the portrait, white is fully morphed), so the edge fades instead of cutting.
  * Feathering uses a shadow drawn from an off-canvas copy — shadowBlur works in every browser.
  */
-export async function renderMask(strokes: Stroke[], feather = 8): Promise<Blob> {
+export async function renderMask(strokes: Stroke[], feather = MASK.feather): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = SIZE;
   const ctx = canvas.getContext("2d")!;
@@ -57,4 +57,39 @@ export async function renderMask(strokes: Stroke[], feather = 8): Promise<Blob> 
   for (const s of strokes) tracePath(ctx, s, -off);
   ctx.fill("nonzero");
   return toBlob(canvas, "image/png");
+}
+
+/**
+ * The mask TeleBlur actually receives (see MASK in config.ts). In "portrait" mode each pixel is
+ * luminance(portrait) + offset, where the drawn outline sets the offset: −0.5 outside, +0.5 inside.
+ */
+export async function engineMask(portraitUrl: string, outline: Blob): Promise<Blob> {
+  if (MASK.mode === "outline") return outline;
+  const outlineUrl = URL.createObjectURL(outline);
+  try {
+    const [p, m] = await Promise.all([pixels(portraitUrl), pixels(outlineUrl)]);
+    const { black, white } = MASK.offset;
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = SIZE;
+    const ctx = canvas.getContext("2d")!;
+    const out = ctx.createImageData(SIZE, SIZE);
+    for (let i = 0; i < p.length; i += 4) {
+      const luma = (0.2126 * p[i]! + 0.7152 * p[i + 1]! + 0.0722 * p[i + 2]!) / 255; // Rec. 709
+      const offset = black + (m[i]! / 255) * (white - black);
+      const v = Math.round(Math.min(1, Math.max(0, luma + offset)) * 255);
+      out.data[i] = out.data[i + 1] = out.data[i + 2] = v;
+      out.data[i + 3] = 255;
+    }
+    ctx.putImageData(out, 0, 0);
+    return toBlob(canvas, "image/png");
+  } finally {
+    URL.revokeObjectURL(outlineUrl);
+  }
+}
+
+/** Human-readable description of the mask for the document's parameter strip. */
+export function maskLabel(): string {
+  return MASK.mode === "portrait"
+    ? `mask portrait luminance ${MASK.offset.black >= 0 ? "+" : ""}${MASK.offset.black}…+${MASK.offset.white} by drawn face`
+    : "mask drawn face";
 }

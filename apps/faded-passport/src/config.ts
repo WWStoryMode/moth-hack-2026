@@ -12,6 +12,19 @@ export const DIRECTION = "full" as const;
 /** Fixed TeleBlur params (documented defaults). */
 export const FIXED_PARAMS = { downscale: true, mask_bin_size: 4, mask_min_region: 16 } as const;
 
+/**
+ * The mask sent to TeleBlur. "portrait": the portrait's own luminance, shifted by the drawn outline
+ * (black → offset.black, white → offset.white, grey edge in between), clamped to 0–1. So the face
+ * morphs strongly but its dark features resist, and bright background areas leak a little home.
+ * "outline": just the drawn outline (white face, black elsewhere).
+ */
+export const MASK = {
+  mode: "portrait" as "portrait" | "outline",
+  offset: { black: -0.5, white: 0.5 },
+  /** Feather width of the drawn outline, px. */
+  feather: 8,
+};
+
 export const YEARS = { min: 1, max: 40, initial: 10 } as const;
 
 /**

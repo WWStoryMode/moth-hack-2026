@@ -28,24 +28,28 @@ export function App() {
   const [step, setStep] = useState<Step>("title");
   const [years, setYears] = useState(10);
   const [portrait, setPortrait] = useState<Prepared | null>(null);
+  /** Sent to TeleBlur (see MASK in config.ts). */
   const [mask, setMask] = useState<Prepared | null>(null);
+  /** The drawn face outline: where the verdict measures change. */
+  const [face, setFace] = useState<Prepared | null>(null);
   const [home, setHome] = useState<Prepared | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [error, setError] = useState<string>(S.errors.generic);
 
   const reset = () => {
-    for (const p of [portrait, mask, home]) if (p) URL.revokeObjectURL(p.url);
+    for (const p of [portrait, mask, face, home]) if (p) URL.revokeObjectURL(p.url);
     if (outcome) URL.revokeObjectURL(outcome.morphUrl);
     setPortrait(null);
     setMask(null);
+    setFace(null);
     setHome(null);
     setOutcome(null);
     setStep("intro"); // a replay skips the title and story
   };
 
   const cross = async (homePhoto: Prepared) => {
-    if (!portrait || !mask) return;
+    if (!portrait || !mask || !face) return;
     setHome(homePhoto);
     setElapsed(0);
     setStep("processing");
@@ -54,7 +58,7 @@ export function App() {
       const morph = await waitForMorph(job, setElapsed);
       const morphUrl = URL.createObjectURL(morph);
       // The verdict comes from what the quantum morph actually did to the face.
-      const change = await maskedChange(portrait.url, morphUrl, mask.url);
+      const change = await maskedChange(portrait.url, morphUrl, face.url);
       if (import.meta.env.DEV) console.info(`[faded-passport] strength ${job.params.strength} → masked change ${change.toFixed(3)}`);
       setOutcome({ job, morphUrl, reason: S.verdict.reasons[reasonFor(change)] });
       setStep("verdict");
@@ -88,7 +92,11 @@ export function App() {
     case "mask":
       return portrait && (
         <MaskScreen portraitUrl={portrait.url}
-          onDone={(blob) => { setMask({ blob, url: URL.createObjectURL(blob) }); setStep("home"); }} />
+          onDone={({ outline, engine }) => {
+            setFace({ blob: outline, url: URL.createObjectURL(outline) });
+            setMask({ blob: engine, url: URL.createObjectURL(engine) });
+            setStep("home");
+          }} />
       );
     case "home":
       return <PhotoStep step="4 / 4" text={S.home} camera="environment" type="image/jpeg" alt="Home" onDone={cross} />;
