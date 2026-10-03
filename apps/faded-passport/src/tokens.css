@@ -58,6 +58,9 @@
   --border-hair: 1px solid var(--rule);
   --frame-double: 3px double var(--rule);
   --photo-border: 8px solid var(--photo-mat);
+  --passport-ratio: 35 / 45;
+  --passport-width: 78%; /* keeps the 35:45 frame about as tall as the old square photo */
+  --photo-treatment: sepia(0.45) saturate(0.7) contrast(0.95) brightness(1.03); /* display only */
   --button-border-width: 2px;
   --radius: 2px;
   --shadow-paper: 0 12px 40px rgba(0, 0, 0, 0.45);

@@ -9,6 +9,8 @@ import { cssVar } from "./tokens.ts";
 
 export interface DocumentInput {
   morphUrl: string;
+  /** The drawn face outline: on the permit, only this region is left untreated (display only). */
+  outlineUrl: string;
   homeUrl: string;
   years: number;
   reason: string;
@@ -42,7 +44,7 @@ export async function composeDocument(d: DocumentInput): Promise<Blob> {
   readTokens();
   // The MRZ font must be loaded before the canvas draws with it (falls back to mono if it can't load).
   await document.fonts?.load(`30px ${OCR}`).catch(() => undefined);
-  const [morph, home] = await Promise.all([loadImage(d.morphUrl), loadImage(d.homeUrl)]);
+  const [morph, home, outline] = await Promise.all([loadImage(d.morphUrl), loadImage(d.homeUrl), loadImage(d.outlineUrl)]);
   const date = d.date ?? new Date();
 
   // Paper: flat colour, faint fibres, guilloche-ish border lines.
@@ -71,8 +73,9 @@ export async function composeDocument(d: DocumentInput): Promise<Blob> {
 
   // Photos.
   const ph = 500;
-  photo(ctx, morph, 90, 340, ph, S.document.bearer);
-  photo(ctx, home, W - 90 - ph, 340, ph, S.document.destination);
+  const pw = Math.round((ph * 35) / 45); // passport ratio 35:45
+  photo(ctx, passportPhoto(morph, outline, pw, ph), 90 + (ph - pw) / 2, 340, pw, ph, S.document.bearer);
+  photo(ctx, home, W - 90 - ph, 340, ph, ph, S.document.destination);
 
   // Fields.
   ctx.textAlign = "left";
@@ -132,16 +135,16 @@ function rule(ctx: CanvasRenderingContext2D, y: number) {
   ctx.stroke();
 }
 
-function photo(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, size: number, label: string) {
+function photo(ctx: CanvasRenderingContext2D, img: CanvasImageSource, x: number, y: number, w: number, h: number, label: string) {
   ctx.fillStyle = MAT;
-  ctx.fillRect(x - 10, y - 10, size + 20, size + 20);
-  ctx.drawImage(img, x, y, size, size);
+  ctx.fillRect(x - 10, y - 10, w + 20, h + 20);
+  ctx.drawImage(img, x, y, w, h);
   ctx.strokeStyle = FAINT;
-  ctx.strokeRect(x - 10, y - 10, size + 20, size + 20);
+  ctx.strokeRect(x - 10, y - 10, w + 20, h + 20);
   ctx.fillStyle = FAINT;
   ctx.font = `bold 24px ${MONO}`;
   ctx.textAlign = "center";
-  ctx.fillText(label.toUpperCase(), x + size / 2, y + size + 46);
+  ctx.fillText(label.toUpperCase(), x + w / 2, y + h + 46);
 }
 
 /** The ENTRY DENIED stamp, inked through the same speckle texture as the on-screen stamps. */
@@ -171,6 +174,38 @@ function stamp(target: CanvasRenderingContext2D, cx: number, cy: number, years: 
   target.globalAlpha = 0.86;
   target.drawImage(layer, cx - layer.width / 2, cy - layer.height / 2);
   target.restore();
+}
+
+/**
+ * The bearer's photo as printed on the permit: centre-cropped to w×h (35:45) with a light sepia,
+ * except inside the drawn outline, where the Teleblur-processed face keeps its true colour.
+ * Done in pixels (not ctx.filter) so it looks the same in Safari.
+ */
+function passportPhoto(morph: HTMLImageElement, outline: HTMLImageElement, w: number, h: number): HTMLCanvasElement {
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const ctx = c.getContext("2d", { willReadFrequently: true })!;
+  const sw = (morph.naturalHeight * w) / h; // crop width in source pixels
+  const sx = (morph.naturalWidth - sw) / 2;
+  ctx.drawImage(outline, sx, 0, sw, outline.naturalHeight, 0, 0, w, h);
+  const m = ctx.getImageData(0, 0, w, h).data;
+  ctx.drawImage(morph, sx, 0, sw, morph.naturalHeight, 0, 0, w, h);
+  const img = ctx.getImageData(0, 0, w, h);
+  const p = img.data;
+  const amount = 0.45; // matches --photo-treatment: sepia(0.45) saturate(0.7)
+  for (let i = 0; i < p.length; i += 4) {
+    const r = p[i]!, g = p[i + 1]!, b = p[i + 2]!;
+    const sr = Math.min(255, 0.393 * r + 0.769 * g + 0.189 * b);
+    const sg = Math.min(255, 0.349 * r + 0.686 * g + 0.168 * b);
+    const sb = Math.min(255, 0.272 * r + 0.534 * g + 0.131 * b);
+    const t = amount * (1 - m[i]! / 255); // no treatment inside the outline
+    p[i] = r + (sr - r) * t;
+    p[i + 1] = g + (sg - g) * t;
+    p[i + 2] = b + (sb - b) * t;
+  }
+  ctx.putImageData(img, 0, 0);
+  return c;
 }
 
 /** Join segments with " · ", breaking lines only between segments so no value is split. */

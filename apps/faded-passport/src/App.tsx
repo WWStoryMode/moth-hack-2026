@@ -73,10 +73,10 @@ export function App() {
 
   const doc = useMemo<DocumentInput | null>(
     () =>
-      outcome && home
-        ? { morphUrl: outcome.morphUrl, homeUrl: home.url, years, reason: outcome.reason, jobId: outcome.job.jobId, params: outcome.job.params }
+      outcome && home && face
+        ? { morphUrl: outcome.morphUrl, outlineUrl: face.url, homeUrl: home.url, years, reason: outcome.reason, jobId: outcome.job.jobId, params: outcome.job.params }
         : null,
-    [outcome, home, years],
+    [outcome, home, face, years],
   );
 
   switch (step) {
@@ -88,7 +88,7 @@ export function App() {
       return <IntroScreen onStart={(y) => { setYears(y); setStep("portrait"); }} />;
     case "portrait":
       return (
-        <PhotoStep step="1 / 4" text={S.portrait} camera="user" type="image/png" alt="Your passport photo"
+        <PhotoStep step="1 / 4" text={S.portrait} camera="user" type="image/png" alt="Your passport photo" passport
           onDone={(p) => { setPortrait(p); setStep("mask"); }} />
       );
     case "mask":
@@ -110,7 +110,9 @@ export function App() {
     case "processing":
       return portrait && <ProcessingScreen elapsedMs={elapsed} portraitUrl={portrait.url} />;
     case "verdict":
-      return outcome && <VerdictScreen morphUrl={outcome.morphUrl} reason={outcome.reason} years={years} onNext={() => setStep("document")} />;
+      return outcome && face && (
+        <VerdictScreen morphUrl={outcome.morphUrl} outlineUrl={face.url} reason={outcome.reason} years={years} onNext={() => setStep("document")} />
+      );
     case "document":
       return doc && <DocumentScreen input={doc} onAgain={reset} />;
     case "error":
