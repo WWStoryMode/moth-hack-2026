@@ -1,10 +1,10 @@
 // Tunables for Faded Passport. Shared by the browser (display) and the server (the values
-// actually sent to TeleBlur), so the document's parameter strip always matches the job.
+// actually sent to Teleblur), so the document's parameter strip always matches the job.
 
 export const ENGINE = "telablur-v1" as const;
 
 /**
- * Both images and the mask are cropped to SIZE×SIZE pixels. (TeleBlur's own `size` param is separate:
+ * Both images and the mask are cropped to SIZE×SIZE pixels. (Teleblur's own `size` param is separate:
  * it comes from the years, see yearsToTelablurSize.)
  */
 export const SIZE = 512;
@@ -12,11 +12,11 @@ export const SIZE = 512;
 /** Documented enum: "full" | "vertical" | "horizontal". */
 export const DIRECTION = "full" as const;
 
-/** Fixed TeleBlur params (documented defaults). */
+/** Fixed Teleblur params (documented defaults). */
 export const FIXED_PARAMS = { downscale: true, mask_bin_size: 4, mask_min_region: 16 } as const;
 
 /**
- * The mask sent to TeleBlur. "portrait": the portrait's own luminance, adjusted by the drawn outline
+ * The mask sent to Teleblur. "portrait": the portrait's own luminance, adjusted by the drawn outline
  * (outside → range.black, inside → range.white, feathered edge in between), clamped to 0–1.
  * `blend` "multiply": luminance × factor · "add": luminance + offset.
  * Bright areas morph into home; dark features resist. "outline": just the drawn outline.
@@ -37,11 +37,11 @@ function yearsCurve(years: number): number {
   return Math.log(y) / Math.log(YEARS.max);
 }
 
-/** strength range (TeleBlur schema: 0–1). */
+/** strength range (Teleblur schema: 0–1). */
 export const STRENGTH = { atMinYears: 0.1, atMaxYears: 1.0 } as const;
 
 /**
- * Years away → TeleBlur strength: how far the selector qubit rotates from "you" toward "home".
+ * Years away → Teleblur strength: how far the selector qubit rotates from "you" toward "home".
  * Slow start, fast end (squared, linear in years): you barely fade for years, then all at once.
  * 0.10 @1y · 0.11 @5y · 0.15 @10y · 0.31 @20y · 0.56 @30y · 1.00 @40y. Rounded so the strip shows the exact value sent.
  */
@@ -52,12 +52,12 @@ export function yearsToStrength(years: number): number {
   return Math.round(s * 1000) / 1000;
 }
 
-/** TeleBlur `size` range (schema: 8–1024). */
+/** Teleblur `size` range (schema: 8–1024). */
 export const TELABLUR_SIZE = { atMinYears: 8, atMaxYears: 128 } as const;
 
 /**
- * Years away → TeleBlur `size`, its pixel budget per pass. Our 512² region is larger, so with
- * downscale=true TeleBlur shrinks it to size×size, morphs it, and scales it back up: small size =
+ * Years away → Teleblur `size`, its pixel budget per pass. Our 512² region is larger, so with
+ * downscale=true Teleblur shrinks it to size×size, morphs it, and scales it back up: small size =
  * blocky morph on few qubits (8 → 8×8 grid, ~7 qubits), 128 → 128×128 grid (~15 qubits).
  * 8 @1y · 60 @5y · 83 @10y · 105 @20y · 128 @40y (log curve).
  */

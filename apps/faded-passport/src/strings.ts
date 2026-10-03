@@ -8,7 +8,7 @@ export const S = {
   titlePage: {
     tagline: "A border crossing, in reverse.",
     begin: "Begin",
-    credit: "A quantum story made with Moth Quantum's TeleBlur engine",
+    credit: "A quantum story made with Moth Quantum's Teleblur engine",
   },
 
   /** Shown one paragraph at a time. */
@@ -26,6 +26,8 @@ export const S = {
   intro: {
     lead: "The officer doesn't look up.",
     question: "How long since you last came home?",
+    /** In-world readout of the Teleblur values for the chosen years (the permit prints the technical names). */
+    readout: (strength: string, size: number) => `Degradation index ${strength} · Record grain ${size}`,
     years: (n: number) => (n === 1 ? "1 year" : `${n} years`),
     privacy: "Photos are sent to Moth Quantum's API for processing and deleted afterwards. This app stores nothing.",
     start: "Join the queue",
@@ -73,7 +75,7 @@ export const S = {
 
   verdict: {
     officer: "Entry denied.",
-    /** Picked by how much TeleBlur changed the face (see VERDICT_THRESHOLDS in config.ts). */
+    /** Picked by how much Teleblur changed the face (see VERDICT_THRESHOLDS in config.ts). */
     reasons: {
       low: "This photo does not match the bearer.",
       medium: "This address cannot be verified.",

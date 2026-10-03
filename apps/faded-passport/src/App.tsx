@@ -1,4 +1,4 @@
-// The crossing, step by step: title → story → years → portrait → mask → home → TeleBlur → verdict → document.
+// The crossing, step by step: title → story → years → portrait → mask → home → Teleblur → verdict → document.
 import { useMemo, useState } from "react";
 import { DebugInputs } from "./components/DebugInputs.tsx";
 import { Officer } from "./components/Officer.tsx";
@@ -30,7 +30,7 @@ export function App() {
   const [step, setStep] = useState<Step>("title");
   const [years, setYears] = useState(10);
   const [portrait, setPortrait] = useState<Prepared | null>(null);
-  /** Sent to TeleBlur (see MASK in config.ts). */
+  /** Sent to Teleblur (see MASK in config.ts). */
   const [mask, setMask] = useState<Prepared | null>(null);
   /** The drawn face outline: where the verdict measures change. */
   const [face, setFace] = useState<Prepared | null>(null);

@@ -1,5 +1,5 @@
 // The entry document: the Challenge 01 image. Everything is drawn on one canvas so the
-// download is a single PNG carrying the morph AND the exact TeleBlur parameters used.
+// download is a single PNG carrying the morph AND the exact Teleblur parameters used.
 import { ENGINE, type TelablurParams } from "../config.ts";
 import { S } from "../strings.ts";
 import { loadImage, toBlob } from "./image.ts";

@@ -1,6 +1,6 @@
 // pnpm --filter @moth-hack/faded-passport sweep <inputs.zip | folder> [--years 1-40] [--concurrency 4] [--yes] [--dry-run]
 //
-// Runs TeleBlur for many "years" on the SAME portrait, home and mask: the files saved by the
+// Runs Teleblur for many "years" on the SAME portrait, home and mask: the files saved by the
 // ?debug "Download inputs" button on the home step. Each year uses exactly the strength and size
 // the app would send (telablurParams in src/config.ts). 1 credit per year; asks before starting.
 //
@@ -67,7 +67,7 @@ console.log(`Years:  ${years.join(", ")}`);
 console.log(
   dryRun
     ? "Cost:   0 (dry run: no Moth calls)"
-    : `Cost:   ${years.length} TeleBlur run${years.length === 1 ? "" : "s"} = ${years.length} credit${years.length === 1 ? "" : "s"}`,
+    : `Cost:   ${years.length} Teleblur run${years.length === 1 ? "" : "s"} = ${years.length} credit${years.length === 1 ? "" : "s"}`,
 );
 if (!dryRun && !args.includes("--yes")) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });

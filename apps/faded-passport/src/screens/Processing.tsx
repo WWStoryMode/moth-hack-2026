@@ -1,4 +1,4 @@
-// While TeleBlur runs, the officer examines your papers.
+// While Teleblur runs, the officer examines your papers.
 import { Officer } from "../components/Officer.tsx";
 import { Paper } from "../components/Paper.tsx";
 import { PassportPhoto } from "../components/PassportPhoto.tsx";

@@ -1,5 +1,5 @@
 // Tiny PNG codec for the Node scripts (no image library): 8-bit, non-interlaced, which is what
-// browsers' canvas.toBlob and TeleBlur produce.
+// browsers' canvas.toBlob and Teleblur produce.
 import { deflateSync, inflateSync } from "node:zlib";
 
 export interface Rgba {

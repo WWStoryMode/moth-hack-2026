@@ -1,17 +1,17 @@
-// "Who are you?" — the player draws around their face. That outline becomes TeleBlur's mask:
+// "Who are you?" — the player draws around their face. That outline becomes Teleblur's mask:
 // the quantum morph only happens inside it, so the player chooses what of themselves fades.
 import { useEffect, useRef, useState } from "react";
 import { SIZE } from "../config.ts";
 import { Officer } from "../components/Officer.tsx";
 import { Paper } from "../components/Paper.tsx";
-import { DEBUG } from "../lib/debug.ts";
-import { cssVar } from "../lib/tokens.ts"; // ?debug: preview the outline and the exact mask sent to TeleBlur
+import { DEBUG } from "../lib/debug.ts"; // ?debug: preview the outline and the exact mask sent to Teleblur
+import { cssVar } from "../lib/tokens.ts";
 import { areaFraction, engineMask, maskRangeLabel, renderMask, smooth, tracePath, type Point, type Stroke } from "../lib/mask.ts";
 import { S } from "../strings.ts";
 
 const MIN_AREA = 0.02; // a face outline smaller than 2% of the photo is almost certainly a slip
 
-/** `outline`: the drawn face (for the verdict); `engine`: the mask actually sent to TeleBlur. */
+/** `outline`: the drawn face (for the verdict); `engine`: the mask actually sent to Teleblur. */
 export function MaskScreen(props: { portraitUrl: string; onDone: (masks: { outline: Blob; engine: Blob }) => void }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const view = useRef<HTMLDivElement>(null);
@@ -129,9 +129,9 @@ export function MaskScreen(props: { portraitUrl: string; onDone: (masks: { outli
       {preview && (
         <figure className="mask-preview">
           <img src={preview.outline} alt="Your drawn outline" />
-          <img src={preview.engine} alt="The mask sent to TeleBlur" />
+          <img src={preview.engine} alt="The mask sent to Teleblur" />
           <figcaption>
-            Left: your outline. Right: the {SIZE}×{SIZE} mask sent to TeleBlur (portrait brightness {maskRangeLabel()}).
+            Left: your outline. Right: the {SIZE}×{SIZE} mask sent to Teleblur (portrait brightness {maskRangeLabel()}).
             White = morphed into home, black = your photo unchanged, grey = in between.
           </figcaption>
         </figure>

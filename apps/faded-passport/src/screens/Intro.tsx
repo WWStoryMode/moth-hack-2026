@@ -1,4 +1,4 @@
-// Years away → TeleBlur `strength`: the longer you've been gone, the further the selector qubit
+// Years away → Teleblur `strength`: the longer you've been gone, the further the selector qubit
 // is rotated from "you" toward "home".
 import { useState } from "react";
 import { YEARS, yearsToStrength, yearsToTelablurSize } from "../config.ts";
@@ -21,8 +21,10 @@ export function IntroScreen(props: { onStart: (years: number) => void }) {
         value={years}
         onChange={(e) => setYears(Number(e.target.value))}
       />
-      <p className="fineprint">
-        telablur-v1 strength {yearsToStrength(years).toFixed(3)} · size {yearsToTelablurSize(years)}
+      <p className="fineprint readout">
+        {S.intro.readout(yearsToStrength(years).toFixed(3), yearsToTelablurSize(years)).split(" · ").map((part, i) => (
+          <span key={i}>{i > 0 && " · "}<span className="nowrap">{part}</span></span>
+        ))}
       </p>
       <button type="button" className="primary" onClick={() => props.onStart(years)}>{S.intro.start}</button>
     </Paper>

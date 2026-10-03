@@ -8,7 +8,7 @@ export interface Prepared {
 /**
  * Photo → SIZE×SIZE centre-cropped square, re-encoded through a canvas. That fixes EXIF rotation
  * (createImageBitmap applies it), turns HEIC/WebP into PNG/JPEG (Moth assets accept only those),
- * and makes portrait, home and mask the same size, as TeleBlur requires.
+ * and makes portrait, home and mask the same size, as Teleblur requires.
  */
 export async function prepareSquare(file: Blob, type: "image/png" | "image/jpeg"): Promise<Prepared> {
   let bmp: ImageBitmap;
