@@ -16,6 +16,7 @@ import { ProcessingScreen } from "./screens/Processing.tsx";
 import { StoryScreen } from "./screens/Story.tsx";
 import { TitleScreen } from "./screens/Title.tsx";
 import { VerdictScreen } from "./screens/Verdict.tsx";
+import { SAMPLES } from "./samples.ts";
 import { S } from "./strings.ts";
 
 type Step = "title" | "story" | "intro" | "portrait" | "mask" | "home" | "processing" | "verdict" | "document" | "error";
@@ -88,7 +89,7 @@ export function App() {
       return <IntroScreen onStart={(y) => { setYears(y); setStep("portrait"); }} />;
     case "portrait":
       return (
-        <PhotoStep step="1 / 4" text={S.portrait} camera="user" type="image/png" alt="Your passport photo" passport
+        <PhotoStep step="1 / 4" text={S.portrait} camera="user" type="image/png" alt="Your passport photo" passport samples={SAMPLES.portrait}
           onDone={(p) => { setPortrait(p); setStep("mask"); }} />
       );
     case "mask":
@@ -102,7 +103,7 @@ export function App() {
       );
     case "home":
       return (
-        <PhotoStep step="4 / 4" text={S.home} camera="environment" type="image/jpeg" alt="Home" onDone={cross}
+        <PhotoStep step="4 / 4" text={S.home} camera="environment" type="image/jpeg" alt="Home" onDone={cross} samples={SAMPLES.home}
           extra={DEBUG && portrait && mask && face
             ? (h) => <DebugInputs portrait={portrait} home={h} mask={mask} outline={face} years={years} />
             : undefined} />

@@ -16,6 +16,8 @@ export function PhotoStep(props: {
   alt: string;
   /** Show the preview as a passport photo (35:45, sepia). Used for the portrait, not for home. */
   passport?: boolean;
+  /** ?debug only: sample image URLs for this step (src/samples.ts). */
+  samples?: readonly string[];
   onDone: (photo: Prepared) => void;
   /** Rendered under the photo once one is chosen (used for the ?debug input download). */
   extra?: (photo: Prepared) => ReactNode;
@@ -35,6 +37,7 @@ export function PhotoStep(props: {
         camera={props.camera}
         takeLabel={photo ? t.retake : t.take}
         chooseLabel={t.choose}
+        samples={props.samples}
         onFile={async (f) => {
           setError(null);
           try {

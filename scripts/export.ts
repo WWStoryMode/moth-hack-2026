@@ -84,7 +84,9 @@ if (sub.media.slides && extname(sub.media.slides).toLowerCase() !== ".pdf") prob
 // The app's own tsconfig*.json / vite.config.ts / api/ are kept; only workspace links are rewritten.
 const SKIP = new Set(["node_modules", "output", "dist", "CLAUDE.md", "BRIEF.md", "submission.json", "package.json", ".env"]);
 for (const entry of readdirSync(app.dir)) {
-  if (!SKIP.has(entry)) cpSync(join(app.dir, entry), join(repo, entry), { recursive: true });
+  // public/samples/ holds personal test photos (gitignored): export only its README.
+  const keep = (src: string) => !/[\\/]public[\\/]samples[\\/](?!README\.md$|\.gitignore$)[^\\/]+$/.test(src);
+  if (!SKIP.has(entry)) cpSync(join(app.dir, entry), join(repo, entry), { recursive: true, filter: keep });
 }
 
 const clientDir = join(ROOT, "packages", "atlas-client");
