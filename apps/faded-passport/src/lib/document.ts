@@ -40,6 +40,8 @@ export async function composeDocument(d: DocumentInput): Promise<Blob> {
   canvas.height = H;
   const ctx = canvas.getContext("2d")!;
   readTokens();
+  // The MRZ font must be loaded before the canvas draws with it (falls back to mono if it can't load).
+  await document.fonts?.load(`30px ${OCR}`).catch(() => undefined);
   const [morph, home] = await Promise.all([loadImage(d.morphUrl), loadImage(d.homeUrl)]);
   const date = d.date ?? new Date();
 
@@ -53,8 +55,6 @@ export async function composeDocument(d: DocumentInput): Promise<Blob> {
   ctx.strokeStyle = FAINT;
   ctx.lineWidth = 2;
   ctx.strokeRect(40, 40, W - 80, H - 80);
-  ctx.lineWidth = 1;
-  ctx.strokeRect(52, 52, W - 104, H - 104);
 
   // Header.
   ctx.fillStyle = INK;
@@ -79,11 +79,11 @@ export async function composeDocument(d: DocumentInput): Promise<Blob> {
   let y = 980;
   const field = (label: string, value: string) => {
     ctx.fillStyle = FAINT;
-    ctx.font = `20px ${MONO}`;
+    ctx.font = `bold 26px ${MONO}`;
     ctx.fillText(label.toUpperCase(), 110, y);
     ctx.fillStyle = INK;
     ctx.font = `32px ${SERIF}`;
-    wrap(ctx, value, 110, y + 42, W - 220, 40);
+    wrap(ctx, value, 110, y + 44, W - 220, 40);
     y += 118;
   };
   field(S.document.yearsAbsent, S.intro.years(d.years));
@@ -94,28 +94,31 @@ export async function composeDocument(d: DocumentInput): Promise<Blob> {
   stamp(ctx, W - 330, 1140, d.years);
 
   // Parameter strip: human-readable line + machine-readable (MRZ-style) zone.
-  rule(ctx, 1470);
+  rule(ctx, 1462);
   const p = d.params;
   ctx.fillStyle = FAINT;
-  ctx.font = `18px ${MONO}`;
-  ctx.fillText(
-    `${S.document.processedBy} · ${ENGINE} · strength ${p.strength} · size ${p.size} · direction ${p.direction}`,
-    90,
-    1500,
+  ctx.font = `19px ${MONO}`;
+  const lines = wrapSegments(
+    ctx,
+    [S.document.processedBy, ENGINE, `strength ${p.strength}`, `size ${p.size}`, `direction ${p.direction}`,
+      `downscale ${p.downscale}`, `mask_bin_size ${p.mask_bin_size}`, `mask_min_region ${p.mask_min_region}`, "simulator", maskLabel()],
+    W - 180,
   );
-  ctx.fillText(
-    `downscale ${p.downscale} · mask_bin_size ${p.mask_bin_size} · mask_min_region ${p.mask_min_region} · simulator`,
-    90,
-    1526,
-  );
-  ctx.fillText(`${maskLabel()} · job ${d.jobId}`, 90, 1552);
+  lines.push(`job ${d.jobId}`); // always its own line, so it can never run past the frame
+  lines.slice(0, 4).forEach((l, i) => ctx.fillText(l, 90, 1490 + i * 25));
   ctx.fillStyle = MRZ_BG;
-  ctx.fillRect(70, 1570, W - 140, 130);
+  ctx.fillRect(60, 1592, W - 120, 118);
   ctx.fillStyle = INK;
-  ctx.font = `bold 30px ${OCR}`;
   const mrz = (s: string) => s.toUpperCase().replace(/[^A-Z0-9.]/g, "<").padEnd(58, "<").slice(0, 58);
-  ctx.fillText(mrz(`P<${ENGINE}<<STRENGTH<${p.strength}<SIZE<${p.size}<DIR<${p.direction}`), 90, 1622);
-  ctx.fillText(mrz(`DS<${p.downscale ? 1 : 0}<MB<${p.mask_bin_size}<MR<${p.mask_min_region}<Y<${d.years}<JOB<${d.jobId.replace(/-/g, "")}`), 90, 1672);
+  const mrzLines = [
+    mrz(`P<${ENGINE}<<STRENGTH<${p.strength}<SIZE<${p.size}<DIR<${p.direction}`),
+    mrz(`DS<${p.downscale ? 1 : 0}<MB<${p.mask_bin_size}<MR<${p.mask_min_region}<Y<${d.years}<JOB<${d.jobId.replace(/-/g, "")}`),
+  ];
+  // Fit the fixed-width MRZ to the band, whatever font actually loaded (OCR-B or the mono fallback).
+  ctx.font = `30px ${OCR}`;
+  const fit = Math.min(30, (30 * (W - 180)) / Math.max(...mrzLines.map((l) => ctx.measureText(l).width)));
+  ctx.font = `${fit.toFixed(1)}px ${OCR}`;
+  mrzLines.forEach((l, i) => ctx.fillText(l, 90, 1640 + i * 48));
 
   return toBlob(canvas, "image/png");
 }
@@ -136,7 +139,7 @@ function photo(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, 
   ctx.strokeStyle = FAINT;
   ctx.strokeRect(x - 10, y - 10, size + 20, size + 20);
   ctx.fillStyle = FAINT;
-  ctx.font = `20px ${MONO}`;
+  ctx.font = `bold 24px ${MONO}`;
   ctx.textAlign = "center";
   ctx.fillText(label.toUpperCase(), x + size / 2, y + size + 46);
 }
@@ -168,6 +171,21 @@ function stamp(target: CanvasRenderingContext2D, cx: number, cy: number, years: 
   target.globalAlpha = 0.86;
   target.drawImage(layer, cx - layer.width / 2, cy - layer.height / 2);
   target.restore();
+}
+
+/** Join segments with " · ", breaking lines only between segments so no value is split. */
+function wrapSegments(ctx: CanvasRenderingContext2D, segments: string[], maxW: number): string[] {
+  const out: string[] = [];
+  let line = "";
+  for (const seg of segments) {
+    const test = line ? `${line} · ${seg}` : seg;
+    if (line && ctx.measureText(test).width > maxW) {
+      out.push(line);
+      line = seg;
+    } else line = test;
+  }
+  if (line) out.push(line);
+  return out;
 }
 
 function wrap(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxW: number, lh: number) {

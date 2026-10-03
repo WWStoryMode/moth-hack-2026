@@ -1,3 +1,10 @@
+/* OCR-B for the machine-readable zone: openly licensed, see public/fonts/OCRB-LICENSE.txt */
+@font-face {
+  font-family: "OCR-B Faded";
+  src: url("/fonts/OCRB.otf") format("opentype");
+  font-display: swap;
+}
+
 /*
  * Design tokens: every colour, font stack, spacing step and border style lives here.
  * styles.css and the canvas code (src/lib/tokens.ts → document.ts, Mask.tsx) read these.
@@ -37,7 +44,7 @@
   /* Type */
   --serif: Georgia, "Times New Roman", serif;
   --mono: "Courier New", Courier, monospace;
-  --ocr: var(--mono); /* machine-readable zone */
+  --ocr: "OCR-B Faded", var(--mono); /* machine-readable zone */
 
   /* Spacing */
   --space-1: 4px;

@@ -14,7 +14,7 @@ export function DocumentScreen(props: { input: DocumentInput; onAgain: () => voi
     };
   }, [props.input]);
   return (
-    <Paper>
+    <Paper bureau={false}>
       {url ? <img className="document" src={url} alt="Your entry document, stamped Entry denied" /> : <p className="hint">…</p>}
       <div className="row">
         {url && (
