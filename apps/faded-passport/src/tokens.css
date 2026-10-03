@@ -14,7 +14,7 @@
   --paper: #e9e7df; /* institutional grey off-white */
   --paper-lines: rgba(120, 128, 126, 0.12);
   --ink: #26292a;
-  --ink-muted: #868a86; /* small/secondary text (contrast fixed in the readability pass) */
+  --ink-muted: #575b58; /* small/secondary text: 5.6:1 on paper (WCAG AA) */
   --rule: #7b7f7a; /* lines and frames (≥ 3:1 on paper) */
   --photo-mat: #fbfbf8;
   --mrz-bg: #f3f2ed;
