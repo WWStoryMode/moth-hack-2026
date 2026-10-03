@@ -56,7 +56,7 @@ button, .button {
   min-height: 48px;
   border: var(--button-border-width) solid var(--btn);
   border-radius: var(--radius);
-  background: var(--btn);
+  background: var(--btn-fill);
   color: var(--btn-text);
   cursor: pointer;
 }

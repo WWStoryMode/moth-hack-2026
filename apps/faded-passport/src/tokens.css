@@ -23,13 +23,14 @@
   --stamp-backing: rgba(239, 230, 210, 0.625); /* paper-coloured backing, 37.5% see-through */
   --stamp-opacity: 0.88;
 
-  /* Controls */
-  --btn-primary: var(--stamp);
+  /* Controls: never red. Red is reserved for official marks (stamps, seals, the face line). */
+  --btn-primary: #33261c; /* deep ink-brown: the one main action per screen */
   --btn-primary-text: var(--paper);
-  --btn: var(--ink);
-  --btn-text: var(--paper);
-  --focus: var(--stamp);
-  --accent: var(--stamp);
+  --btn: var(--ink); /* other buttons: outlined in ink */
+  --btn-text: var(--ink);
+  --btn-fill: transparent;
+  --focus: var(--ink);
+  --accent: var(--ink);
 
   /* Type */
   --serif: Georgia, "Times New Roman", serif;
