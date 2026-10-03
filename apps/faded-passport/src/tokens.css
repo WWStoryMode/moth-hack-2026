@@ -4,23 +4,23 @@
  */
 :root {
   /* Paper and ink */
-  --paper: #efe6d2;
-  --paper-lines: rgba(138, 130, 114, 0.12);
-  --ink: #2b2a28;
-  --ink-muted: #8a8272; /* small/secondary text */
-  --rule: #8a8272; /* lines and frames */
-  --photo-mat: #ffffff;
-  --mrz-bg: #f6f1e4;
-  --fibre: 90, 70, 40; /* RGB of paper fibres on the permit (alpha varies) */
+  --paper: #e9e7df; /* institutional grey off-white */
+  --paper-lines: rgba(120, 128, 126, 0.12);
+  --ink: #26292a;
+  --ink-muted: #868a86; /* small/secondary text (contrast fixed in the readability pass) */
+  --rule: #7b7f7a; /* lines and frames (≥ 3:1 on paper) */
+  --photo-mat: #fbfbf8;
+  --mrz-bg: #f3f2ed;
+  --fibre: 70, 80, 80; /* RGB of paper fibres on the permit (alpha varies) */
 
   /* Desk behind the paper */
-  --desk: #3d3a35;
-  --desk-glow: #56514a;
+  --desk: #2c3431; /* cold dark green-grey */
+  --desk-glow: #3c4743;
 
   /* Official marks */
-  --stamp: #b3261e;
-  --stamp-tint: rgba(179, 38, 30, 0.18); /* fill inside the drawn face line */
-  --stamp-backing: rgba(239, 230, 210, 0.625); /* paper-coloured backing, 37.5% see-through */
+  --stamp: #a8231c;
+  --stamp-tint: rgba(168, 35, 28, 0.18); /* fill inside the drawn face line */
+  --stamp-backing: rgba(233, 231, 223, 0.625); /* paper-coloured backing, 37.5% see-through */
   --stamp-opacity: 0.88;
 
   /* Controls: never red. Red is reserved for official marks (stamps, seals, the face line). */
