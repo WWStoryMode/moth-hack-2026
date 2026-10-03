@@ -4,6 +4,7 @@ import { ENGINE, type TelablurParams } from "../config.ts";
 import { S } from "../strings.ts";
 import { loadImage, toBlob } from "./image.ts";
 import { maskLabel } from "./mask.ts";
+import { inkTexture } from "./inkTexture.ts";
 import { cssVar } from "./tokens.ts";
 
 export interface DocumentInput {
@@ -140,11 +141,14 @@ function photo(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, 
   ctx.fillText(label.toUpperCase(), x + size / 2, y + size + 46);
 }
 
-function stamp(ctx: CanvasRenderingContext2D, cx: number, cy: number, years: number) {
-  ctx.save();
-  ctx.translate(cx, cy);
+/** The ENTRY DENIED stamp, inked through the same speckle texture as the on-screen stamps. */
+function stamp(target: CanvasRenderingContext2D, cx: number, cy: number, years: number) {
+  const layer = document.createElement("canvas");
+  layer.width = 560;
+  layer.height = 380;
+  const ctx = layer.getContext("2d")!;
+  ctx.translate(layer.width / 2, layer.height / 2);
   ctx.rotate(-0.21);
-  ctx.globalAlpha = 0.82;
   ctx.strokeStyle = RED;
   ctx.fillStyle = RED;
   ctx.lineWidth = 8;
@@ -156,7 +160,14 @@ function stamp(ctx: CanvasRenderingContext2D, cx: number, cy: number, years: num
   ctx.fillText(S.document.stamp.toUpperCase(), 0, 8, 360);
   ctx.font = `bold 26px ${MONO}`;
   ctx.fillText(`${years} YR${years === 1 ? "" : "S"} ABSENT`, 0, 56);
-  ctx.restore();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalCompositeOperation = "destination-in";
+  ctx.fillStyle = ctx.createPattern(inkTexture(), "repeat")!;
+  ctx.fillRect(0, 0, layer.width, layer.height);
+  target.save();
+  target.globalAlpha = 0.86;
+  target.drawImage(layer, cx - layer.width / 2, cy - layer.height / 2);
+  target.restore();
 }
 
 function wrap(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxW: number, lh: number) {
