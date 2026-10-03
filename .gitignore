@@ -4,6 +4,13 @@ node_modules/
 !.env.example
 output/
 dist/
+
+# Test inputs: personal photos and the ?debug "Download inputs" zips never go to GitHub.
+# (Chosen results go in an app's showcase/ on purpose; that folder IS committed.)
+inputs/
+*.zip
+*.heic
+*.HEIC
 .DS_Store
 *.log
 

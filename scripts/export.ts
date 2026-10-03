@@ -133,7 +133,7 @@ for (const f of readdirSync(repo).filter((f) => /^tsconfig.*\.json$/.test(f) && 
   writeFileSync(p, readFileSync(p, "utf8").replaceAll("../../tsconfig.base.json", "./tsconfig.base.json"));
 }
 if (!existsSync(join(repo, ".env.example"))) cpSync(join(ROOT, ".env.example"), join(repo, ".env.example"));
-writeFileSync(join(repo, ".gitignore"), "node_modules/\n.env\n.env.local\noutput/\ndist/\n.vercel/\n");
+writeFileSync(join(repo, ".gitignore"), "node_modules/\n.env\n.env.local\noutput/\ndist/\n.vercel/\ninputs/\n*.zip\n*.heic\n");
 if (!existsSync(join(repo, "README.md"))) problems.push("app has no README.md for judges");
 
 // ─── Secret scan: never ship a key ────────────────────────────────────────────────
