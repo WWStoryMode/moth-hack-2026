@@ -4,6 +4,7 @@ import { ENGINE, type TelablurParams } from "../config.ts";
 import { S } from "../strings.ts";
 import { loadImage, toBlob } from "./image.ts";
 import { maskLabel } from "./mask.ts";
+import { cssVar } from "./tokens.ts";
 
 export interface DocumentInput {
   morphUrl: string;
@@ -17,18 +18,27 @@ export interface DocumentInput {
 
 const W = 1240;
 const H = 1754; // ≈ A4 ratio
-const INK = "#2b2a28";
-const FAINT = "#8a8272";
-const PAPER = "#efe6d2";
-const RED = "#b3261e";
-const SERIF = 'Georgia, "Times New Roman", serif';
-const MONO = '"Courier New", Courier, monospace';
+// Colours and fonts come from the design tokens (src/tokens.css), read when the permit is drawn.
+let INK = "", FAINT = "", PAPER = "", RED = "", MAT = "", MRZ_BG = "", FIBRE = "", SERIF = "", MONO = "", OCR = "";
+function readTokens() {
+  INK = cssVar("--ink", "#2b2a28");
+  FAINT = cssVar("--ink-muted", "#8a8272");
+  PAPER = cssVar("--paper", "#efe6d2");
+  RED = cssVar("--stamp", "#b3261e");
+  MAT = cssVar("--photo-mat", "#fff");
+  MRZ_BG = cssVar("--mrz-bg", "#f6f1e4");
+  FIBRE = cssVar("--fibre", "90, 70, 40");
+  SERIF = cssVar("--serif", "Georgia, serif");
+  MONO = cssVar("--mono", "monospace");
+  OCR = cssVar("--ocr", MONO);
+}
 
 export async function composeDocument(d: DocumentInput): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d")!;
+  readTokens();
   const [morph, home] = await Promise.all([loadImage(d.morphUrl), loadImage(d.homeUrl)]);
   const date = d.date ?? new Date();
 
@@ -36,7 +46,7 @@ export async function composeDocument(d: DocumentInput): Promise<Blob> {
   ctx.fillStyle = PAPER;
   ctx.fillRect(0, 0, W, H);
   for (let i = 0; i < 2600; i++) {
-    ctx.fillStyle = `rgba(90,70,40,${Math.random() * 0.05})`;
+    ctx.fillStyle = `rgba(${FIBRE},${Math.random() * 0.05})`;
     ctx.fillRect(Math.random() * W, Math.random() * H, 1 + Math.random() * 2, 1);
   }
   ctx.strokeStyle = FAINT;
@@ -98,10 +108,10 @@ export async function composeDocument(d: DocumentInput): Promise<Blob> {
     1526,
   );
   ctx.fillText(`${maskLabel()} · job ${d.jobId}`, 90, 1552);
-  ctx.fillStyle = "#f6f1e4";
+  ctx.fillStyle = MRZ_BG;
   ctx.fillRect(70, 1570, W - 140, 130);
   ctx.fillStyle = INK;
-  ctx.font = `bold 30px ${MONO}`;
+  ctx.font = `bold 30px ${OCR}`;
   const mrz = (s: string) => s.toUpperCase().replace(/[^A-Z0-9.]/g, "<").padEnd(58, "<").slice(0, 58);
   ctx.fillText(mrz(`P<${ENGINE}<<STRENGTH<${p.strength}<SIZE<${p.size}<DIR<${p.direction}`), 90, 1622);
   ctx.fillText(mrz(`DS<${p.downscale ? 1 : 0}<MB<${p.mask_bin_size}<MR<${p.mask_min_region}<Y<${d.years}<JOB<${d.jobId.replace(/-/g, "")}`), 90, 1672);
@@ -119,7 +129,7 @@ function rule(ctx: CanvasRenderingContext2D, y: number) {
 }
 
 function photo(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, size: number, label: string) {
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = MAT;
   ctx.fillRect(x - 10, y - 10, size + 20, size + 20);
   ctx.drawImage(img, x, y, size, size);
   ctx.strokeStyle = FAINT;

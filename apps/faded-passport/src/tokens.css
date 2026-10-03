@@ -1,0 +1,57 @@
+/*
+ * Design tokens: every colour, font stack, spacing step and border style lives here.
+ * styles.css and the canvas code (src/lib/tokens.ts → document.ts, Mask.tsx) read these.
+ */
+:root {
+  /* Paper and ink */
+  --paper: #efe6d2;
+  --paper-lines: rgba(138, 130, 114, 0.12);
+  --ink: #2b2a28;
+  --ink-muted: #8a8272; /* small/secondary text */
+  --rule: #8a8272; /* lines and frames */
+  --photo-mat: #ffffff;
+  --mrz-bg: #f6f1e4;
+  --fibre: 90, 70, 40; /* RGB of paper fibres on the permit (alpha varies) */
+
+  /* Desk behind the paper */
+  --desk: #3d3a35;
+  --desk-glow: #56514a;
+
+  /* Official marks */
+  --stamp: #b3261e;
+  --stamp-tint: rgba(179, 38, 30, 0.18); /* fill inside the drawn face line */
+  --stamp-backing: rgba(239, 230, 210, 0.625); /* paper-coloured backing, 37.5% see-through */
+  --stamp-opacity: 0.88;
+
+  /* Controls */
+  --btn-primary: var(--stamp);
+  --btn-primary-text: var(--paper);
+  --btn: var(--ink);
+  --btn-text: var(--paper);
+  --focus: var(--stamp);
+  --accent: var(--stamp);
+
+  /* Type */
+  --serif: Georgia, "Times New Roman", serif;
+  --mono: "Courier New", Courier, monospace;
+  --ocr: var(--mono); /* machine-readable zone */
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 28px;
+
+  /* Borders and shadows */
+  --border-hair: 1px solid var(--rule);
+  --frame-double: 3px double var(--rule);
+  --photo-border: 8px solid var(--photo-mat);
+  --button-border-width: 2px;
+  --radius: 2px;
+  --shadow-paper: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --shadow-document: 0 4px 16px rgba(0, 0, 0, 0.25);
+
+  color-scheme: light;
+}

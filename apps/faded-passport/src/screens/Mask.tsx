@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { SIZE } from "../config.ts";
 import { Officer } from "../components/Officer.tsx";
 import { Paper } from "../components/Paper.tsx";
-import { DEBUG } from "../lib/debug.ts"; // ?debug: preview the outline and the exact mask sent to TeleBlur
+import { DEBUG } from "../lib/debug.ts";
+import { cssVar } from "../lib/tokens.ts"; // ?debug: preview the outline and the exact mask sent to TeleBlur
 import { areaFraction, engineMask, maskRangeLabel, renderMask, smooth, tracePath, type Point, type Stroke } from "../lib/mask.ts";
 import { S } from "../strings.ts";
 
@@ -45,8 +46,8 @@ export function MaskScreen(props: { portraitUrl: string; onDone: (masks: { outli
     ctx.clearRect(0, 0, SIZE, SIZE);
     ctx.lineWidth = 3;
     ctx.lineJoin = "round";
-    ctx.strokeStyle = "#b3261e";
-    ctx.fillStyle = "rgba(179,38,30,0.18)";
+    ctx.strokeStyle = cssVar("--stamp", "#b3261e");
+    ctx.fillStyle = cssVar("--stamp-tint", "rgba(179,38,30,0.18)");
     for (const s of strokes) {
       ctx.beginPath();
       tracePath(ctx, s);
