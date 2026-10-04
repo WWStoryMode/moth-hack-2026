@@ -2,6 +2,7 @@
 import { useMemo, useState } from "react";
 import { DebugBadge } from "./components/DebugBadge.tsx";
 import { DebugInputs } from "./components/DebugInputs.tsx";
+import type { ScanPhase } from "./components/ScanOverlay.tsx";
 import { BoothWindow } from "./components/BoothWindow.tsx";
 import { Paper } from "./components/Paper.tsx";
 import { BorderError, submit, waitForMorph, type Job } from "./lib/api.ts";
@@ -19,6 +20,9 @@ import { TitleScreen } from "./screens/Title.tsx";
 import { VerdictScreen } from "./screens/Verdict.tsx";
 import { SAMPLES } from "./samples.ts";
 import { S } from "./strings.ts";
+
+/** Minimum time the scan's job readout stays visible before the verdict. */
+const SCAN_MIN_MS = 1500;
 
 type Step = "title" | "story" | "intro" | "portrait" | "mask" | "home" | "processing" | "verdict" | "document" | "error";
 
@@ -38,6 +42,8 @@ export function App() {
   const [face, setFace] = useState<Prepared | null>(null);
   const [home, setHome] = useState<Prepared | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  /** What the scan overlay shows: real job data only. */
+  const [scan, setScan] = useState<{ phase: ScanPhase; job?: Job }>({ phase: "uploading" });
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [error, setError] = useState<string>(S.errors.generic);
 
@@ -56,15 +62,25 @@ export function App() {
     if (!portrait || !mask || !face) return;
     setHome(homePhoto);
     setElapsed(0);
+    setScan({ phase: "uploading" });
     setStep("processing");
     try {
       const job = await submit({ portrait: portrait.blob, home: homePhoto.blob, mask: mask.blob, years });
-      const morph = await waitForMorph(job, setElapsed);
+      const jobShownAt = Date.now();
+      setScan({ phase: "submitted", job }); // accepted by the server; real status comes from polling
+      const morph = await waitForMorph(job, (ms, status) => {
+        setElapsed(ms);
+        if (status === "queued" || status === "processing" || status === "completed") setScan({ phase: status, job });
+        else setScan({ phase: "processing", job }); // in-between states (e.g. "fetching") count as processing
+      });
       const morphUrl = URL.createObjectURL(morph);
       // The verdict comes from what the quantum morph actually did to the face.
       const change = await maskedChange(portrait.url, morphUrl, face.url);
       if (import.meta.env.DEV) console.info(`[faded-passport] strength ${job.params.strength} → masked change ${change.toFixed(3)}`);
       setOutcome({ job, morphUrl, reason: S.verdict.reasons[reasonFor(change)] });
+      // Keep the job readout on screen for at least ~1.5 s so it can be read; never longer otherwise.
+      const shown = Date.now() - jobShownAt;
+      if (shown < SCAN_MIN_MS) await new Promise((r) => setTimeout(r, SCAN_MIN_MS - shown));
       setStep("verdict");
     } catch (e) {
       const code = e instanceof BorderError ? e.code : "generic";
@@ -118,7 +134,7 @@ export function App() {
               : undefined} />
         );
       case "processing":
-        return portrait && <ProcessingScreen elapsedMs={elapsed} portraitUrl={portrait.url} />;
+        return portrait && <ProcessingScreen elapsedMs={elapsed} portraitUrl={portrait.url} phase={scan.phase} job={scan.job} />;
       case "verdict":
         return outcome && face && (
           <VerdictScreen morphUrl={outcome.morphUrl} outlineUrl={face.url} reason={outcome.reason} years={years} onNext={() => setStep("document")} />

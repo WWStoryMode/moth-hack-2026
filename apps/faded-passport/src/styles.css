@@ -226,6 +226,40 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
   text-underline-offset: 4px;
 }
 @media (prefers-reduced-motion: reduce) { .drag-returning { transition: none; } }
+/* Terminal scan over the photo during "Wait here" */
+.scan { position: absolute; inset: 0; background: var(--scan-veil); overflow: hidden; }
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--scan-line);
+  box-shadow: 0 0 10px 2px var(--scan-line);
+  animation: scan-sweep 2.4s ease-in-out infinite alternate;
+}
+@keyframes scan-sweep { from { top: 4%; } to { top: 94%; } }
+.scan-text {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  width: calc((100% - 2 * var(--space-3)) / 0.84);
+  transform: scaleX(0.84); /* condensed */
+  transform-origin: 0 0;
+  font: 700 12px/1.55 var(--scan-font);
+  color: var(--scan-ink);
+  white-space: pre;
+}
+/* Each line types out once, staggered; the STATUS row updates in place. */
+.scan-row {
+  overflow: hidden;
+  width: 0;
+  animation: scan-type calc(var(--n) * 22ms) steps(var(--n), end) calc(var(--i) * 220ms) forwards;
+}
+@keyframes scan-type { to { width: calc((var(--n) + 1) * 1ch); } } /* +1ch slack so no glyph is clipped */
+@media (prefers-reduced-motion: reduce) {
+  .scan-line { display: none; }
+  .scan-row { animation: none; width: auto; }
+}
 .debug-badge {
   position: fixed;
   right: var(--space-2);

@@ -35,6 +35,12 @@
   --booth-frame: #4a514e;
   --booth-height: clamp(112px, 20vh, 170px);
 
+  /* Machine scan (Teleblur reading the photo) */
+  --scan-veil: rgba(0, 0, 0, 0.74);
+  --scan-ink: #ffd400;
+  --scan-line: rgba(255, 212, 0, 0.55);
+  --scan-font: "SF Mono", Menlo, Consolas, var(--mono);
+
   /* Official marks */
   --stamp: #a8231c;
   --stamp-tint: rgba(168, 35, 28, 0.18); /* fill inside the drawn face line */
