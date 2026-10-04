@@ -8,9 +8,9 @@ export function PassportPhoto(props: { src: string; alt: string; processedMask?:
   const mask = props.processedMask ? `url(${props.processedMask})` : undefined;
   return (
     <div className="passport-photo">
-      <img className="pp-treated" src={props.src} alt={props.alt} />
+      <img className="pp-treated" src={props.src} alt={props.alt} draggable={false} />
       {mask && (
-        <img className="pp-processed" src={props.src} alt="" aria-hidden="true" style={{ maskImage: mask, WebkitMaskImage: mask }} />
+        <img className="pp-processed" src={props.src} alt="" aria-hidden="true" draggable={false} style={{ maskImage: mask, WebkitMaskImage: mask }} />
       )}
       {props.children}
     </div>

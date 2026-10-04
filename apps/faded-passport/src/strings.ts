@@ -40,6 +40,7 @@ export const S = {
     choose: "Choose a photo",
     next: "Hand it over",
     retake: "Another photo",
+    dragHint: "Slide your passport into the slot, or",
   },
 
   mask: {
