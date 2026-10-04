@@ -1,6 +1,7 @@
 // Shared by "Passport, please" (portrait, front camera) and "Where are you going?" (home, rear camera).
-import { useState, type ReactNode } from "react";
-import { Officer } from "../components/Officer.tsx";
+import { useRef, useState, type ReactNode } from "react";
+import { BoothWindow } from "../components/BoothWindow.tsx";
+import { DragToSlot } from "../components/DragToSlot.tsx";
 import { Paper } from "../components/Paper.tsx";
 import { PassportPhoto } from "../components/PassportPhoto.tsx";
 import { PhotoPicker } from "../components/PhotoPicker.tsx";
@@ -9,7 +10,7 @@ import { S } from "../strings.ts";
 
 export function PhotoStep(props: {
   step: string;
-  text: { officer: string; hint: string; take: string; choose: string; next: string; retake: string };
+  text: { officer: string; hint: string; take: string; choose: string; next: string; retake: string; chooseAgain: string; dragHint?: string };
   camera: "user" | "environment";
   /** Portrait is PNG so the morph comes back lossless; home can be JPEG. */
   type: "image/png" | "image/jpeg";
@@ -24,19 +25,26 @@ export function PhotoStep(props: {
 }) {
   const [photo, setPhoto] = useState<Prepared | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const slot = useRef<HTMLDivElement>(null);
+  /** The portrait is handed through the booth slot (drag, or the "Hand it over" button). */
+  const handOver = props.passport && !!photo;
   const t = props.text;
   return (
     <Paper step={props.step}>
-      <Officer line={t.officer} />
+      <BoothWindow line={t.officer} sticky={props.passport} slotRef={slot} />
       <p className="hint">{error ?? t.hint}</p>
       {photo && (props.passport
-        ? <PassportPhoto src={photo.url} alt={props.alt} />
+        ? (
+          <DragToSlot slotRef={slot} onDone={() => props.onDone(photo)} buttonLabel={t.next} hint={t.dragHint ?? ""}>
+            <PassportPhoto src={photo.url} alt={props.alt} />
+          </DragToSlot>
+        )
         : <img className="photo" src={photo.url} alt={props.alt} />)}
       {photo && props.extra?.(photo)}
       <PhotoPicker
         camera={props.camera}
-        takeLabel={photo ? t.retake : t.take}
-        chooseLabel={t.choose}
+        hasPhoto={!!photo}
+        labels={t}
         samples={props.samples}
         onFile={async (f) => {
           setError(null);
@@ -49,9 +57,12 @@ export function PhotoStep(props: {
           }
         }}
       />
-      <button type="button" className="primary" disabled={!photo} onClick={() => photo && props.onDone(photo)}>
-        {t.next}
-      </button>
+      {/* The main button appears once there's a photo to hand over (before that, taking one is the main action). */}
+      {photo && !handOver && (
+        <button type="button" className="primary" onClick={() => props.onDone(photo)}>
+          {t.next}
+        </button>
+      )}
     </Paper>
   );
 }

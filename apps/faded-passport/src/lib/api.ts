@@ -30,18 +30,18 @@ export async function submit(input: { portrait: Blob; home: Blob; mask: Blob; ye
   return (await res.json()) as Job;
 }
 
-/** Poll until done; `onTick` gets elapsed ms so the screen can change its dialogue. */
-export async function waitForMorph(job: Job, onTick?: (elapsedMs: number) => void): Promise<Blob> {
+/** Poll until done; `onTick` gets elapsed ms and the job's latest status (for the dialogue and the scan). */
+export async function waitForMorph(job: Job, onTick?: (elapsedMs: number, status: string) => void): Promise<Blob> {
   const t0 = Date.now();
   const q = `ticket=${encodeURIComponent(job.ticket)}`;
   for (;;) {
     const res = await fetch(`/api/status?${q}`);
     if (!res.ok) return fail(res);
     const { status } = (await res.json()) as { status: string };
+    onTick?.(Date.now() - t0, status);
     if (status === "completed") break;
     if (status === "failed" || status === "cancelled") throw new BorderError("job_failed");
     if (Date.now() - t0 > POLL.timeoutMs) throw new BorderError("timeout");
-    onTick?.(Date.now() - t0);
     await new Promise((r) => setTimeout(r, POLL.intervalMs));
   }
   const res = await fetch(`/api/result?${q}`);

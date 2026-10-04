@@ -23,6 +23,9 @@ body {
   outline-offset: -9px;
   box-shadow: var(--shadow-paper);
 }
+/* Paper content sits above the ageing layers (grain, stains), which live on ::before/::after. */
+.paper { position: relative; isolation: isolate; }
+.paper > * { position: relative; z-index: 1; }
 .paper-head {
   display: flex;
   justify-content: space-between;
@@ -67,8 +70,64 @@ button.primary, .button.primary { background: var(--btn-primary); border-color: 
 button:disabled { opacity: .4; cursor: not-allowed; }
 button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-.officer { display: flex; gap: var(--space-3); align-items: flex-start; }
-.officer-cap { flex: 0 0 48px; color: var(--ink); margin-top: 2px; }
+/* Booth window: the officer behind scratched glass. */
+.booth { display: flex; flex-direction: column; gap: var(--space-2); }
+.booth-sticky { position: sticky; top: 0; z-index: 5; background: var(--paper); padding: var(--space-2) 0; margin: calc(-1 * var(--space-2)) 0 0; }
+.booth-window {
+  position: relative;
+  height: var(--booth-height);
+  overflow: hidden;
+  border: 6px solid var(--booth-frame);
+  border-bottom: 12px solid var(--booth-sill);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(ellipse 34% 70% at 50% 30%, rgba(214, 238, 228, 0.16), transparent 70%),
+    radial-gradient(ellipse 70% 60% at 50% -8%, var(--booth-light), transparent 70%),
+    linear-gradient(var(--booth-wall), var(--booth-wall-deep));
+}
+.booth-light {
+  position: absolute;
+  top: 6px;
+  left: 24%;
+  right: 24%;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--booth-tube);
+  box-shadow: 0 0 16px 5px var(--booth-light);
+  animation: tube-flicker 4.6s infinite;
+}
+/* Subtle and slow: two small dips per cycle, far below 3 flashes per second. */
+@keyframes tube-flicker {
+  0%, 44%, 52%, 100% { opacity: 1; }
+  46% { opacity: 0.7; }
+  48% { opacity: 0.95; }
+  50% { opacity: 0.8; }
+}
+/* Figure fills the window, cropped at the chest like a view over a counter. */
+.booth-officer { position: absolute; left: 50%; bottom: -22%; height: 132%; width: auto; transform: translateX(-50%); }
+.booth-glass {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(112deg, transparent 0 14%, rgba(255, 255, 255, 0.09) 14% 24%, transparent 24% 31%, rgba(255, 255, 255, 0.05) 31% 34%, transparent 34%),
+    var(--glass-scratch, none);
+  background-size: auto, 220px;
+}
+.booth-slot {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 58%;
+  height: 14px;
+  transform: translateX(-50%);
+  border-radius: 7px 7px 0 0;
+  background: linear-gradient(#020303, #151a19);
+  border: 2px solid var(--booth-sill);
+  border-bottom: 0;
+  box-shadow: inset 0 4px 5px rgba(0, 0, 0, 0.9), 0 -2px 0 rgba(255, 255, 255, 0.18);
+}
+@media (prefers-reduced-motion: reduce) { .booth-light { animation: none; } }
 .officer-line { margin: 0; font-size: 22px; font-weight: 700; }
 
 .photo, .document { display: block; width: 100%; height: auto; border: var(--photo-border); outline: var(--border-hair); }
@@ -153,6 +212,111 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
 @keyframes fade-in { from { opacity: 0; transform: translateY(6px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
 @media (prefers-reduced-motion: reduce) { .story-line { animation: none; } }
 
+/* Drag-to-slot hand-over */
+.handover { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); }
+.handover .passport-photo { width: 100%; }
+.drag-card { width: var(--passport-width); position: relative; z-index: 6; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.drag-dragging { cursor: grabbing; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.35)); }
+.drag-returning { transition: transform 0.35s cubic-bezier(.2, .9, .3, 1.25); }
+.handover-hint { text-align: center; margin-top: var(--space-2); }
+.text-button {
+  background: none;
+  border: none;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) { .drag-returning { transition: none; } }
+/* Terminal scan over the photo during "Wait here" */
+.scan { position: absolute; inset: 0; background: var(--scan-veil); overflow: hidden; }
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--scan-line);
+  box-shadow: 0 0 10px 2px var(--scan-line);
+  animation: scan-sweep 2.4s ease-in-out infinite alternate;
+}
+@keyframes scan-sweep { from { top: 4%; } to { top: 94%; } }
+.scan-text {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  width: calc((100% - 2 * var(--space-3)) / 0.84);
+  transform: scaleX(0.84); /* condensed */
+  transform-origin: 0 0;
+  font: 700 12px/1.55 var(--scan-font);
+  color: var(--scan-ink);
+  white-space: pre;
+}
+/* Each line types out once, staggered; the STATUS row updates in place. */
+.scan-row {
+  overflow: hidden;
+  width: 0;
+  animation: scan-type calc(var(--n) * 22ms) steps(var(--n), end) calc(var(--i) * 220ms) forwards;
+}
+@keyframes scan-type { to { width: calc((var(--n) + 1) * 1ch); } } /* +1ch slack so no glyph is clipped */
+@media (prefers-reduced-motion: reduce) {
+  .scan-line { display: none; }
+  .scan-row { animation: none; width: auto; }
+}
+/* ─── Ageing (?age=all): smooth with --age, textures by data-stage. Colours come from lib/ageing.ts. ─── */
+html[data-age-mode="all"] .paper {
+  border-radius: calc(var(--age) * 14px);
+  box-shadow: var(--shadow-paper), inset 0 0 calc(12px + var(--age) * 56px) rgba(96, 66, 24, calc(var(--age) * 0.3));
+}
+html[data-age-mode="all"] .paper::before,
+html[data-age-mode="all"] .paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+html[data-age-mode="all"] .paper::before { background: var(--tex-grain); opacity: calc(var(--age) * 0.8); }
+html[data-age-mode="all"][data-stage="foxed"] .paper::after { background: var(--tex-foxing) 0 0 / 100% 100%; }
+html[data-age-mode="all"][data-stage="stained"] .paper::after {
+  background: var(--tex-coffee) right 6% top 14% / 46% auto no-repeat, var(--tex-foxing) 0 0 / 100% 100%;
+}
+html[data-age-mode="all"][data-stage="creased"] .paper::after {
+  background: var(--tex-crease) 0 0 / 100% 100%, var(--tex-coffee) right 6% top 14% / 46% auto no-repeat, var(--tex-foxing) 0 0 / 100% 100%;
+}
+/* Patchier stamp ink once the document is stained: the coarse wear texture is combined with the fine one. */
+html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .stamp::before,
+html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .stamp strong,
+html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .stamp span,
+html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .seal {
+  -webkit-mask-image: var(--ink-texture), var(--ink-texture-coarse);
+  mask-image: var(--ink-texture), var(--ink-texture-coarse);
+  -webkit-mask-size: var(--ink-texture-size), 110px;
+  mask-size: var(--ink-texture-size), 110px;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.photo-input-quiet { justify-content: center; gap: 0 var(--space-2); }
+.photo-input-quiet > * { flex: 0 1 auto; }
+/* Compact, one line, in the top gutter above the paper: never covers controls. */
+.debug-badge {
+  position: fixed;
+  top: 1px;
+  right: var(--space-2);
+  max-width: calc(100vw - 2 * var(--space-2));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  z-index: 50;
+  padding: 0 5px;
+  font: 10px/14px var(--mono);
+  color: var(--paper);
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: var(--radius);
+  pointer-events: none;
+}
 .mask-preview { margin: 0; display: grid; grid-template-columns: 120px 120px; gap: var(--space-2) var(--space-3); justify-content: center; }
 .mask-preview figcaption { grid-column: 1 / -1; }
 .mask-preview img { width: 120px; height: 120px; outline: var(--border-hair); }

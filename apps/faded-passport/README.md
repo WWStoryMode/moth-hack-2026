@@ -31,6 +31,21 @@ Fixed parameters: both photos are cropped to 512×512, `direction full`, `downsc
 prints the engine, every parameter and the job ID in its machine-readable strip, so each document records
 exactly how it was made.
 
+## Playtest variants
+
+Flags are read from the URL when the page loads and stay fixed for the session (`src/lib/flags.ts`).
+They only change what is drawn: nothing is tracked or logged, and what is sent to the Moth API is the same
+in every variant.
+
+| URL | What changes |
+|---|---|
+| `/` or `/?age=photo` | Default: only the photo degrades |
+| `/?age=all` | The whole document ages with the years: yellowing, edge shading, grain, browner ink, fading stamp, darker desk; foxing from 5 years, a coffee ring from 15, a crease from 25. The downloaded permit ages too. |
+| `/?age=hint` | Photo only, plus YEARS ABSENT on the permit printed in ink that fades with the years |
+| add `&debug=1` | A small label in the top corner shows the active variant (plus the debug tools) |
+
+All text stays at WCAG AA contrast at 40 years (the ageing colours are clamped in `src/lib/ageing.ts`).
+
 ## Privacy
 
 Photos are sent to Moth Quantum's API for processing. After the result is fetched, the server deletes the

@@ -36,10 +36,12 @@ export const S = {
   portrait: {
     officer: "Passport, please.",
     hint: "A portrait. Your face, looking straight ahead.",
-    take: "Take a selfie",
-    choose: "Choose a photo",
+    take: "Take selfie", // front camera
+    choose: "Upload photo", // gallery / files
     next: "Hand it over",
-    retake: "Another photo",
+    retake: "Retake selfie",
+    chooseAgain: "Upload another",
+    dragHint: "Slide your passport into the slot, or",
   },
 
   mask: {
@@ -57,10 +59,11 @@ export const S = {
   home: {
     officer: "Where are you going?",
     hint: "A photo of home, or of where you are standing now.",
-    take: "Take a photo",
-    choose: "Choose a photo",
+    take: "Take photo", // rear camera
+    choose: "Upload photo",
     next: "Home",
-    retake: "Another photo",
+    retake: "Retake photo",
+    chooseAgain: "Upload another",
   },
 
   processing: {

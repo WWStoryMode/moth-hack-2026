@@ -23,6 +23,13 @@ for repo rules.
   `components/PassportPhoto.tsx` (35:45, sepia; the processed face is untreated on the verdict and permit).
   MRZ font: bundled OCR-B (`public/fonts`, licence file alongside). Debug samples: `src/samples.ts` +
   `public/samples/` (the four pixel-art samples are committed and public; anything else there is gitignored). The brand is "Teleblur"; the API id is `telablur-v1`.
+- **Phase 2 UX (2026-10-04, branch faded-passport/phase-2-ux, tag phase-2-ux):** flags in `lib/flags.ts`
+  (`?age=photo|all|hint`, `?debug=1`; retry ageing was dropped). The booth window (`components/BoothWindow.tsx`)
+  replaces the officer icon. Portrait hand-over is drag-to-slot (`components/DragToSlot.tsx`) with a "Hand it
+  over" button alternative; mask/home keep buttons (they answer questions). The terminal scan
+  (`components/ScanOverlay.tsx`) shows only real job values. Ageing: `lib/ageing.ts` (AA-clamped colours,
+  stage by years) + `lib/ageTextures.ts`; the permit ages with `?age=all`. Photo inputs are labelled by action;
+  the camera button is hidden on desktop.
 - **Tuning TODO:** verdict thresholds (0.10 / 0.20) are provisional. Use a sweep's summary.csv. Teleblur `size` may
   round up to a power of two (as Quantum Blur does), so sizes 65–128 could look identical; unverified.
 - **Sweep:** `?debug` home step → "Download inputs" zip → `pnpm sweep <zip> --years …` (1 credit/year, `--dry-run`

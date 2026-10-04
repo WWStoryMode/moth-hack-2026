@@ -2,7 +2,7 @@
 // the quantum morph only happens inside it, so the player chooses what of themselves fades.
 import { useEffect, useRef, useState } from "react";
 import { SIZE } from "../config.ts";
-import { Officer } from "../components/Officer.tsx";
+import { BoothWindow } from "../components/BoothWindow.tsx";
 import { Paper } from "../components/Paper.tsx";
 import { DEBUG } from "../lib/debug.ts"; // ?debug: preview the outline and the exact mask sent to Teleblur
 import { cssVar } from "../lib/tokens.ts";
@@ -84,7 +84,7 @@ export function MaskScreen(props: { portraitUrl: string; onDone: (masks: { outli
 
   return (
     <Paper step="3 / 4">
-      <Officer line={S.mask.officer} />
+      <BoothWindow line={S.mask.officer} />
       <p className="hint">{note ?? S.mask.hint}</p>
       <div ref={view} className="mask-view" style={{ overflow: zoom > 1 ? "auto" : "hidden" }}>
         <div className="mask-inner" style={{ width: `${zoom * 100}%` }}>
