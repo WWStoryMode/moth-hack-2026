@@ -105,7 +105,7 @@ export function App() {
   return (
     <>
       {screen()}
-      <DebugBadge detail={`step=${step} · years=${years} · age ${yearsToStrength(years).toFixed(3)} · stage=${stageFor(years)}`} />
+      <DebugBadge detail={`${step} · ${years}y · age ${yearsToStrength(years).toFixed(3)} · ${stageFor(years)}`} />
     </>
   );
 
