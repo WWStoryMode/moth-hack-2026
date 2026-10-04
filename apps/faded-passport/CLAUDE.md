@@ -22,7 +22,7 @@ for repo rules.
   verdict and on the permit. Ink wear comes from `lib/inkTexture.ts` (rendered once). Passport photos use
   `components/PassportPhoto.tsx` (35:45, sepia; the processed face is untreated on the verdict and permit).
   MRZ font: bundled OCR-B (`public/fonts`, licence file alongside). Debug samples: `src/samples.ts` +
-  `public/samples/` (gitignored). The brand is "Teleblur"; the API id is `telablur-v1`.
+  `public/samples/` (the four pixel-art samples are committed and public; anything else there is gitignored). The brand is "Teleblur"; the API id is `telablur-v1`.
 - **Tuning TODO:** verdict thresholds (0.10 / 0.20) are provisional. Use a sweep's summary.csv. Teleblur `size` may
   round up to a power of two (as Quantum Blur does), so sizes 65–128 could look identical; unverified.
 - **Sweep:** `?debug` home step → "Download inputs" zip → `pnpm sweep <zip> --years …` (1 credit/year, `--dry-run`

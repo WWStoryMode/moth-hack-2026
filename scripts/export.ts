@@ -5,7 +5,7 @@
 //   dist/submissions/<app>/repo.zip
 //   dist/submissions/<app>/form-NN/    FORM.md (answers in form order) + poster/images/slides to upload
 // and checks the entry against the submission form's rules. Nothing is pushed or uploaded.
-import { execSync } from "node:child_process";
+import { execSync, spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, extname, join, relative } from "node:path";
 import {
@@ -84,8 +84,10 @@ if (sub.media.slides && extname(sub.media.slides).toLowerCase() !== ".pdf") prob
 // The app's own tsconfig*.json / vite.config.ts / api/ are kept; only workspace links are rewritten.
 const SKIP = new Set(["node_modules", "output", "dist", "CLAUDE.md", "BRIEF.md", "submission.json", "package.json", ".env"]);
 for (const entry of readdirSync(app.dir)) {
-  // public/samples/ holds personal test photos (gitignored): export only its README.
-  const keep = (src: string) => !/[\\/]public[\\/]samples[\\/](?!README\.md$|\.gitignore$)[^\\/]+$/.test(src);
+  // public/samples/ may hold personal test photos: export only files git doesn't ignore there.
+  const keep = (src: string) =>
+    !/[\\/]public[\\/]samples[\\/][^\\/]+$/.test(src) ||
+    spawnSync("git", ["check-ignore", "-q", src], { cwd: ROOT }).status !== 0;
   if (!SKIP.has(entry)) cpSync(join(app.dir, entry), join(repo, entry), { recursive: true, filter: keep });
 }
 

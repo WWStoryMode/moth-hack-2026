@@ -8,5 +8,6 @@ Put sample images here to use the **Use sample photo** button, which appears onl
 Any size or orientation works: the app crops and re-encodes them exactly like a player's upload.
 Paths are set in `src/samples.ts`.
 
-Everything in this folder except this README is **gitignored** and left out of `pnpm export`, so the
-photos never reach GitHub. To publish a chosen sample, copy it deliberately (e.g. into `showcase/`).
+The four pixel-art samples above are **committed and public** (they're served at `/samples/…` on the
+deployed site). Anything else you drop in this folder is **gitignored** and left out of `pnpm export`,
+so personal photos never reach GitHub. To publish another image, add its name to `.gitignore` here.
