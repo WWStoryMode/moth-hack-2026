@@ -9,6 +9,7 @@
 //
 // --years accepts ranges, steps and lists: "1-40", "5-40:5", "1,5-40:5", "1,10,20,30,40".
 // --dry-run skips Moth entirely (no credits): the portrait stands in for every output.
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { createInterface } from "node:readline/promises";
@@ -16,7 +17,7 @@ import { fileURLToPath } from "node:url";
 import { buildProvenance, createClient, loadEnv, writeProvenance, type MothClient } from "../server/atlas.ts";
 import { checkImage, type CheckedFile } from "../server/guards.ts";
 import { ENGINE, SIZE, YEARS, telablurParams, type TelablurParams } from "../src/config.ts";
-import { maskedChangeFromPixels, reasonFor } from "../src/lib/change.ts";
+import { likeness, verdict, type ReasonKey } from "../src/lib/change.ts";
 import { decodePng, encodePng, isPng } from "./lib/png.ts";
 
 const args = process.argv.slice(2);
@@ -89,8 +90,10 @@ interface Row {
   params: TelablurParams;
   jobId?: string;
   file?: string;
-  change?: number;
-  reason?: string;
+  likeness?: number;
+  homeness?: number;
+  /** granted / place / address / noMatch (see VERDICT in src/config.ts) */
+  reason?: ReasonKey;
   seconds?: number;
   error?: string;
 }
@@ -109,6 +112,28 @@ process.on("SIGINT", () => {
 
 const portraitPx = isPng(portraitBytes) ? decodePng(portraitBytes).data : undefined;
 const outlinePx = outlineBytes && isPng(outlineBytes) ? decodePng(outlineBytes).data : undefined;
+const homePx = homePixels();
+
+/** Home pixels for the verdict's homeness. A JPEG home is converted with macOS `sips` (into this sweep's folder). */
+function homePixels(): Uint8Array | undefined {
+  if (isPng(homeBytes)) return decodePng(homeBytes).data;
+  const src = [...files.keys()].find((n) => /^home\./i.test(n));
+  const png = join(outDir, "home-for-verdict.png");
+  const r = src ? spawnSync("sips", ["-s", "format", "png", join(outDir, `input-${src}`), "--out", png], { stdio: "ignore" }) : undefined;
+  if (r?.status === 0 && existsSync(png)) return decodePng(readFileSync(png)).data;
+  console.log("(Couldn't read the JPEG home photo without macOS sips: homeness and refusal reasons are skipped.)");
+  return undefined;
+}
+
+function judge(row: Row, morphPx: Uint8Array) {
+  if (!portraitPx || !outlinePx) return;
+  if (homePx) {
+    const v = verdict(portraitPx, morphPx, homePx, outlinePx);
+    row.likeness = v.likeness;
+    row.homeness = v.homeness;
+    row.reason = v.reason;
+  } else row.likeness = likeness(portraitPx, morphPx, outlinePx);
+}
 const t0 = Date.now();
 
 try {
@@ -134,7 +159,9 @@ try {
     const p = row.params;
     console.log(
       `  [${String(done).padStart(2)}/${rows.length}] ${String(row.years).padStart(2)}y  strength ${p.strength.toFixed(3)}  size ${String(p.size).padStart(3)}  ` +
-        (row.error ? `FAILED: ${row.error}` : `change ${row.change?.toFixed(3) ?? "—"} (${row.reason ?? "—"})  ${row.seconds}s`),
+        (row.error
+          ? `FAILED: ${row.error}`
+          : `likeness ${row.likeness?.toFixed(2) ?? "—"}  homeness ${row.homeness?.toFixed(2) ?? "—"}  → ${row.reason === "granted" ? "GRANTED" : row.reason ? `refused (${row.reason})` : "—"}  ${row.seconds}s`),
     );
   });
 } finally {
@@ -148,10 +175,7 @@ async function dryYear(row: Row, inputFiles: Record<string, string>) {
   row.file = basename(file);
   const now = new Date().toISOString();
   await writeProvenance(file, buildProvenance({ engineId: ENGINE, jobId: row.jobId, params: row.params, options: { input_files: inputFiles }, submittedAt: now, completedAt: now }));
-  if (portraitPx && outlinePx) {
-    row.change = maskedChangeFromPixels(portraitPx, portraitPx, outlinePx);
-    row.reason = reasonFor(row.change);
-  }
+  if (portraitPx) judge(row, portraitPx);
 }
 
 async function runYear(m: MothClient, row: Row, inputFiles: Record<string, string>) {
@@ -179,18 +203,15 @@ async function runYear(m: MothClient, row: Row, inputFiles: Record<string, strin
     }),
   );
   await m.deleteAsset(out.output_asset_id).catch(() => undefined);
-  if (portraitPx && outlinePx && isPng(bytes)) {
-    row.change = maskedChangeFromPixels(portraitPx, decodePng(bytes).data, outlinePx);
-    row.reason = reasonFor(row.change);
-  }
+  if (isPng(bytes)) judge(row, decodePng(bytes).data);
 }
 
 // ─── summary + contact sheet ──────────────────────────────────────────────────────
 writeFileSync(join(outDir, "summary.json"), JSON.stringify({ engine: ENGINE, inputs: inputPath, rows }, null, 2) + "\n");
 writeFileSync(
   join(outDir, "summary.csv"),
-  ["years,strength,size,change,reason,seconds,job_id,file,error"]
-    .concat(rows.map((r) => [r.years, r.params.strength, r.params.size, r.change?.toFixed(4) ?? "", r.reason ?? "", r.seconds ?? "", r.jobId ?? "", r.file ?? "", r.error ?? ""].join(",")))
+  ["years,strength,size,likeness,homeness,outcome,seconds,job_id,file,error"]
+    .concat(rows.map((r) => [r.years, r.params.strength, r.params.size, r.likeness?.toFixed(4) ?? "", r.homeness?.toFixed(4) ?? "", r.reason ?? "", r.seconds ?? "", r.jobId ?? "", r.file ?? "", r.error ?? ""].join(",")))
     .join("\n") + "\n",
 );
 const ok = rows.filter((r) => r.file);

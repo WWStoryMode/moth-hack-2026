@@ -44,6 +44,7 @@
   /* Official marks */
   --stamp: #a8231c;
   --stamp-tint: rgba(168, 35, 28, 0.18); /* fill inside the drawn face line */
+  --stamp-granted: #1f5e3a; /* ENTRY GRANTED: dark green ink (red stays for refusals) */
   --stamp-backing: rgba(233, 231, 223, 0.625); /* paper-coloured backing, 37.5% see-through */
   --stamp-opacity: 0.88;
   --ink-texture: none; /* set at startup by lib/inkTexture.ts */

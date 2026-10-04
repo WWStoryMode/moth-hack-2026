@@ -87,11 +87,13 @@ export function telablurParams(years: number) {
 export type TelablurParams = ReturnType<typeof telablurParams>;
 
 /**
- * Verdict: mean |morphed − portrait| inside the mask, 0–1. Below `medium` → low line, etc.
- * Provisional: the first synthetic test (strength 0.599) measured 0.245. Tune on real photos
- * (the value is logged in the browser console in dev).
+ * Verdict (src/lib/change.ts). Measured on the 1–40 year sweeps:
+ * - entry is GRANTED while the face is still recognisable: likeness (SSIM) ≥ acceptLikeness
+ *   (years 1–6 scored 0.61–0.97; from year 7 the face breaks up, 0.30–0.52)
+ * - otherwise refused; the reason follows homeness: ≥ placeHomeness → bearer indistinguishable from
+ *   the destination (years 38–40), ≥ addressHomeness → address unverifiable, else no match
  */
-export const VERDICT_THRESHOLDS = { medium: 0.1, high: 0.2 } as const;
+export const VERDICT = { acceptLikeness: 0.6, placeHomeness: 0.5, addressHomeness: 0.4 } as const;
 
 /** Client polling: docs recommend every 2–5 s. */
 export const POLL = { intervalMs: 2000, timeoutMs: 180_000 } as const;

@@ -8,7 +8,7 @@ import { Paper } from "./components/Paper.tsx";
 import { BorderError, submit, waitForMorph, type Job } from "./lib/api.ts";
 import { applyAge, stageFor } from "./lib/ageing.ts";
 import { DEBUG } from "./lib/debug.ts";
-import { maskedChange, reasonFor } from "./lib/diff.ts";
+import { verdictFor } from "./lib/diff.ts";
 import type { DocumentInput } from "./lib/document.ts";
 import type { Prepared } from "./lib/image.ts";
 import { DocumentScreen } from "./screens/Document.tsx";
@@ -31,6 +31,8 @@ type Step = "title" | "story" | "intro" | "portrait" | "mask" | "home" | "proces
 interface Outcome {
   job: Job;
   morphUrl: string;
+  /** Granted while the face is still recognisable (see VERDICT in config.ts). */
+  accepted: boolean;
   reason: string;
 }
 
@@ -80,9 +82,9 @@ export function App() {
       });
       const morphUrl = URL.createObjectURL(morph);
       // The verdict comes from what the quantum morph actually did to the face.
-      const change = await maskedChange(portrait.url, morphUrl, face.url);
-      if (import.meta.env.DEV) console.info(`[faded-passport] strength ${job.params.strength} → masked change ${change.toFixed(3)}`);
-      setOutcome({ job, morphUrl, reason: S.verdict.reasons[reasonFor(change)] });
+      const v = await verdictFor(portrait.url, morphUrl, homePhoto.url, face.url);
+      if (import.meta.env.DEV) console.info(`[faded-passport] strength ${job.params.strength} → likeness ${v.likeness.toFixed(3)} · homeness ${v.homeness.toFixed(3)} → ${v.reason}`);
+      setOutcome({ job, morphUrl, accepted: v.accepted, reason: S.verdict.reasons[v.reason] });
       // Keep the job readout on screen for at least ~1.5 s so it can be read; never longer otherwise.
       const shown = Date.now() - jobShownAt;
       if (shown < SCAN_MIN_MS) await new Promise((r) => setTimeout(r, SCAN_MIN_MS - shown));
@@ -97,7 +99,7 @@ export function App() {
   const doc = useMemo<DocumentInput | null>(
     () =>
       outcome && home && face
-        ? { morphUrl: outcome.morphUrl, outlineUrl: face.url, homeUrl: home.url, years, reason: outcome.reason, jobId: outcome.job.jobId, params: outcome.job.params }
+        ? { morphUrl: outcome.morphUrl, outlineUrl: face.url, homeUrl: home.url, years, accepted: outcome.accepted, reason: outcome.reason, jobId: outcome.job.jobId, params: outcome.job.params }
         : null,
     [outcome, home, face, years],
   );
@@ -142,7 +144,7 @@ export function App() {
         return portrait && <ProcessingScreen elapsedMs={elapsed} portraitUrl={portrait.url} phase={scan.phase} job={scan.job} />;
       case "verdict":
         return outcome && face && (
-          <VerdictScreen morphUrl={outcome.morphUrl} outlineUrl={face.url} reason={outcome.reason} years={years} onNext={() => setStep("document")} />
+          <VerdictScreen morphUrl={outcome.morphUrl} outlineUrl={face.url} accepted={outcome.accepted} reason={outcome.reason} years={years} onNext={() => setStep("document")} />
         );
       case "document":
         return doc && <DocumentScreen input={doc} onAgain={reset} />;

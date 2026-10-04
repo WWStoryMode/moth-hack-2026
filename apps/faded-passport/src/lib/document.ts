@@ -16,6 +16,8 @@ export interface DocumentInput {
   outlineUrl: string;
   homeUrl: string;
   years: number;
+  /** Entry granted (green stamp) or denied (red). */
+  accepted: boolean;
   reason: string;
   jobId: string;
   params: TelablurParams;
@@ -25,13 +27,14 @@ export interface DocumentInput {
 const W = 1240;
 const H = 1754; // ≈ A4 ratio
 // Colours and fonts come from the design tokens (src/tokens.css), read when the permit is drawn.
-let INK = "", FAINT = "", PAPER = "", RED = "", MAT = "", MRZ_BG = "", FIBRE = "", SERIF = "", MONO = "", OCR = "";
+let INK = "", FAINT = "", PAPER = "", RED = "", GREEN = "", MAT = "", MRZ_BG = "", FIBRE = "", SERIF = "", MONO = "", OCR = "";
 let STAMP_ALPHA = 0.86, AGE = 0;
 function readTokens() {
   INK = cssVar("--ink", "#2b2a28");
   FAINT = cssVar("--ink-muted", "#8a8272");
   PAPER = cssVar("--paper", "#efe6d2");
   RED = cssVar("--stamp", "#b3261e");
+  GREEN = cssVar("--stamp-granted", "#1f5e3a");
   MAT = cssVar("--photo-mat", "#fff");
   MRZ_BG = cssVar("--mrz-bg", "#f6f1e4");
   FIBRE = cssVar("--fibre", "90, 70, 40");
@@ -100,10 +103,10 @@ export async function composeDocument(d: DocumentInput): Promise<Blob> {
   // ?age=hint: the years are written in ink that has faded with them (clamped to stay AA-readable).
   field(S.document.yearsAbsent, S.intro.years(d.years), FLAGS.age === "hint" ? hintInk(d.years) : INK);
   field(S.document.date, date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }));
-  field(S.document.decision, S.document.stamp);
+  field(S.document.decision, d.accepted ? S.document.stampGranted : S.document.stamp);
   field(S.document.reason, d.reason);
 
-  stamp(ctx, W - 330, 1140, d.years);
+  stamp(ctx, W - 330, 1140, d.years, d.accepted);
 
   // Parameter strip: human-readable line + machine-readable (MRZ-style) zone.
   rule(ctx, 1462);
@@ -157,22 +160,23 @@ function photo(ctx: CanvasRenderingContext2D, img: CanvasImageSource, x: number,
 }
 
 /** The ENTRY DENIED stamp, inked through the same speckle texture as the on-screen stamps. */
-function stamp(target: CanvasRenderingContext2D, cx: number, cy: number, years: number) {
+function stamp(target: CanvasRenderingContext2D, cx: number, cy: number, years: number, granted: boolean) {
+  const ink = granted ? GREEN : RED;
   const layer = document.createElement("canvas");
   layer.width = 560;
   layer.height = 380;
   const ctx = layer.getContext("2d")!;
   ctx.translate(layer.width / 2, layer.height / 2);
   ctx.rotate(-0.21);
-  ctx.strokeStyle = RED;
-  ctx.fillStyle = RED;
+  ctx.strokeStyle = ink;
+  ctx.fillStyle = ink;
   ctx.lineWidth = 8;
   ctx.strokeRect(-210, -95, 420, 190);
   ctx.lineWidth = 3;
   ctx.strokeRect(-194, -79, 388, 158);
   ctx.textAlign = "center";
   ctx.font = `900 64px ${SERIF}`;
-  ctx.fillText(S.document.stamp.toUpperCase(), 0, 8, 360);
+  ctx.fillText((granted ? S.document.stampGranted : S.document.stamp).toUpperCase(), 0, 8, 360);
   ctx.font = `bold 26px ${MONO}`;
   ctx.fillText(`${years} YR${years === 1 ? "" : "S"} ABSENT`, 0, 56);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
