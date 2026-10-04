@@ -4,6 +4,9 @@ import { ENGINE, type TelablurParams } from "../config.ts";
 import { S } from "../strings.ts";
 import { loadImage, toBlob } from "./image.ts";
 import { maskLabel } from "./mask.ts";
+import { ageTextures } from "./ageTextures.ts";
+import { hintInk, stageFor } from "./ageing.ts";
+import { FLAGS } from "./flags.ts";
 import { inkTexture } from "./inkTexture.ts";
 import { cssVar } from "./tokens.ts";
 
@@ -23,6 +26,7 @@ const W = 1240;
 const H = 1754; // ≈ A4 ratio
 // Colours and fonts come from the design tokens (src/tokens.css), read when the permit is drawn.
 let INK = "", FAINT = "", PAPER = "", RED = "", MAT = "", MRZ_BG = "", FIBRE = "", SERIF = "", MONO = "", OCR = "";
+let STAMP_ALPHA = 0.86, AGE = 0;
 function readTokens() {
   INK = cssVar("--ink", "#2b2a28");
   FAINT = cssVar("--ink-muted", "#8a8272");
@@ -34,6 +38,9 @@ function readTokens() {
   SERIF = cssVar("--serif", "Georgia, serif");
   MONO = cssVar("--mono", "monospace");
   OCR = cssVar("--ocr", MONO);
+  // ?age=all: lib/ageing.ts has already set the aged colours above; these two drive the rest.
+  AGE = FLAGS.age === "all" ? Number(cssVar("--age", "0")) || 0 : 0;
+  STAMP_ALPHA = FLAGS.age === "all" ? Number(cssVar("--stamp-opacity", "0.86")) || 0.86 : 0.86;
 }
 
 export async function composeDocument(d: DocumentInput): Promise<Blob> {
@@ -54,6 +61,7 @@ export async function composeDocument(d: DocumentInput): Promise<Blob> {
     ctx.fillStyle = `rgba(${FIBRE},${Math.random() * 0.05})`;
     ctx.fillRect(Math.random() * W, Math.random() * H, 1 + Math.random() * 2, 1);
   }
+  if (FLAGS.age === "all") ageThePaper(ctx, d.years);
   ctx.strokeStyle = FAINT;
   ctx.lineWidth = 2;
   ctx.strokeRect(40, 40, W - 80, H - 80);
@@ -80,16 +88,17 @@ export async function composeDocument(d: DocumentInput): Promise<Blob> {
   // Fields.
   ctx.textAlign = "left";
   let y = 980;
-  const field = (label: string, value: string) => {
+  const field = (label: string, value: string, valueInk = INK) => {
     ctx.fillStyle = FAINT;
     ctx.font = `bold 26px ${MONO}`;
     ctx.fillText(label.toUpperCase(), 110, y);
-    ctx.fillStyle = INK;
+    ctx.fillStyle = valueInk;
     ctx.font = `32px ${SERIF}`;
     wrap(ctx, value, 110, y + 44, W - 220, 40);
     y += 118;
   };
-  field(S.document.yearsAbsent, S.intro.years(d.years));
+  // ?age=hint: the years are written in ink that has faded with them (clamped to stay AA-readable).
+  field(S.document.yearsAbsent, S.intro.years(d.years), FLAGS.age === "hint" ? hintInk(d.years) : INK);
   field(S.document.date, date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }));
   field(S.document.decision, S.document.stamp);
   field(S.document.reason, d.reason);
@@ -171,7 +180,7 @@ function stamp(target: CanvasRenderingContext2D, cx: number, cy: number, years: 
   ctx.fillStyle = ctx.createPattern(inkTexture(), "repeat")!;
   ctx.fillRect(0, 0, layer.width, layer.height);
   target.save();
-  target.globalAlpha = 0.86;
+  target.globalAlpha = STAMP_ALPHA;
   target.drawImage(layer, cx - layer.width / 2, cy - layer.height / 2);
   target.restore();
 }
@@ -193,7 +202,7 @@ function passportPhoto(morph: HTMLImageElement, outline: HTMLImageElement, w: nu
   ctx.drawImage(morph, sx, 0, sw, morph.naturalHeight, 0, 0, w, h);
   const img = ctx.getImageData(0, 0, w, h);
   const p = img.data;
-  const amount = 0.45; // matches --photo-treatment: sepia(0.45) saturate(0.7)
+  const amount = 0.45 + 0.45 * AGE; // matches --photo-treatment (stronger sepia as the document ages)
   for (let i = 0; i < p.length; i += 4) {
     const r = p[i]!, g = p[i + 1]!, b = p[i + 2]!;
     const sr = Math.min(255, 0.393 * r + 0.769 * g + 0.189 * b);
@@ -206,6 +215,32 @@ function passportPhoto(morph: HTMLImageElement, outline: HTMLImageElement, w: nu
   }
   ctx.putImageData(img, 0, 0);
   return c;
+}
+
+/**
+ * ?age=all: the same ageing as on screen, drawn under the ink. Grain and edge shading scale with
+ * --age; foxing, the coffee ring and the crease switch on by stage. The text colours were already
+ * clamped for AA against this darkest paper by lib/ageing.ts.
+ */
+function ageThePaper(ctx: CanvasRenderingContext2D, years: number) {
+  const t = ageTextures();
+  const stage = stageFor(years);
+  ctx.save();
+  ctx.globalCompositeOperation = "multiply";
+  ctx.globalAlpha = 0.8 * AGE;
+  ctx.fillStyle = ctx.createPattern(t.grain, "repeat")!;
+  ctx.fillRect(0, 0, W, H);
+  ctx.globalAlpha = 1;
+  // Edges darken first, like the on-screen inset shadow.
+  const edge = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.hypot(W, H) / 2);
+  edge.addColorStop(0, "rgba(96, 66, 24, 0)");
+  edge.addColorStop(1, `rgba(96, 66, 24, ${0.3 * AGE})`);
+  ctx.fillStyle = edge;
+  ctx.fillRect(0, 0, W, H);
+  if (stage !== "fresh") ctx.drawImage(t.foxing, 0, 0, W, H);
+  if (stage === "stained" || stage === "creased") ctx.drawImage(t.coffee, W - 560, 120, 520, 520);
+  if (stage === "creased") ctx.drawImage(t.crease, 0, 0, W, H);
+  ctx.restore();
 }
 
 /** Join segments with " · ", breaking lines only between segments so no value is split. */

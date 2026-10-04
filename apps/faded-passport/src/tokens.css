@@ -48,6 +48,7 @@
   --stamp-opacity: 0.88;
   --ink-texture: none; /* set at startup by lib/inkTexture.ts */
   --ink-texture-size: 150px;
+  --age: 0; /* 0–1, set from the years by lib/ageing.ts (only ?age=all changes the look) */
 
   /* Controls: never red. Red is reserved for official marks (stamps, seals, the face line). */
   --btn-primary: #33261c; /* deep ink-brown: the one main action per screen */

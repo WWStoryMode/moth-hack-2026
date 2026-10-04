@@ -23,6 +23,9 @@ body {
   outline-offset: -9px;
   box-shadow: var(--shadow-paper);
 }
+/* Paper content sits above the ageing layers (grain, stains), which live on ::before/::after. */
+.paper { position: relative; isolation: isolate; }
+.paper > * { position: relative; z-index: 1; }
 .paper-head {
   display: flex;
   justify-content: space-between;
@@ -259,6 +262,41 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
 @media (prefers-reduced-motion: reduce) {
   .scan-line { display: none; }
   .scan-row { animation: none; width: auto; }
+}
+/* ─── Ageing (?age=all): smooth with --age, textures by data-stage. Colours come from lib/ageing.ts. ─── */
+html[data-age-mode="all"] .paper {
+  border-radius: calc(var(--age) * 14px);
+  box-shadow: var(--shadow-paper), inset 0 0 calc(12px + var(--age) * 56px) rgba(96, 66, 24, calc(var(--age) * 0.3));
+}
+html[data-age-mode="all"] .paper::before,
+html[data-age-mode="all"] .paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+html[data-age-mode="all"] .paper::before { background: var(--tex-grain); opacity: calc(var(--age) * 0.8); }
+html[data-age-mode="all"][data-stage="foxed"] .paper::after { background: var(--tex-foxing) 0 0 / 100% 100%; }
+html[data-age-mode="all"][data-stage="stained"] .paper::after {
+  background: var(--tex-coffee) right 6% top 14% / 46% auto no-repeat, var(--tex-foxing) 0 0 / 100% 100%;
+}
+html[data-age-mode="all"][data-stage="creased"] .paper::after {
+  background: var(--tex-crease) 0 0 / 100% 100%, var(--tex-coffee) right 6% top 14% / 46% auto no-repeat, var(--tex-foxing) 0 0 / 100% 100%;
+}
+/* Patchier stamp ink once the document is stained: the coarse wear texture is combined with the fine one. */
+html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .stamp::before,
+html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .stamp strong,
+html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .stamp span,
+html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .seal {
+  -webkit-mask-image: var(--ink-texture), var(--ink-texture-coarse);
+  mask-image: var(--ink-texture), var(--ink-texture-coarse);
+  -webkit-mask-size: var(--ink-texture-size), 110px;
+  mask-size: var(--ink-texture-size), 110px;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 .debug-badge {
   position: fixed;

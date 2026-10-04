@@ -5,8 +5,9 @@ import { YEARS, yearsToStrength, yearsToTelablurSize } from "../config.ts";
 import { Paper } from "../components/Paper.tsx";
 import { S } from "../strings.ts";
 
-export function IntroScreen(props: { onStart: (years: number) => void }) {
-  const [years, setYears] = useState<number>(YEARS.initial);
+/** `initial`: keeps the last choice on a replay. `onYears`: live updates (the paper ages as you drag with ?age=all). */
+export function IntroScreen(props: { initial?: number; onYears?: (years: number) => void; onStart: (years: number) => void }) {
+  const [years, setYears] = useState<number>(props.initial ?? YEARS.initial);
   return (
     <Paper>
       <p className="lead">{S.intro.lead}</p>
@@ -19,7 +20,11 @@ export function IntroScreen(props: { onStart: (years: number) => void }) {
         max={YEARS.max}
         step={1}
         value={years}
-        onChange={(e) => setYears(Number(e.target.value))}
+        onChange={(e) => {
+          const y = Number(e.target.value);
+          setYears(y);
+          props.onYears?.(y);
+        }}
       />
       <p className="fineprint readout">
         {S.intro.readout(yearsToStrength(years).toFixed(3), yearsToTelablurSize(years)).split(" · ").map((part, i) => (

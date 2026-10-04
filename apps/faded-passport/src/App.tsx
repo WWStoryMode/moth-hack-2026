@@ -1,11 +1,12 @@
 // The crossing, step by step: title → story → years → portrait → mask → home → Teleblur → verdict → document.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DebugBadge } from "./components/DebugBadge.tsx";
 import { DebugInputs } from "./components/DebugInputs.tsx";
 import type { ScanPhase } from "./components/ScanOverlay.tsx";
 import { BoothWindow } from "./components/BoothWindow.tsx";
 import { Paper } from "./components/Paper.tsx";
 import { BorderError, submit, waitForMorph, type Job } from "./lib/api.ts";
+import { applyAge, stageFor } from "./lib/ageing.ts";
 import { DEBUG } from "./lib/debug.ts";
 import { maskedChange, reasonFor } from "./lib/diff.ts";
 import type { DocumentInput } from "./lib/document.ts";
@@ -18,6 +19,7 @@ import { ProcessingScreen } from "./screens/Processing.tsx";
 import { StoryScreen } from "./screens/Story.tsx";
 import { TitleScreen } from "./screens/Title.tsx";
 import { VerdictScreen } from "./screens/Verdict.tsx";
+import { yearsToStrength } from "./config.ts";
 import { SAMPLES } from "./samples.ts";
 import { S } from "./strings.ts";
 
@@ -46,6 +48,9 @@ export function App() {
   const [scan, setScan] = useState<{ phase: ScanPhase; job?: Job }>({ phase: "uploading" });
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [error, setError] = useState<string>(S.errors.generic);
+
+  // Ageing (?age=all) follows the years from the years screen onward; the title and story stay fresh.
+  useEffect(() => applyAge(step === "title" || step === "story" ? null : years), [step, years]);
 
   const reset = () => {
     for (const p of [portrait, mask, face, home]) if (p) URL.revokeObjectURL(p.url);
@@ -100,7 +105,7 @@ export function App() {
   return (
     <>
       {screen()}
-      <DebugBadge detail={`step=${step} · years=${years}`} />
+      <DebugBadge detail={`step=${step} · years=${years} · age ${yearsToStrength(years).toFixed(3)} · stage=${stageFor(years)}`} />
     </>
   );
 
@@ -111,7 +116,7 @@ export function App() {
       case "story":
         return <StoryScreen onDone={() => setStep("intro")} />;
       case "intro":
-        return <IntroScreen onStart={(y) => { setYears(y); setStep("portrait"); }} />;
+        return <IntroScreen initial={years} onYears={setYears} onStart={(y) => { setYears(y); setStep("portrait"); }} />;
       case "portrait":
         return (
           <PhotoStep step="1 / 4" text={S.portrait} camera="user" type="image/png" alt="Your passport photo" passport samples={SAMPLES.portrait}
