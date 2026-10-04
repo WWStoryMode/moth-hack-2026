@@ -18,6 +18,7 @@ export const CHALLENGES = [
   { n: 8, tier: "Intermediate", name: "Make a web app" },
   { n: 9, tier: "Expert", name: "Quantum-native 1" },
   { n: 10, tier: "Expert", name: "Quantum-native 2" },
+  { n: 11, tier: "Guest", name: "FQxI Challenge" },
 ] as const;
 
 export type Status = "idea" | "building" | "ready" | "submitted";
@@ -27,7 +28,7 @@ export type EntryFields = Pick<Submission, "title" | "pitch" | "description" | "
 
 /** Mirrors the "Tell us about your project" + media sections of the submission form. */
 export interface Submission {
-  /** Challenges (1–10) this project is entered for — one form entry each. Empty = sandbox. */
+  /** Challenges (1–11) this project is entered for — one form entry each. Empty = sandbox. */
   challenges: number[];
   /** Optional per-challenge overrides, keyed by challenge number ("1", "8"…). */
   entries?: Record<string, Partial<EntryFields>>;
