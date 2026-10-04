@@ -15,7 +15,7 @@ for repo rules.
 - **Status (2026-09-27):** MVP works end to end. User tested on PC and phone. Deployed at
   https://faded-passport.vercel.app (functions fixed via relative `server/atlas.ts` + rewriteRelativeImportExtensions).
   Added since: title + story pages; portrait-luminance mask (MASK in config: multiply ×0.5 outside → ×1.5 inside,
-  feather 16); strength = 0.1 + 0.9·t² (slow start, fast end); Teleblur size 8 → 128 on a log curve.
+  feather 16); strength = (years − 1)/39, linear 0 → 1 (branch faded-passport/linear-strength; was 0.1 + 0.9·t²); Teleblur size 8 → 128 on a log curve.
 - **Phase 1 visual pass (2026-10-03, branch faded-passport/phase-1-visual, tag phase-1-visual):** all colours,
   fonts, spacing and borders are tokens in `src/tokens.css` (canvas code reads them via `lib/tokens.ts`). Red
   (`--stamp`) is only for official marks. Title shows `components/Seal.tsx`; ENTRY DENIED appears only at the

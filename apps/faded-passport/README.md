@@ -20,7 +20,7 @@ interference into grid-like, blocky echoes of home inside your face.
 
 | In the story | In Teleblur |
 |---|---|
-| **How long since you last came home?** (1–40 years) | `strength`, how far the selector qubit is rotated: `0.1 + 0.9·t²` with `t = (years − 1)/39`. A slow start and a fast end: for years you barely fade, then all at once |
+| **How long since you last came home?** (1–40 years) | `strength`, how far the selector qubit is rotated: `(years − 1)/39`, linear from 0 at 1 year to 1 at 40 years, so every year fades you by the same amount |
 | (same slider) | `size`, Teleblur's pixel budget per pass: 8 at 1 year → 128 at 40 years on a log curve. The 512×512 face region is shrunk to size×size, morphed on fewer or more qubits, then scaled back up, so the morph is blockier or finer |
 | **Who are you?** You draw around your face | `mask`. Built from your portrait's own brightness: ×1.5 inside your outline, ×0.5 outside, with a feathered edge. Bright skin morphs fully into home; dark features resist; the background only leaks a little |
 | **Passport, please** / **Where are you going?** | `image1` (your portrait) morphs toward `image2` (home) |

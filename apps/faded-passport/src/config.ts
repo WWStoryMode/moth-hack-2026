@@ -38,17 +38,17 @@ function yearsCurve(years: number): number {
 }
 
 /** strength range (Teleblur schema: 0–1). */
-export const STRENGTH = { atMinYears: 0.1, atMaxYears: 1.0 } as const;
+export const STRENGTH = { atMinYears: 0, atMaxYears: 1.0 } as const;
 
 /**
  * Years away → Teleblur strength: how far the selector qubit rotates from "you" toward "home".
- * Slow start, fast end (squared, linear in years): you barely fade for years, then all at once.
- * 0.10 @1y · 0.11 @5y · 0.15 @10y · 0.31 @20y · 0.56 @30y · 1.00 @40y. Rounded so the strip shows the exact value sent.
+ * Linear: 0 at 1 year → 1 at 40 years, every year adds the same amount (experiment).
+ * 0.000 @1y · 0.103 @5y · 0.231 @10y · 0.487 @20y · 0.744 @30y · 1.000 @40y. Rounded so the strip shows the exact value sent.
  */
 export function yearsToStrength(years: number): number {
   const y = Math.min(YEARS.max, Math.max(YEARS.min, Math.round(years)));
   const t = (y - YEARS.min) / (YEARS.max - YEARS.min);
-  const s = STRENGTH.atMinYears + (STRENGTH.atMaxYears - STRENGTH.atMinYears) * t * t;
+  const s = STRENGTH.atMinYears + (STRENGTH.atMaxYears - STRENGTH.atMinYears) * t;
   return Math.round(s * 1000) / 1000;
 }
 
