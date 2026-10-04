@@ -1,0 +1,15 @@
+{
+  "name": "@moth-hack/quantum-crew",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A co-op party game where two tables of players hit the 75% classical limit of the CHSH game, then beat it with an entanglement tool.",
+  "scripts": {
+    "test": "vitest run",
+    "sim": "tsx scripts/sim.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.3"
+  }
+}

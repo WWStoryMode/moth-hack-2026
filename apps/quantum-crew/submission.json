@@ -1,0 +1,33 @@
+{
+  "challenges": [
+    11
+  ],
+  "entries": {
+    "11": {}
+  },
+  "title": "Quantum Crew",
+  "pitch": "A co-op party game where two tables of players hit the 75% limit of any classical plan, then beat it with a shared entanglement tool.",
+  "description": "",
+  "technical": "",
+  "enginesViaPlatform": [],
+  "hardware": "auto",
+  "genAI": {
+    "used": true,
+    "tools": [
+      "Claude Code"
+    ],
+    "notes": "Code written with Claude Code."
+  },
+  "nonMothApis": [],
+  "media": {
+    "poster": "showcase/poster.png",
+    "images": [],
+    "slides": null
+  },
+  "links": {
+    "repo": null,
+    "demo": null,
+    "video": null
+  },
+  "status": "building"
+}
