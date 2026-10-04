@@ -42,11 +42,11 @@ function yearsCurve(years: number): number {
  * Years → strength anchor points (piecewise linear between them; Teleblur's schema allows 0–1).
  * Shaped from the 1–40 year sweeps: strengths 0.13–0.36 and 0.61–0.85 give a muddy mosaic, so the
  * curve crosses them in ~1 year each and spends the years on the ranges that read well:
- * gentle softening (0–0.13), the banded interference (0.36–0.61) and home coming through (0.85–1).
+ * gentle softening (0–0.08), the banded interference (0.36–0.61) and home coming through (0.85–1).
  */
 export const STRENGTH_CURVE: readonly (readonly [years: number, strength: number])[] = [
   [1, 0],
-  [9, 0.13],
+  [9, 0.08], // below ~0.10, where the mosaic starts at these years' sizes
   [11, 0.36],
   [25, 0.61],
   [27, 0.85],
@@ -55,7 +55,7 @@ export const STRENGTH_CURVE: readonly (readonly [years: number, strength: number
 
 /**
  * Years away → Teleblur strength: how far the selector qubit rotates from "you" toward "home".
- * Follows STRENGTH_CURVE: 0.000 @1y · 0.065 @5y · 0.245 @10y · 0.450 @16y · 0.574 @23y · 0.730 @26y
+ * Follows STRENGTH_CURVE: 0.000 @1y · 0.040 @5y · 0.220 @10y · 0.450 @16y · 0.574 @23y · 0.730 @26y
  * · 0.919 @33y · 1.000 @40y. Rounded so the strip shows the exact value sent.
  */
 export function yearsToStrength(years: number): number {
