@@ -95,9 +95,11 @@ export function agedPalette(years: number): AgedPalette {
   if (contrast(muted, worst) < AA + MARGIN) muted = mix(muted, ink, 1 - clampMix(ink, muted, 1, worst, AA + MARGIN));
   // Stamp ink fades (more patchiness comes from the coarse texture), but its lettering is large text:
   // keep the blended ink ≥ 3:1 (plus margin) against the darkest paper.
-  const STAMP = hex("#a8231c");
+  // Both stamp inks: red ENTRY DENIED and green ENTRY GRANTED.
+  const INKS = [hex("#a8231c"), hex("#1f5e3a")];
   let stampOpacity = 0.88 - 0.26 * age;
-  for (let i = 0; i < 40 && contrast(mix(paper, STAMP, stampOpacity), worst) < 3 + MARGIN + 0.05; i++) stampOpacity += 0.01;
+  const weakest = () => Math.min(...INKS.map((c) => contrast(mix(paper, c, stampOpacity), worst)));
+  for (let i = 0; i < 40 && weakest() < 3 + MARGIN + 0.05; i++) stampOpacity += 0.01;
   stampOpacity = Math.min(1, stampOpacity);
   return {
     age,

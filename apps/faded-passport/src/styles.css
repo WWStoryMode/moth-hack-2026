@@ -190,6 +190,8 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
 }
 .stamp strong { font: 900 28px var(--serif); letter-spacing: .04em; }
 .stamp { white-space: nowrap; }
+.stamp-granted { color: var(--stamp-granted); }
+.stamp-granted::before { border-color: var(--stamp-granted); }
 /* On a passport photo the stamp sits across the lower corner, sized to the narrower frame. */
 .passport-photo .stamp { right: -4%; bottom: 7%; padding: 8px 14px; }
 .passport-photo .stamp strong { font-size: clamp(18px, 6.4vw, 26px); }

@@ -38,17 +38,32 @@ function yearsCurve(years: number): number {
 }
 
 /** strength range (Teleblur schema: 0–1). */
-export const STRENGTH = { atMinYears: 0.1, atMaxYears: 1.0 } as const;
+/**
+ * Years → strength anchor points (piecewise linear between them; Teleblur's schema allows 0–1).
+ * Shaped from the 1–40 year sweeps: strengths 0.13–0.36 and 0.61–0.85 give a muddy mosaic, so the
+ * curve crosses them in ~1 year each and spends the years on the ranges that read well:
+ * gentle softening (0–0.08), the banded interference (0.36–0.61) and home coming through (0.85–1).
+ */
+export const STRENGTH_CURVE: readonly (readonly [years: number, strength: number])[] = [
+  [1, 0],
+  [9, 0.08], // below ~0.10, where the mosaic starts at these years' sizes
+  [11, 0.36],
+  [25, 0.61],
+  [27, 0.85],
+  [40, 1],
+];
 
 /**
  * Years away → Teleblur strength: how far the selector qubit rotates from "you" toward "home".
- * Slow start, fast end (squared, linear in years): you barely fade for years, then all at once.
- * 0.10 @1y · 0.11 @5y · 0.15 @10y · 0.31 @20y · 0.56 @30y · 1.00 @40y. Rounded so the strip shows the exact value sent.
+ * Follows STRENGTH_CURVE: 0.000 @1y · 0.040 @5y · 0.220 @10y · 0.450 @16y · 0.574 @23y · 0.730 @26y
+ * · 0.919 @33y · 1.000 @40y. Rounded so the strip shows the exact value sent.
  */
 export function yearsToStrength(years: number): number {
   const y = Math.min(YEARS.max, Math.max(YEARS.min, Math.round(years)));
-  const t = (y - YEARS.min) / (YEARS.max - YEARS.min);
-  const s = STRENGTH.atMinYears + (STRENGTH.atMaxYears - STRENGTH.atMinYears) * t * t;
+  const i = Math.max(1, STRENGTH_CURVE.findIndex(([py]) => py >= y));
+  const [y0, s0] = STRENGTH_CURVE[i - 1]!;
+  const [y1, s1] = STRENGTH_CURVE[i]!;
+  const s = s0 + ((s1 - s0) * (y - y0)) / (y1 - y0);
   return Math.round(s * 1000) / 1000;
 }
 
@@ -72,11 +87,13 @@ export function telablurParams(years: number) {
 export type TelablurParams = ReturnType<typeof telablurParams>;
 
 /**
- * Verdict: mean |morphed − portrait| inside the mask, 0–1. Below `medium` → low line, etc.
- * Provisional: the first synthetic test (strength 0.599) measured 0.245. Tune on real photos
- * (the value is logged in the browser console in dev).
+ * Verdict (src/lib/change.ts). Measured on the 1–40 year sweeps:
+ * - entry is GRANTED while the face is still recognisable: likeness (SSIM) ≥ acceptLikeness
+ *   (years 1–6 scored 0.61–0.97; from year 7 the face breaks up, 0.30–0.52)
+ * - otherwise refused; the reason follows homeness: ≥ placeHomeness → bearer indistinguishable from
+ *   the destination (years 38–40), ≥ addressHomeness → address unverifiable, else no match
  */
-export const VERDICT_THRESHOLDS = { medium: 0.1, high: 0.2 } as const;
+export const VERDICT = { acceptLikeness: 0.6, placeHomeness: 0.5, addressHomeness: 0.4 } as const;
 
 /** Client polling: docs recommend every 2–5 s. */
 export const POLL = { intervalMs: 2000, timeoutMs: 180_000 } as const;

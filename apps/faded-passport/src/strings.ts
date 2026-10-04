@@ -78,11 +78,14 @@ export const S = {
 
   verdict: {
     officer: "Entry denied.",
-    /** Picked by how much Teleblur changed the face (see VERDICT_THRESHOLDS in config.ts). */
+    /** Said when entry is granted: flat and indifferent. You made it, and nobody cares. */
+    officerGranted: "Next.",
+    /** Picked from what Teleblur did to the face (see VERDICT in config.ts and lib/change.ts). */
     reasons: {
-      low: "This photo does not match the bearer.",
-      medium: "This address cannot be verified.",
-      high: "The person in this photo is a place.",
+      granted: "Documents in order.",
+      noMatch: "This photo does not match the bearer.",
+      address: "This address cannot be verified.",
+      place: "Bearer cannot be distinguished from the declared destination.",
     },
     handBack: "Take your documents",
   },
@@ -96,6 +99,7 @@ export const S = {
     decision: "Decision",
     reason: "Reason",
     stamp: "Entry denied",
+    stampGranted: "Entry granted",
     download: "Download document",
     again: "Try to return again",
     processedBy: "Processed on the Moth Quantum Atlas API",
