@@ -67,8 +67,64 @@ button.primary, .button.primary { background: var(--btn-primary); border-color: 
 button:disabled { opacity: .4; cursor: not-allowed; }
 button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-.officer { display: flex; gap: var(--space-3); align-items: flex-start; }
-.officer-cap { flex: 0 0 48px; color: var(--ink); margin-top: 2px; }
+/* Booth window: the officer behind scratched glass. */
+.booth { display: flex; flex-direction: column; gap: var(--space-2); }
+.booth-sticky { position: sticky; top: 0; z-index: 5; background: var(--paper); padding: var(--space-2) 0; margin: calc(-1 * var(--space-2)) 0 0; }
+.booth-window {
+  position: relative;
+  height: var(--booth-height);
+  overflow: hidden;
+  border: 6px solid var(--booth-frame);
+  border-bottom: 12px solid var(--booth-sill);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(ellipse 34% 70% at 50% 30%, rgba(214, 238, 228, 0.16), transparent 70%),
+    radial-gradient(ellipse 70% 60% at 50% -8%, var(--booth-light), transparent 70%),
+    linear-gradient(var(--booth-wall), var(--booth-wall-deep));
+}
+.booth-light {
+  position: absolute;
+  top: 6px;
+  left: 24%;
+  right: 24%;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--booth-tube);
+  box-shadow: 0 0 16px 5px var(--booth-light);
+  animation: tube-flicker 4.6s infinite;
+}
+/* Subtle and slow: two small dips per cycle, far below 3 flashes per second. */
+@keyframes tube-flicker {
+  0%, 44%, 52%, 100% { opacity: 1; }
+  46% { opacity: 0.7; }
+  48% { opacity: 0.95; }
+  50% { opacity: 0.8; }
+}
+/* Figure fills the window, cropped at the chest like a view over a counter. */
+.booth-officer { position: absolute; left: 50%; bottom: -22%; height: 132%; width: auto; transform: translateX(-50%); }
+.booth-glass {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(112deg, transparent 0 14%, rgba(255, 255, 255, 0.09) 14% 24%, transparent 24% 31%, rgba(255, 255, 255, 0.05) 31% 34%, transparent 34%),
+    var(--glass-scratch, none);
+  background-size: auto, 220px;
+}
+.booth-slot {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 58%;
+  height: 14px;
+  transform: translateX(-50%);
+  border-radius: 7px 7px 0 0;
+  background: linear-gradient(#020303, #151a19);
+  border: 2px solid var(--booth-sill);
+  border-bottom: 0;
+  box-shadow: inset 0 4px 5px rgba(0, 0, 0, 0.9), 0 -2px 0 rgba(255, 255, 255, 0.18);
+}
+@media (prefers-reduced-motion: reduce) { .booth-light { animation: none; } }
 .officer-line { margin: 0; font-size: 22px; font-weight: 700; }
 
 .photo, .document { display: block; width: 100%; height: auto; border: var(--photo-border); outline: var(--border-hair); }

@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import { DebugBadge } from "./components/DebugBadge.tsx";
 import { DebugInputs } from "./components/DebugInputs.tsx";
-import { Officer } from "./components/Officer.tsx";
+import { BoothWindow } from "./components/BoothWindow.tsx";
 import { Paper } from "./components/Paper.tsx";
 import { BorderError, submit, waitForMorph, type Job } from "./lib/api.ts";
 import { DEBUG } from "./lib/debug.ts";
@@ -128,7 +128,7 @@ export function App() {
       case "error":
         return (
           <Paper>
-            <Officer line={error} />
+            <BoothWindow line={error} />
             <button type="button" className="primary" onClick={reset}>{S.errors.retry}</button>
           </Paper>
         );

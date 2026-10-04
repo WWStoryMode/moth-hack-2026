@@ -24,6 +24,17 @@
   --desk: #2c3431; /* cold dark green-grey */
   --desk-glow: #3c4743;
 
+  /* Booth window (the officer behind glass) */
+  --booth-wall: #3a4743;
+  --booth-wall-deep: #121817;
+  --booth-light: rgba(214, 238, 228, 0.55);
+  --booth-tube: #e7f3ec;
+  --booth-silhouette: #0b0e0d;
+  --booth-rim: #b9cdc5;
+  --booth-sill: #7c8480;
+  --booth-frame: #4a514e;
+  --booth-height: clamp(112px, 20vh, 170px);
+
   /* Official marks */
   --stamp: #a8231c;
   --stamp-tint: rgba(168, 35, 28, 0.18); /* fill inside the drawn face line */

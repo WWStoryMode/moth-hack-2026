@@ -1,6 +1,6 @@
 // Shared by "Passport, please" (portrait, front camera) and "Where are you going?" (home, rear camera).
 import { useState, type ReactNode } from "react";
-import { Officer } from "../components/Officer.tsx";
+import { BoothWindow } from "../components/BoothWindow.tsx";
 import { Paper } from "../components/Paper.tsx";
 import { PassportPhoto } from "../components/PassportPhoto.tsx";
 import { PhotoPicker } from "../components/PhotoPicker.tsx";
@@ -27,7 +27,7 @@ export function PhotoStep(props: {
   const t = props.text;
   return (
     <Paper step={props.step}>
-      <Officer line={t.officer} />
+      <BoothWindow line={t.officer} sticky={props.passport} />
       <p className="hint">{error ?? t.hint}</p>
       {photo && (props.passport
         ? <PassportPhoto src={photo.url} alt={props.alt} />
