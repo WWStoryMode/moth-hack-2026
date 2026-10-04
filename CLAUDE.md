@@ -4,7 +4,7 @@ A pnpm monorepo for Moth Hack 2026, a quantum-creativity hackathon on the Moth Q
 Each challenge gets its own app in `apps/`, and each is submitted separately via its own form entry.
 The user is new to quantum computing, so see **Learning mode** below.
 
-**Deadline: Fri 2 Oct 2026, 11:59 PM Pacific (= Sat 3 Oct 07:59 London).** Winners announced 5 Oct on Discord.
+**Deadline: Mon 5 Oct 2026 (Pacific)**, extended from 2 Oct per https://hack.mothquantum.com.
 
 ## Docs (read before using a new endpoint or engine)
 - Intro: https://docs.mothquantum.com/docs/intro
@@ -79,4 +79,6 @@ Judging: quality of execution, depth of quantum + Atlas usage, originality (judg
 
 Challenge deliverables: 01 image + params · 02 audio + workflow summary · 03 3D (e.g. shader on a 3D asset, as
 video) · 04 video · 05 game · 06 many engines in one project · 07 VST/AU plugin + audio examples · 08 web app link
-· 09 repo applying a quantum process to media · 10 Python notebook.
+· 09 repo applying a quantum process to media · 10 Python notebook · 11 FQxI
+(guest): an educational app or content teaching a general audience about quantum computing or mechanics, using
+≥ 1 Atlas engine.

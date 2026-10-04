@@ -20,8 +20,8 @@ if (existsSync(dir)) {
 const match = /^c(\d{2})-/.exec(name);
 const challenges =
   flag > 0 ? (process.argv[flag + 1] ?? "").split(",").map(Number) : match ? [Number(match[1])] : [];
-if (challenges.some((c) => !Number.isInteger(c) || c < 1 || c > 10)) {
-  console.error("Challenge numbers must be 1–10");
+if (challenges.some((c) => !Number.isInteger(c) || c < 1 || c > 11)) {
+  console.error("Challenge numbers must be 1–11");
   process.exit(1);
 }
 const challenge = challenges[0] ?? null;
