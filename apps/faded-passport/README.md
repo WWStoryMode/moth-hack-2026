@@ -5,8 +5,9 @@
 A short narrative game for [Moth Hack 2026](https://hack.mothquantum.com), built on the
 [Moth Quantum Atlas API](https://docs.mothquantum.com/docs/intro). It inverts *Papers, Please*: you are not the
 inspector but the traveller, trying to return home after many years. The officer asks for your passport photo,
-asks you to show who you are, asks where you are going, and then a quantum engine answers for you. Entry is
-always refused. What changes is **why**.
+asks you to show who you are, asks where you are going, and then a quantum engine answers for you. While the
+photo still looks like you, you're let through with a shrug ("Next."). Once the years have dissolved your face,
+entry is refused, and the reason says how far you've turned into the place you left.
 
 ## How the quantum engine drives the story
 
@@ -24,7 +25,7 @@ interference into grid-like, blocky echoes of home inside your face.
 | (same slider) | `size`, Teleblur's pixel budget per pass: 8 at 1 year → 128 at 40 years on a log curve. The 512×512 face region is shrunk to size×size, morphed on fewer or more qubits, then scaled back up, so the morph is blockier or finer |
 | **Who are you?** You draw around your face | `mask`. Built from your portrait's own brightness: ×1.5 inside your outline, ×0.5 outside, with a feathered edge. Bright skin morphs fully into home; dark features resist; the background only leaks a little |
 | **Passport, please** / **Where are you going?** | `image1` (your portrait) morphs toward `image2` (home) |
-| **The officer's verdict** | Computed from the output: how much the morph changed the face inside your mask picks the refusal reason |
+| **The officer's verdict** | Computed from the output, inside your outline. **Likeness** (structural similarity to your original face) ≥ 0.60 → **ENTRY GRANTED** (green stamp: "Documents in order."). Otherwise refused, and **homeness** (closer to your portrait or to your home photo) picks the reason: ≥ 0.50 "Bearer cannot be distinguished from the declared destination.", ≥ 0.40 "This address cannot be verified.", else "This photo does not match the bearer." Thresholds: `VERDICT` in `src/config.ts` |
 
 Fixed parameters: both photos are cropped to 512×512, `direction full`, `downscale true`,
 `mask_bin_size 4`, `mask_min_region 16`. Teleblur runs on Moth's quantum **simulator**. The final entry document
@@ -75,7 +76,7 @@ pnpm --filter @moth-hack/faded-passport sweep ~/Downloads/faded-passport-inputs-
 ```
 
 It costs 1 credit per year and asks before starting. It uploads the inputs once and writes
-`output/sweep-<time>/` with `yNN.png` + provenance, `summary.csv`/`.json` (strength, size, change, verdict per
+`output/sweep-<time>/` with `yNN.png` + provenance, `summary.csv`/`.json` (strength, size, likeness, homeness, outcome per
 year), and `contact-sheet.png`. Everything is deleted from Moth afterwards.
 
 ## Environment variables
@@ -113,4 +114,4 @@ three environment variables above.
 Short description: *Faded Passport is a short border-crossing game in which your passport photo dissolves into
 a photo of home. Moth's Teleblur engine places both images in one quantum state and rotates a single selector
 qubit between them. How long you've been away sets the rotation, the outline you draw around your face sets
-where it happens, and how much your face changed decides why the officer refuses you. Entry is always refused.*
+where it happens, and whether your face is still recognisable decides if the officer lets you through, or why not.*

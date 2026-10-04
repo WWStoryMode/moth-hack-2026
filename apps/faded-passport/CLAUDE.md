@@ -3,8 +3,8 @@
 Working notes for Claude (not exported). The source of truth for intent is `BRIEF.md`; see the root CLAUDE.md
 for repo rules.
 
-- **Goal:** a mobile-first narrative web game. The traveller's portrait morphs into home via Teleblur; entry is
-  always refused.
+- **Goal:** a mobile-first narrative web game. The traveller's portrait morphs into home via Teleblur. Entry is
+  granted ("Next.", green stamp) while the face is still recognisable, refused otherwise (branch faded-passport/accept-entry).
 - **Challenges:** 01 (entry document PNG), 08 (deployed web app), 05 (quantum game + itch.io game jam). 06 maybe later.
 - **Engine:** `telablur-v1`, 1 credit per run, simulator only (no `mode`), so the form answer is "Emulation".
   Quantum idea: both images share one quantum state, and a selector qubit rotated by `strength` mixes them at
@@ -30,7 +30,11 @@ for repo rules.
   (`components/ScanOverlay.tsx`) shows only real job values. Ageing: `lib/ageing.ts` (AA-clamped colours,
   stage by years) + `lib/ageTextures.ts`; the permit ages with `?age=all`. Photo inputs are labelled by action;
   the camera button is hidden on desktop.
-- **Tuning TODO:** verdict thresholds (0.10 / 0.20) are provisional. Use a sweep's summary.csv. Teleblur `size` may
+- **Verdict (accept-entry branch):** `lib/change.ts` `verdict()`: likeness (outline-weighted SSIM, 128 px luma) ≥ 0.60 →
+  granted; else homeness ≥ 0.50 → "cannot be distinguished from the declared destination", ≥ 0.40 → address, else no
+  match. Thresholds `VERDICT` in config.ts, measured on the user's 1–40 sweeps (granted 1–6, place 38–40). Green
+  stamp `--stamp-granted`; both stamp inks clamped ≥ 3:1 when aged. The sweep CSV reports likeness/homeness/outcome.
+- **Tuning TODO:** verdict thresholds come from one photo pair; re-check with other faces/homes via a sweep's summary.csv. Teleblur `size` may
   round up to a power of two (as Quantum Blur does), so sizes 65–128 could look identical; unverified.
 - **Sweep:** `?debug` home step → "Download inputs" zip → `pnpm sweep <zip> --years …` (1 credit/year, `--dry-run`
   is free). Summary CSV has the change + verdict per year, which is the data for tuning thresholds.
