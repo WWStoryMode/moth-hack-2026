@@ -1,0 +1,9 @@
+# Only these sample images are committed (approved for publishing). Anything else dropped here
+# stays ignored, so personal photos cannot be committed by accident.
+*
+!README.md
+!.gitignore
+!portrait.png
+!home-street.png
+!home-canal.png
+!home-park.png

@@ -1,0 +1,17 @@
+OCR-B font (OCRB.otf) — from Matthew Skala's "OCR fonts" package, version 0.3.1 (2021-03-30)
+Source: https://tsukurimashou.org/ocr.php.en  (file: ocr-0.3.1.zip)
+
+Licence / copyright status, quoted from the package:
+
+  From the package documentation (ocr.tex, section "OCR B"):
+    "The version in this package descends from a set of Metafont definitions by
+     Norbert Schwarz of Ruhr-Universitaet Bochum, bearing dates ranging from 1986
+     to 2010. He originally distributed it under a "non-commercial use only"
+     restriction but has since released it for unrestricted use and distribution."
+    "I make no copyright claim on these fonts myself."  (Matthew Skala)
+
+  From the font source (msk-ocrb10.mp):
+    "Copyright 1995, 2010 Norbert Schwarz
+     You may freely use, modify and/or distribute this file, without limitation."
+
+Used here only to set the machine-readable zone (MRZ) on the Faded Passport entry permit.

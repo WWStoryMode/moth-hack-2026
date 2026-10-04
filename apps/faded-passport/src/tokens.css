@@ -1,0 +1,70 @@
+/* OCR-B for the machine-readable zone: openly licensed, see public/fonts/OCRB-LICENSE.txt */
+@font-face {
+  font-family: "OCR-B Faded";
+  src: url("/fonts/OCRB.otf") format("opentype");
+  font-display: swap;
+}
+
+/*
+ * Design tokens: every colour, font stack, spacing step and border style lives here.
+ * styles.css and the canvas code (src/lib/tokens.ts → document.ts, Mask.tsx) read these.
+ */
+:root {
+  /* Paper and ink */
+  --paper: #e9e7df; /* institutional grey off-white */
+  --paper-lines: rgba(120, 128, 126, 0.12);
+  --ink: #26292a;
+  --ink-muted: #575b58; /* small/secondary text: 5.6:1 on paper (WCAG AA) */
+  --rule: #7b7f7a; /* lines and frames (≥ 3:1 on paper) */
+  --photo-mat: #fbfbf8;
+  --mrz-bg: #f3f2ed;
+  --fibre: 70, 80, 80; /* RGB of paper fibres on the permit (alpha varies) */
+
+  /* Desk behind the paper */
+  --desk: #2c3431; /* cold dark green-grey */
+  --desk-glow: #3c4743;
+
+  /* Official marks */
+  --stamp: #a8231c;
+  --stamp-tint: rgba(168, 35, 28, 0.18); /* fill inside the drawn face line */
+  --stamp-backing: rgba(233, 231, 223, 0.625); /* paper-coloured backing, 37.5% see-through */
+  --stamp-opacity: 0.88;
+  --ink-texture: none; /* set at startup by lib/inkTexture.ts */
+  --ink-texture-size: 150px;
+
+  /* Controls: never red. Red is reserved for official marks (stamps, seals, the face line). */
+  --btn-primary: #33261c; /* deep ink-brown: the one main action per screen */
+  --btn-primary-text: var(--paper);
+  --btn: var(--ink); /* other buttons: outlined in ink */
+  --btn-text: var(--ink);
+  --btn-fill: transparent;
+  --focus: var(--ink);
+  --accent: var(--ink);
+
+  /* Type */
+  --serif: Georgia, "Times New Roman", serif;
+  --mono: "Courier New", Courier, monospace;
+  --ocr: "OCR-B Faded", var(--mono); /* machine-readable zone */
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 28px;
+
+  /* Borders and shadows */
+  --border-hair: 1px solid var(--rule);
+  --frame-double: 3px double var(--rule);
+  --photo-border: 8px solid var(--photo-mat);
+  --passport-ratio: 35 / 45;
+  --passport-width: 78%; /* keeps the 35:45 frame about as tall as the old square photo */
+  --photo-treatment: sepia(0.45) saturate(0.7) contrast(0.95) brightness(1.03); /* display only */
+  --button-border-width: 2px;
+  --radius: 2px;
+  --shadow-paper: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --shadow-document: 0 4px 16px rgba(0, 0, 0, 0.25);
+
+  color-scheme: light;
+}

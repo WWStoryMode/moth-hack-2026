@@ -1,24 +1,13 @@
-/* Bureaucratic paper: original styling (system serif + typewriter mono), mobile first. */
-:root {
-  --paper: #efe6d2;
-  --paper-2: #e6dac0;
-  --ink: #2b2a28;
-  --faint: #8a8272;
-  --red: #b3261e;
-  --desk: #3d3a35;
-  --serif: Georgia, "Times New Roman", serif;
-  --mono: "Courier New", Courier, monospace;
-  color-scheme: light;
-}
+/* Bureaucratic paper: original styling, mobile first. All values come from tokens.css. */
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
 body {
-  background: var(--desk) radial-gradient(circle at 50% 0, #56514a, var(--desk) 70%);
+  background: var(--desk) radial-gradient(circle at 50% 0, var(--desk-glow), var(--desk) 70%);
   color: var(--ink);
   font: 18px/1.45 var(--serif);
   -webkit-text-size-adjust: 100%;
 }
-#root { display: flex; justify-content: center; padding: 16px; min-height: 100dvh; }
+#root { display: flex; justify-content: center; padding: var(--space-4); min-height: 100dvh; }
 
 .paper {
   width: 100%;
@@ -26,13 +15,13 @@ body {
   align-self: flex-start;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 20px 20px 28px;
-  background: var(--paper) repeating-linear-gradient(0deg, transparent 0 31px, rgba(138,130,114,.12) 31px 32px);
-  border: 1px solid var(--faint);
-  outline: 3px double var(--faint);
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-5) var(--space-6);
+  background: var(--paper) repeating-linear-gradient(0deg, transparent 0 31px, var(--paper-lines) 31px 32px);
+  border: var(--border-hair);
+  outline: var(--frame-double);
   outline-offset: -9px;
-  box-shadow: 0 12px 40px rgba(0,0,0,.45);
+  box-shadow: var(--shadow-paper);
 }
 .paper-head {
   display: flex;
@@ -40,22 +29,24 @@ body {
   font: 13px var(--mono);
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: var(--faint);
-  border-bottom: 1px solid var(--faint);
-  padding: 4px 4px 8px;
+  color: var(--ink-muted);
+  border-bottom: var(--border-hair);
+  padding: var(--space-1) var(--space-1) var(--space-2);
 }
 h1 { margin: 8px 0 0; font-size: 40px; line-height: 1.1; letter-spacing: .02em; }
-.form-id { margin: 0; font: italic 15px var(--serif); color: var(--faint); }
-.lead { margin: 4px 0; }
+.form-id { margin: 0; font: italic 15px var(--serif); color: var(--ink-muted); }
+.lead { margin: var(--space-1) 0; }
 .question { font-weight: 700; font-size: 22px; }
 .years { font: 700 36px var(--mono); text-align: center; }
-.hint { margin: 0; color: var(--faint); font-style: italic; }
-.fineprint { margin: 0; font: 13px/1.4 var(--mono); color: var(--faint); }
+.hint { margin: 0; color: var(--ink-muted); font-style: italic; }
+.fineprint { margin: 0; font: 13px/1.4 var(--mono); color: var(--ink-muted); }
+.readout { text-transform: uppercase; letter-spacing: .08em; text-align: center; }
+.nowrap { white-space: nowrap; }
 .reason { margin: 0; font-size: 22px; font-weight: 700; text-align: center; }
 
-input[type="range"] { width: 100%; accent-color: var(--red); height: 32px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); height: 32px; }
 
-.row { display: flex; flex-wrap: wrap; gap: 8px; }
+.row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .row > * { flex: 1 1 auto; }
 button, .button {
   font: 700 16px var(--mono);
@@ -63,31 +54,48 @@ button, .button {
   text-transform: uppercase;
   text-align: center;
   text-decoration: none;
-  padding: 14px 16px;
+  padding: 14px var(--space-4);
   min-height: 48px;
-  border: 2px solid var(--ink);
-  border-radius: 2px;
-  background: var(--ink);
-  color: var(--paper);
+  border: var(--button-border-width) solid var(--btn);
+  border-radius: var(--radius);
+  background: var(--btn-fill);
+  color: var(--btn-text);
   cursor: pointer;
 }
-button.secondary, .button.secondary { background: transparent; color: var(--ink); }
-button.primary, .button.primary { background: var(--red); border-color: var(--red); }
+button.secondary, .button.secondary { background: transparent; color: var(--btn); }
+button.primary, .button.primary { background: var(--btn-primary); border-color: var(--btn-primary); color: var(--btn-primary-text); }
 button:disabled { opacity: .4; cursor: not-allowed; }
-button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-.officer { display: flex; gap: 12px; align-items: flex-start; }
+.officer { display: flex; gap: var(--space-3); align-items: flex-start; }
 .officer-cap { flex: 0 0 48px; color: var(--ink); margin-top: 2px; }
 .officer-line { margin: 0; font-size: 22px; font-weight: 700; }
 
-.photo, .document { display: block; width: 100%; height: auto; border: 8px solid #fff; outline: 1px solid var(--faint); }
-.document { border-width: 0; box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+.photo, .document { display: block; width: 100%; height: auto; border: var(--photo-border); outline: var(--border-hair); }
+.document { border-width: 0; box-shadow: var(--shadow-document); }
 
-.mask-view { position: relative; width: 100%; aspect-ratio: 1; border: 8px solid #fff; outline: 1px solid var(--faint); }
+/* Passport photo: 35:45, centre-cropped, sepia except the Teleblur-processed face. */
+.passport-photo {
+  position: relative;
+  width: var(--passport-width);
+  margin: 0 auto;
+  aspect-ratio: var(--passport-ratio);
+  border: var(--photo-border);
+  outline: var(--border-hair);
+  background: var(--photo-mat);
+}
+.passport-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.pp-treated { filter: var(--photo-treatment); }
+.pp-processed {
+  -webkit-mask-size: cover; mask-size: cover; /* same geometry as object-fit: cover */
+  -webkit-mask-position: center; mask-position: center;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  mask-mode: luminance; /* white outline = untreated; black = sepia shows through */
+}
+.mask-view { position: relative; width: 100%; aspect-ratio: 1; border: var(--photo-border); outline: var(--border-hair); }
 .mask-inner { position: relative; aspect-ratio: 1; }
 .mask-inner img, .mask-inner canvas { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; -webkit-user-select: none; }
 
-.examine { position: relative; }
 .stamp {
   position: absolute;
   right: 6%;
@@ -96,33 +104,56 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
   flex-direction: column;
   align-items: center;
   padding: 10px 18px;
-  color: var(--red);
-  border: 5px double var(--red);
+  color: var(--stamp);
   transform: rotate(-12deg);
-  opacity: .88;
-  background: rgba(239,230,210,.625); /* paper-coloured backing: 37.5% see-through */
+  opacity: var(--stamp-opacity);
+  background: var(--stamp-backing);
   text-transform: uppercase;
 }
+/* Rubber-stamp ink: precomputed speckle texture as a mask (uneven coverage, gaps, rough edges).
+   Only the ink is worn; the stamp's paper backing stays solid. The border lives on ::before so it
+   can be masked separately from the backing. */
+.stamp::before, .stamp strong, .stamp span, .seal {
+  -webkit-mask-image: var(--ink-texture);
+  mask-image: var(--ink-texture);
+  -webkit-mask-size: var(--ink-texture-size);
+  mask-size: var(--ink-texture-size);
+}
+.stamp::before { content: ""; position: absolute; inset: 0; border: 5px double var(--stamp); pointer-events: none; }
+/* Lands once: starts big and faint, presses down, settles with a tiny shake. */
+.stamp-land { animation: stamp-land 0.5s cubic-bezier(.2,.9,.3,1) both; }
+@keyframes stamp-land {
+  0% { opacity: 0; transform: rotate(-12deg) scale(1.55); }
+  62% { opacity: var(--stamp-opacity); transform: rotate(-12deg) scale(0.96); }
+  74% { transform: rotate(-11.4deg) scale(1.01) translate(1px, -1px); }
+  86% { transform: rotate(-12.5deg) scale(1) translate(-1px, 1px); }
+  100% { opacity: var(--stamp-opacity); transform: rotate(-12deg) scale(1); }
+}
 .stamp strong { font: 900 28px var(--serif); letter-spacing: .04em; }
+.stamp { white-space: nowrap; }
+/* On a passport photo the stamp sits across the lower corner, sized to the narrower frame. */
+.passport-photo .stamp { right: -4%; bottom: 7%; padding: 8px 14px; }
+.passport-photo .stamp strong { font-size: clamp(18px, 6.4vw, 26px); }
+.passport-photo .stamp span { font-size: clamp(11px, 3.4vw, 13px); }
 .stamp span { font: 700 14px var(--mono); }
 .stamp-hover { animation: hover 1.6s ease-in-out infinite; opacity: .55; }
 @keyframes hover {
   0%, 100% { transform: rotate(-12deg) translateY(-18px) scale(1.06); }
   50% { transform: rotate(-10deg) translateY(-26px) scale(1.08); }
 }
-@media (prefers-reduced-motion: reduce) { .stamp-hover { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .stamp-hover, .stamp-land { animation: none; } }
 
-.title-page { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 28px 0 8px; }
+.title-page { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: var(--space-6) 0 var(--space-2); }
 .title { margin: 0; font-size: clamp(44px, 13vw, 64px); line-height: 1; letter-spacing: .01em; }
 .tagline { margin: 0; font-style: italic; font-size: 20px; }
-.title-stamp { position: relative; height: 120px; width: 100%; }
-.title-stamp .stamp { right: auto; left: 50%; bottom: 12px; transform: translateX(-50%) rotate(-8deg); }
+.title-seal { display: flex; justify-content: center; padding: var(--space-2) 0; }
+.seal { color: var(--stamp); opacity: var(--stamp-opacity); transform: rotate(-8deg); }
 .story { display: flex; flex-direction: column; gap: 18px; min-height: 40vh; padding-top: 12px; }
 .story-line { margin: 0; font-size: 21px; animation: fade-in .9s ease-out both; }
 @keyframes fade-in { from { opacity: 0; transform: translateY(6px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
 @media (prefers-reduced-motion: reduce) { .story-line { animation: none; } }
 
-.mask-preview { margin: 0; display: grid; grid-template-columns: 120px 120px; gap: 8px 12px; justify-content: center; }
+.mask-preview { margin: 0; display: grid; grid-template-columns: 120px 120px; gap: var(--space-2) var(--space-3); justify-content: center; }
 .mask-preview figcaption { grid-column: 1 / -1; }
-.mask-preview img { width: 120px; height: 120px; outline: 1px solid var(--faint); }
-.mask-preview figcaption { font: 13px/1.4 var(--mono); color: var(--faint); }
+.mask-preview img { width: 120px; height: 120px; outline: var(--border-hair); }
+.mask-preview figcaption { font: 13px/1.4 var(--mono); color: var(--ink-muted); }

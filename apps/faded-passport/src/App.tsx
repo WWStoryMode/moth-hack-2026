@@ -1,4 +1,4 @@
-// The crossing, step by step: title → story → years → portrait → mask → home → TeleBlur → verdict → document.
+// The crossing, step by step: title → story → years → portrait → mask → home → Teleblur → verdict → document.
 import { useMemo, useState } from "react";
 import { DebugInputs } from "./components/DebugInputs.tsx";
 import { Officer } from "./components/Officer.tsx";
@@ -16,6 +16,7 @@ import { ProcessingScreen } from "./screens/Processing.tsx";
 import { StoryScreen } from "./screens/Story.tsx";
 import { TitleScreen } from "./screens/Title.tsx";
 import { VerdictScreen } from "./screens/Verdict.tsx";
+import { SAMPLES } from "./samples.ts";
 import { S } from "./strings.ts";
 
 type Step = "title" | "story" | "intro" | "portrait" | "mask" | "home" | "processing" | "verdict" | "document" | "error";
@@ -30,7 +31,7 @@ export function App() {
   const [step, setStep] = useState<Step>("title");
   const [years, setYears] = useState(10);
   const [portrait, setPortrait] = useState<Prepared | null>(null);
-  /** Sent to TeleBlur (see MASK in config.ts). */
+  /** Sent to Teleblur (see MASK in config.ts). */
   const [mask, setMask] = useState<Prepared | null>(null);
   /** The drawn face outline: where the verdict measures change. */
   const [face, setFace] = useState<Prepared | null>(null);
@@ -73,10 +74,10 @@ export function App() {
 
   const doc = useMemo<DocumentInput | null>(
     () =>
-      outcome && home
-        ? { morphUrl: outcome.morphUrl, homeUrl: home.url, years, reason: outcome.reason, jobId: outcome.job.jobId, params: outcome.job.params }
+      outcome && home && face
+        ? { morphUrl: outcome.morphUrl, outlineUrl: face.url, homeUrl: home.url, years, reason: outcome.reason, jobId: outcome.job.jobId, params: outcome.job.params }
         : null,
-    [outcome, home, years],
+    [outcome, home, face, years],
   );
 
   switch (step) {
@@ -88,7 +89,7 @@ export function App() {
       return <IntroScreen onStart={(y) => { setYears(y); setStep("portrait"); }} />;
     case "portrait":
       return (
-        <PhotoStep step="1 / 4" text={S.portrait} camera="user" type="image/png" alt="Your passport photo"
+        <PhotoStep step="1 / 4" text={S.portrait} camera="user" type="image/png" alt="Your passport photo" passport samples={SAMPLES.portrait}
           onDone={(p) => { setPortrait(p); setStep("mask"); }} />
       );
     case "mask":
@@ -102,7 +103,7 @@ export function App() {
       );
     case "home":
       return (
-        <PhotoStep step="4 / 4" text={S.home} camera="environment" type="image/jpeg" alt="Home" onDone={cross}
+        <PhotoStep step="4 / 4" text={S.home} camera="environment" type="image/jpeg" alt="Home" onDone={cross} samples={SAMPLES.home}
           extra={DEBUG && portrait && mask && face
             ? (h) => <DebugInputs portrait={portrait} home={h} mask={mask} outline={face} years={years} />
             : undefined} />
@@ -110,7 +111,9 @@ export function App() {
     case "processing":
       return portrait && <ProcessingScreen elapsedMs={elapsed} portraitUrl={portrait.url} />;
     case "verdict":
-      return outcome && <VerdictScreen morphUrl={outcome.morphUrl} reason={outcome.reason} years={years} onNext={() => setStep("document")} />;
+      return outcome && face && (
+        <VerdictScreen morphUrl={outcome.morphUrl} outlineUrl={face.url} reason={outcome.reason} years={years} onNext={() => setStep("document")} />
+      );
     case "document":
       return doc && <DocumentScreen input={doc} onAgain={reset} />;
     case "error":

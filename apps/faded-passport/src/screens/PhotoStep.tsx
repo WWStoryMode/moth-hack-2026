@@ -2,6 +2,7 @@
 import { useState, type ReactNode } from "react";
 import { Officer } from "../components/Officer.tsx";
 import { Paper } from "../components/Paper.tsx";
+import { PassportPhoto } from "../components/PassportPhoto.tsx";
 import { PhotoPicker } from "../components/PhotoPicker.tsx";
 import { prepareSquare, type Prepared } from "../lib/image.ts";
 import { S } from "../strings.ts";
@@ -13,6 +14,10 @@ export function PhotoStep(props: {
   /** Portrait is PNG so the morph comes back lossless; home can be JPEG. */
   type: "image/png" | "image/jpeg";
   alt: string;
+  /** Show the preview as a passport photo (35:45, sepia). Used for the portrait, not for home. */
+  passport?: boolean;
+  /** ?debug only: sample image URLs for this step (src/samples.ts). */
+  samples?: readonly string[];
   onDone: (photo: Prepared) => void;
   /** Rendered under the photo once one is chosen (used for the ?debug input download). */
   extra?: (photo: Prepared) => ReactNode;
@@ -24,12 +29,15 @@ export function PhotoStep(props: {
     <Paper step={props.step}>
       <Officer line={t.officer} />
       <p className="hint">{error ?? t.hint}</p>
-      {photo && <img className="photo" src={photo.url} alt={props.alt} />}
+      {photo && (props.passport
+        ? <PassportPhoto src={photo.url} alt={props.alt} />
+        : <img className="photo" src={photo.url} alt={props.alt} />)}
       {photo && props.extra?.(photo)}
       <PhotoPicker
         camera={props.camera}
         takeLabel={photo ? t.retake : t.take}
         chooseLabel={t.choose}
+        samples={props.samples}
         onFile={async (f) => {
           setError(null);
           try {

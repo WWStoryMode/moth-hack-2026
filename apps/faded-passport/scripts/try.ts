@@ -1,6 +1,6 @@
 // pnpm --filter @moth-hack/faded-passport try [--years 10] [portrait.png home.png mask.png]
 //
-// One live TeleBlur run (1 credit) through the SAME server code the app uses
+// One live Teleblur run (1 credit) through the SAME server code the app uses
 // (submit → status → result → cleanup), without a browser. With no files given it
 // generates synthetic 512² test images. Saves the morph + provenance to output/.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";

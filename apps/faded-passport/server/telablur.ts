@@ -1,4 +1,4 @@
-// The whole Moth side of a play: upload three images, run TeleBlur, hand back the morph,
+// The whole Moth side of a play: upload three images, run Teleblur, hand back the morph,
 // then delete everything from Moth's storage. The API key never leaves this module.
 //
 // Quantum idea (telablur-v1): both images are loaded into ONE quantum state, plus a single

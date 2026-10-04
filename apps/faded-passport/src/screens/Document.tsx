@@ -1,4 +1,4 @@
-// The final entry document — the downloadable Challenge 01 image with the TeleBlur params printed on it.
+// The final entry document — the downloadable Challenge 01 image with the Teleblur params printed on it.
 import { useEffect, useState } from "react";
 import { Paper } from "../components/Paper.tsx";
 import { composeDocument, type DocumentInput } from "../lib/document.ts";
@@ -14,7 +14,7 @@ export function DocumentScreen(props: { input: DocumentInput; onAgain: () => voi
     };
   }, [props.input]);
   return (
-    <Paper>
+    <Paper bureau={false}>
       {url ? <img className="document" src={url} alt="Your entry document, stamped Entry denied" /> : <p className="hint">…</p>}
       <div className="row">
         {url && (

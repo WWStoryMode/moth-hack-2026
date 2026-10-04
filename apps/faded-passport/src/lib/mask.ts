@@ -38,7 +38,7 @@ export function tracePath(ctx: CanvasRenderingContext2D, stroke: Stroke, dx = 0)
 }
 
 /**
- * White-inside / black-outside PNG at SIZE×SIZE with a feathered edge. TeleBlur treats grey as a
+ * White-inside / black-outside PNG at SIZE×SIZE with a feathered edge. Teleblur treats grey as a
  * soft blend (black keeps the portrait, white is fully morphed), so the edge fades instead of cutting.
  * Feathering uses a shadow drawn from an off-canvas copy — shadowBlur works in every browser.
  */
@@ -60,7 +60,7 @@ export async function renderMask(strokes: Stroke[], feather = MASK.feather): Pro
 }
 
 /**
- * The mask TeleBlur actually receives (see MASK in config.ts). In "portrait" mode each pixel is
+ * The mask Teleblur actually receives (see MASK in config.ts). In "portrait" mode each pixel is
  * luminance(portrait) × (or +) a value the drawn outline sets: MASK.range.black outside, .white inside.
  */
 export async function engineMask(portraitUrl: string, outline: Blob): Promise<Blob> {

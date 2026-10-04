@@ -10,24 +10,24 @@ always refused. What changes is **why**.
 
 ## How the quantum engine drives the story
 
-Everything that happens to your face is done by one Atlas engine, **TeleBlur** (`telablur-v1`).
+Everything that happens to your face is done by one Atlas engine, **Teleblur** (`telablur-v1`).
 
-TeleBlur puts two images into **one shared quantum state**. The pixels are encoded on n qubits, and one extra
+Teleblur puts two images into **one shared quantum state**. The pixels are encoded on n qubits, and one extra
 **selector qubit** says which image a part of the state belongs to: 0 for your portrait, 1 for home. Rotating
 that selector qubit mixes the two images at the level of **amplitudes**, the numbers a quantum state is made of.
 It is not a pixel cross-fade. Because pixel positions are also stored in qubits, the mix spreads through
 interference into grid-like, blocky echoes of home inside your face.
 
-| In the story | In TeleBlur |
+| In the story | In Teleblur |
 |---|---|
 | **How long since you last came home?** (1–40 years) | `strength`, how far the selector qubit is rotated: `0.1 + 0.9·t²` with `t = (years − 1)/39`. A slow start and a fast end: for years you barely fade, then all at once |
-| (same slider) | `size`, TeleBlur's pixel budget per pass: 8 at 1 year → 128 at 40 years on a log curve. The 512×512 face region is shrunk to size×size, morphed on fewer or more qubits, then scaled back up, so the morph is blockier or finer |
+| (same slider) | `size`, Teleblur's pixel budget per pass: 8 at 1 year → 128 at 40 years on a log curve. The 512×512 face region is shrunk to size×size, morphed on fewer or more qubits, then scaled back up, so the morph is blockier or finer |
 | **Who are you?** You draw around your face | `mask`. Built from your portrait's own brightness: ×1.5 inside your outline, ×0.5 outside, with a feathered edge. Bright skin morphs fully into home; dark features resist; the background only leaks a little |
 | **Passport, please** / **Where are you going?** | `image1` (your portrait) morphs toward `image2` (home) |
 | **The officer's verdict** | Computed from the output: how much the morph changed the face inside your mask picks the refusal reason |
 
 Fixed parameters: both photos are cropped to 512×512, `direction full`, `downscale true`,
-`mask_bin_size 4`, `mask_min_region 16`. TeleBlur runs on Moth's quantum **simulator**. The final entry document
+`mask_bin_size 4`, `mask_min_region 16`. Teleblur runs on Moth's quantum **simulator**. The final entry document
 prints the engine, every parameter and the job ID in its machine-readable strip, so each document records
 exactly how it was made.
 
@@ -48,7 +48,7 @@ pnpm --filter @moth-hack/faded-passport dev        # http://localhost:5173
 pnpm --filter @moth-hack/faded-passport dev:phone  # also on your LAN, to test on a phone
 ```
 
-`pnpm --filter @moth-hack/faded-passport try [--years N]` runs one TeleBlur job from the terminal using
+`pnpm --filter @moth-hack/faded-passport try [--years N]` runs one Teleblur job from the terminal using
 synthetic images (1 credit) and saves the result + provenance to `output/`.
 
 **Sweep all the years on one set of photos.** Open the app with `?debug`, and on the home step press
@@ -81,7 +81,7 @@ poll every 2 s ─────────────────────�
 fetch morph ─────────────────────────► /api/result  stream PNG, delete assets ► /jobs/{id}/result, DELETE /assets/{id}
 ```
 
-The API key lives only in the functions. The server rebuilds the TeleBlur parameters from `years`; the client
+The API key lives only in the functions. The server rebuilds the Teleblur parameters from `years`; the client
 never sets them. Uploads must be 512×512 PNG/JPEG (checked from the file header) and under 1.5 MB.
 
 ## Deploy (Vercel)
@@ -96,6 +96,6 @@ three environment variables above.
 - **Challenge 05:** the app as a short narrative game.
 
 Short description: *Faded Passport is a short border-crossing game in which your passport photo dissolves into
-a photo of home. Moth's TeleBlur engine places both images in one quantum state and rotates a single selector
+a photo of home. Moth's Teleblur engine places both images in one quantum state and rotates a single selector
 qubit between them. How long you've been away sets the rotation, the outline you draw around your face sets
 where it happens, and how much your face changed decides why the officer refuses you. Entry is always refused.*
