@@ -298,6 +298,8 @@ html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .se
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
 }
+.photo-input-quiet { justify-content: center; gap: 0 var(--space-2); }
+.photo-input-quiet > * { flex: 0 1 auto; }
 .debug-badge {
   position: fixed;
   right: var(--space-2);

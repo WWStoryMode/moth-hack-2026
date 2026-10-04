@@ -10,7 +10,7 @@ import { S } from "../strings.ts";
 
 export function PhotoStep(props: {
   step: string;
-  text: { officer: string; hint: string; take: string; choose: string; next: string; retake: string; dragHint?: string };
+  text: { officer: string; hint: string; take: string; choose: string; next: string; retake: string; chooseAgain: string; dragHint?: string };
   camera: "user" | "environment";
   /** Portrait is PNG so the morph comes back lossless; home can be JPEG. */
   type: "image/png" | "image/jpeg";
@@ -43,8 +43,8 @@ export function PhotoStep(props: {
       {photo && props.extra?.(photo)}
       <PhotoPicker
         camera={props.camera}
-        takeLabel={photo ? t.retake : t.take}
-        chooseLabel={t.choose}
+        hasPhoto={!!photo}
+        labels={t}
         samples={props.samples}
         onFile={async (f) => {
           setError(null);
@@ -57,8 +57,9 @@ export function PhotoStep(props: {
           }
         }}
       />
-      {!handOver && (
-        <button type="button" className="primary" disabled={!photo} onClick={() => photo && props.onDone(photo)}>
+      {/* The main button appears once there's a photo to hand over (before that, taking one is the main action). */}
+      {photo && !handOver && (
+        <button type="button" className="primary" onClick={() => props.onDone(photo)}>
           {t.next}
         </button>
       )}
