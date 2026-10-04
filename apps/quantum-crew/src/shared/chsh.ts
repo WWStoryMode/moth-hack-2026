@@ -185,6 +185,36 @@ export function simulate(strategyFn: StrategyFn, n: number, rng: Rng): Simulatio
   return { winRate: wins / n, aMarginal: aClosed / n, bMarginal: bClosed / n };
 }
 
+/** Plays `n` rounds with random lights and keeps every result (for the per-light breakdowns). */
+export function playRounds(strategyFn: StrategyFn, n: number, rng: Rng): RoundResult[] {
+  const results: RoundResult[] = [];
+  for (let i = 0; i < n; i++) {
+    const { x, y } = drawInputs(rng);
+    const { a, b } = strategyFn(x, y, rng);
+    results.push(scoreRound(x, y, a, b));
+  }
+  return results;
+}
+
+/** How often a player chose OPEN (null if there are no rounds). */
+export type OpenRates = { partnerGreen: number | null; partnerRed: number | null };
+
+/**
+ * No-signalling check: each player's OPEN rate split by their partner's light. If the two numbers differ,
+ * a player could read their partner's light from their own valve, which would be a message. Timeouts are skipped.
+ */
+export function openRatesByPartnerLight(results: readonly RoundResult[]): { a: OpenRates; b: OpenRates } {
+  const rate = (valves: (Valve | null)[]) => {
+    const played = valves.filter((v): v is Valve => v !== null);
+    return played.length ? played.filter((v) => v === OPEN).length / played.length : null;
+  };
+  const by = (pick: (r: RoundResult) => Valve | null, partner: (r: RoundResult) => Light): OpenRates => ({
+    partnerGreen: rate(results.filter((r) => partner(r) === GREEN).map(pick)),
+    partnerRed: rate(results.filter((r) => partner(r) === RED).map(pick)),
+  });
+  return { a: by((r) => r.a, (r) => r.y), b: by((r) => r.b, (r) => r.x) };
+}
+
 export const classicalStrategyFn =
   (sA: ClassicalStrategy, sB: ClassicalStrategy): StrategyFn =>
   (x, y) =>
