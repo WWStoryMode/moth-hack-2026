@@ -1,0 +1,5 @@
+{
+  "//": "Node side: shared game logic (src/shared), scripts/ and tests. The browser app gets its own tsconfig in M2.",
+  "extends": "../../tsconfig.base.json",
+  "include": ["src/shared/**/*.ts", "scripts/**/*.ts"]
+}
