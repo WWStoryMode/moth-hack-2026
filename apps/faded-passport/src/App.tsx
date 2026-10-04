@@ -1,5 +1,6 @@
 // The crossing, step by step: title → story → years → portrait → mask → home → Teleblur → verdict → document.
 import { useMemo, useState } from "react";
+import { DebugBadge } from "./components/DebugBadge.tsx";
 import { DebugInputs } from "./components/DebugInputs.tsx";
 import { Officer } from "./components/Officer.tsx";
 import { Paper } from "./components/Paper.tsx";
@@ -80,48 +81,57 @@ export function App() {
     [outcome, home, face, years],
   );
 
-  switch (step) {
-    case "title":
-      return <TitleScreen onBegin={() => setStep("story")} />;
-    case "story":
-      return <StoryScreen onDone={() => setStep("intro")} />;
-    case "intro":
-      return <IntroScreen onStart={(y) => { setYears(y); setStep("portrait"); }} />;
-    case "portrait":
-      return (
-        <PhotoStep step="1 / 4" text={S.portrait} camera="user" type="image/png" alt="Your passport photo" passport samples={SAMPLES.portrait}
-          onDone={(p) => { setPortrait(p); setStep("mask"); }} />
-      );
-    case "mask":
-      return portrait && (
-        <MaskScreen portraitUrl={portrait.url}
-          onDone={({ outline, engine }) => {
-            setFace({ blob: outline, url: URL.createObjectURL(outline) });
-            setMask({ blob: engine, url: URL.createObjectURL(engine) });
-            setStep("home");
-          }} />
-      );
-    case "home":
-      return (
-        <PhotoStep step="4 / 4" text={S.home} camera="environment" type="image/jpeg" alt="Home" onDone={cross} samples={SAMPLES.home}
-          extra={DEBUG && portrait && mask && face
-            ? (h) => <DebugInputs portrait={portrait} home={h} mask={mask} outline={face} years={years} />
-            : undefined} />
-      );
-    case "processing":
-      return portrait && <ProcessingScreen elapsedMs={elapsed} portraitUrl={portrait.url} />;
-    case "verdict":
-      return outcome && face && (
-        <VerdictScreen morphUrl={outcome.morphUrl} outlineUrl={face.url} reason={outcome.reason} years={years} onNext={() => setStep("document")} />
-      );
-    case "document":
-      return doc && <DocumentScreen input={doc} onAgain={reset} />;
-    case "error":
-      return (
-        <Paper>
-          <Officer line={error} />
-          <button type="button" className="primary" onClick={reset}>{S.errors.retry}</button>
-        </Paper>
-      );
+  return (
+    <>
+      {screen()}
+      <DebugBadge detail={`step=${step} · years=${years}`} />
+    </>
+  );
+
+  function screen() {
+    switch (step) {
+      case "title":
+        return <TitleScreen onBegin={() => setStep("story")} />;
+      case "story":
+        return <StoryScreen onDone={() => setStep("intro")} />;
+      case "intro":
+        return <IntroScreen onStart={(y) => { setYears(y); setStep("portrait"); }} />;
+      case "portrait":
+        return (
+          <PhotoStep step="1 / 4" text={S.portrait} camera="user" type="image/png" alt="Your passport photo" passport samples={SAMPLES.portrait}
+            onDone={(p) => { setPortrait(p); setStep("mask"); }} />
+        );
+      case "mask":
+        return portrait && (
+          <MaskScreen portraitUrl={portrait.url}
+            onDone={({ outline, engine }) => {
+              setFace({ blob: outline, url: URL.createObjectURL(outline) });
+              setMask({ blob: engine, url: URL.createObjectURL(engine) });
+              setStep("home");
+            }} />
+        );
+      case "home":
+        return (
+          <PhotoStep step="4 / 4" text={S.home} camera="environment" type="image/jpeg" alt="Home" onDone={cross} samples={SAMPLES.home}
+            extra={DEBUG && portrait && mask && face
+              ? (h) => <DebugInputs portrait={portrait} home={h} mask={mask} outline={face} years={years} />
+              : undefined} />
+        );
+      case "processing":
+        return portrait && <ProcessingScreen elapsedMs={elapsed} portraitUrl={portrait.url} />;
+      case "verdict":
+        return outcome && face && (
+          <VerdictScreen morphUrl={outcome.morphUrl} outlineUrl={face.url} reason={outcome.reason} years={years} onNext={() => setStep("document")} />
+        );
+      case "document":
+        return doc && <DocumentScreen input={doc} onAgain={reset} />;
+      case "error":
+        return (
+          <Paper>
+            <Officer line={error} />
+            <button type="button" className="primary" onClick={reset}>{S.errors.retry}</button>
+          </Paper>
+        );
+    }
   }
 }

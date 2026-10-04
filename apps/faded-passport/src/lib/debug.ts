@@ -1,2 +1,4 @@
-/** Add ?debug to the URL for developer tools (mask preview, input download). Never on by default. */
-export const DEBUG = typeof location !== "undefined" && new URLSearchParams(location.search).has("debug");
+import { FLAGS } from "./flags.ts";
+
+/** ?debug (or ?debug=1): developer tools (mask preview, input download, samples, flag label). */
+export const DEBUG = FLAGS.debug;
