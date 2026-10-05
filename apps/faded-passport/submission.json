@@ -15,8 +15,8 @@
   },
   "title": "Faded Passport",
   "pitch": "A border-crossing game in which your passport photo dissolves, through a quantum Teleblur, into the home you can't return to.",
-  "description": "",
-  "technical": "A mobile-first React + Vite web app with Vercel serverless functions as a proxy to the Moth Atlas API, so the API key never reaches the browser. The player's portrait, a photo of home and a hand-drawn face mask are cropped to 512×512 and sent to the telablur-v1 engine, which encodes both images in one quantum state and rotates a selector qubit between them. Years away set strength; the drawn outline sets the mask; the measured change inside the mask picks the officer's refusal.",
+  "description": "Faded Passport is a short border-crossing game told in reverse. You are not the inspector but the traveller, trying to return home after many years away. The officer asks how long you have been gone, takes your passport photo, asks you to trace your own face, and asks where you are going. Then a quantum engine decides who you have become. Your portrait is morphed into a photo of home. After a few years you are still recognisable, and the officer waves you through with a flat “Next.” After decades your face dissolves into banded interference and finally into the street you left, and entry is refused. Every play produces an entry permit showing the processed portrait, the home photo, the decision and a machine-readable strip of the exact quantum parameters, plus a downloadable record of the raw output and inputs. The motivation is the quiet grief of migration: the longer you stay away, the less home recognises you, and the less you recognise yourself in it.",
+  "technical": "A mobile-first React and Vite web app. Vercel serverless functions proxy the Moth Atlas API, so the key never reaches the browser. The portrait, the home photo and a mask built from the traced outline are cropped to 512×512 and sent to Quantum Teleblur (telablur-v1, simulator), which encodes both images in one quantum state and rotates a selector qubit between them. Years away set strength and size along a curve tuned on 1–40 year sweeps. The verdict is measured from the returned image: SSIM likeness grants entry; otherwise similarity to home picks the refusal.",
   "enginesViaPlatform": [],
   "hardware": "auto",
   "genAI": {
@@ -34,8 +34,8 @@
   },
   "links": {
     "repo": null,
-    "demo": null,
+    "demo": "https://faded-passport.vercel.app",
     "video": null
   },
-  "status": "building"
+  "status": "ready"
 }
