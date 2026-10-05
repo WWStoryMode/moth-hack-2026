@@ -28,6 +28,22 @@ Open the app and choose **Solo demo**. It takes about 6 minutes on a phone or a 
 
 Keyboard: **O / ←** = OPEN, **C / →** = CLOSED, **Space / Enter** = MEASURE.
 
+## How to play (event)
+Two tables of players, one phone each, and a TV or projector. A facilitator runs the session from the TV.
+
+1. Open **/screen** on the TV (landing page → **Host on TV**). It creates a station with a 4-letter code and a QR code.
+2. Players scan the QR (or open **/play** and type the code), enter a name and pick **Table A** or **Table B**.
+   The server pairs A₁↔B₁, A₂↔B₂… (up to 4 pairs). An AI crewmate fills any empty seat.
+3. **Start strategy huddle (45 s):** partners may talk across tables and agree a plan. When the clock runs out, the
+   comms blackout starts and so does the batch (or press **Start batch now**).
+4. Each round, every phone shows only its own light, two valve buttons and a countdown. The TV shows the round
+   timer, who has answered and each pair's result. Stability is pooled over the last 48 rounds across all pairs, and
+   each pair also has its own mini-meter.
+5. Play a few batches, then **Reveal the ceiling**. Act III (the Entanglement Tool) and the TV debrief arrive in
+   the next build.
+
+A phone that reloads or drops out rejoins its seat automatically (same name, same table).
+
 ## The physics
 This is the **CHSH game**, a Bell test. Two players who can't talk each get a random bit (the light) and output a
 bit (the valve). They win if `a XOR b == x AND y`.
@@ -68,5 +84,21 @@ pnpm --filter @moth-hack/quantum-crew sim        # classical best, quantum optim
 pnpm --filter @moth-hack/quantum-crew build      # static build in dist/
 ```
 
-The solo mode is a static site and needs no server or API key. `vercel.json` rewrites all routes to
-`index.html` for deployment.
+`pnpm dev` also runs the station (WebSocket at `/ws`) inside the Vite dev server, so event mode works locally.
+To test with real phones, open the TV page via the **Network** URL that Vite prints (e.g. `http://192.168.x.x:5173/screen`)
+so the QR code points somewhere phones can reach. To test alone, use one `/screen` tab and a few `/play` tabs.
+
+```sh
+pnpm --filter @moth-hack/quantum-crew smoke   # real WebSocket server + 1 TV + 4 phones, one Act II batch
+```
+
+## Deploy
+- **Solo only (static):** the solo mode needs no server or API key. Deploy `dist/` anywhere; `vercel.json`
+  rewrites every route to `index.html`. On a static host, the event-mode buttons stay disabled.
+- **Event mode (one Node process):** `server/index.ts` serves `dist/` and the WebSocket on the same origin.
+  Use any host that supports WebSockets (Render, Railway, Fly…), from the repo root:
+  - build: `pnpm install && pnpm --filter @moth-hack/quantum-crew build`
+  - start: `pnpm --filter @moth-hack/quantum-crew start` (listens on `$PORT`, default 8787; Node ≥ 22.18 runs
+    the TypeScript directly)
+
+  Rooms live in memory, so a restart ends every session. Health check: `/healthz`.

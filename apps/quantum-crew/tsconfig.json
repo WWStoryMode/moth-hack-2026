@@ -1,5 +1,5 @@
 {
-  "//": "Node side: shared game logic (src/shared), scripts/, the Vite config and Node tests. The browser app uses tsconfig.app.json.",
+  "//": "Node side: shared game logic (src/shared), the station server (server/), scripts/, the Vite config and Node tests. The browser app uses tsconfig.app.json.",
   "extends": "../../tsconfig.base.json",
-  "include": ["src/shared/**/*.ts", "src/config.ts", "scripts/**/*.ts", "vite.config.ts"]
+  "include": ["src/shared/**/*.ts", "src/config.ts", "server/**/*.ts", "scripts/**/*.ts", "vite.config.ts"]
 }

@@ -226,6 +226,10 @@ p {
   color: var(--ink-muted);
 }
 
+.light--small {
+  flex-direction: row;
+}
+
 .light--small .light__bulb {
   width: 22px;
   border-width: 2px;
@@ -814,4 +818,273 @@ p {
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
   }
+}
+
+/* ---------- Forms (phone join) ---------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input {
+  min-height: 56px;
+  padding: 10px 14px;
+  border: 2px solid var(--edge-bright);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-l);
+}
+
+.input:focus {
+  outline: 3px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.input--code {
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.table-pick {
+  min-height: var(--tap);
+  font-size: var(--fs-l);
+}
+
+/* ---------- TV (event host) ---------- */
+
+.tv {
+  min-height: 100dvh;
+  padding: clamp(16px, 2vw, 32px);
+  display: grid;
+  gap: clamp(16px, 1.6vw, 28px);
+  grid-template-columns: 1fr;
+  grid-template-areas: "head" "main" "side" "controls";
+  font-size: clamp(1rem, 1.2vw, 1.5rem);
+}
+
+/* On a TV or laptop the whole station fits one screen: the station picture takes whatever height is left. */
+@media (min-width: 900px) {
+  .tv {
+    height: 100dvh;
+    overflow: hidden;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "head head" "main side" "controls controls";
+  }
+
+  .tv .station {
+    flex: 1 1 0;
+    min-height: 100px;
+    aspect-ratio: auto;
+  }
+
+  .tv__side {
+    overflow-y: auto;
+  }
+}
+
+.tv__head {
+  grid-area: head;
+  display: flex;
+  justify-content: space-between;
+}
+
+.tv__main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
+  min-width: 0;
+}
+
+.tv__side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
+  min-width: 0;
+}
+
+.tv .meter__value {
+  font-size: clamp(2rem, 4.5vw, 5rem);
+}
+
+.tv .meter__track {
+  height: clamp(28px, 3vw, 48px);
+}
+
+.tv__banner h1 {
+  font-size: clamp(1.6rem, 3.2vw, 3.4rem);
+}
+
+.tv__banner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tv__banner--round h1,
+.tv__banner--roundResult h1 {
+  color: var(--red);
+}
+
+.tv__banner--strategy h1 {
+  color: var(--green);
+}
+
+.tv__clock {
+  font-size: clamp(3rem, 8vw, 8rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+}
+
+.tv__big {
+  font-size: clamp(1.4rem, 2.6vw, 2.6rem);
+  font-weight: 800;
+}
+
+.tv__line {
+  font-size: clamp(1.1rem, 1.8vw, 2rem);
+}
+
+.tv__join {
+  display: flex;
+  gap: var(--gap);
+  align-items: center;
+}
+
+.tv__qr {
+  width: 120px;
+  flex: none;
+  line-height: 0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.tv__qr svg {
+  width: 100%;
+  height: auto;
+}
+
+.tv__join--big .tv__qr {
+  width: clamp(180px, 18vw, 320px);
+}
+
+.tv__code {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: 0.2em;
+}
+
+.tv__code .muted {
+  font-size: 0.35em;
+  letter-spacing: 0.1em;
+  vertical-align: middle;
+}
+
+.tv__controls {
+  grid-area: controls;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding-top: var(--gap);
+  border-top: var(--border);
+}
+
+.tv__controls .btn {
+  min-height: 48px;
+  font-size: 0.85rem;
+}
+
+.tv__error {
+  color: var(--red);
+}
+
+.pair {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 200ms, box-shadow 200ms;
+}
+
+.pair--win {
+  border-color: var(--green);
+  box-shadow: 0 0 18px rgba(57, 229, 140, 0.35);
+}
+
+.pair--loss {
+  border-color: var(--red);
+  box-shadow: 0 0 18px rgba(255, 79, 94, 0.35);
+}
+
+.pair__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.pair__head strong {
+  font-size: 1.4em;
+  font-variant-numeric: tabular-nums;
+}
+
+.pair__seats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.seat {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seat b {
+  color: var(--amber);
+}
+
+.seat--bot {
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+.seat--off {
+  opacity: 0.45;
+}
+
+.minimeter {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  overflow: hidden;
+}
+
+.minimeter__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--red);
+  transition: width 600ms;
+}
+
+.minimeter__fill--ok {
+  background: var(--green);
+}
+
+.minimeter__line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 2px solid var(--line-survival);
 }
