@@ -1,0 +1,15 @@
+{
+  "engineId": "blur-v1",
+  "jobId": "dd70e7a7-b820-4364-bb11-db01ebfc9406",
+  "mode": null,
+  "params": {
+    "strength": 0.45,
+    "reach": 0,
+    "style": "rx"
+  },
+  "inputFiles": {
+    "image": "d951af78-0fa4-41ef-970e-980d354dada5"
+  },
+  "submittedAt": "2026-10-05T23:46:22Z",
+  "completedAt": "2026-10-05T23:46:22Z"
+}

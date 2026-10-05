@@ -90,6 +90,15 @@ blue light is reflected or transmitted at each viewing angle). The engine's raw 
 GLSL in the browser. The tool's two crystals tilt in sync and shift colour with the viewing angle, and the same
 shader ripples behind the tool reveal and every Act III screen. Without WebGL 2 the CSS placeholders show instead.
 
+### Generating the station art (`pnpm gen-assets`)
+`pnpm --filter @moth-hack/quantum-crew gen-assets` draws a 64×36 pixel-art station and a 64×32 crew sprite in code
+(`scripts/lib/inputs.ts`), uploads them and runs the engines through `@moth-hack/atlas-client` (1 credit per job):
+Tessa on a noisy `fake_fez` simulator for `station-base` / `crew-icons`, then Quantum Blur at strengths
+0.05 / 0.25 / 0.45 / 0.7 / 1.0 for `station-stability-4 … 0`. Each result is saved with a `.provenance.json` (engine,
+job id, params), which the Credits screen shows. Existing assets are skipped unless `--force`; `--dry-run` shows the
+plan. On 6 Oct the Tessa engine timed out (`engine_timeout`, three tries, also on `aer`), so the five Blur levels were
+made from the drawn station with `--blur-source drawn`; `station-base` and `crew-icons` keep their placeholders.
+
 ### Adding an asset
 1. Make it on the platform and save it into `src/assets/atlas/`, named after its key with any extension
    (`station-stability-2.png`, `entanglement-reveal.webm`, `sfx-win.mp3`…). Vite picks it up; no code change.

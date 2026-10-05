@@ -1312,3 +1312,8 @@ p {
 .crew-icon {
   image-rendering: pixelated;
 }
+
+/* Show the whole station (the pixel art is 16:9; the TV box is wider). */
+.station img {
+  object-fit: contain;
+}

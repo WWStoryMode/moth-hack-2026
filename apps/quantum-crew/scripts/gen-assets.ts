@@ -1,5 +1,5 @@
 // pnpm --filter @moth-hack/quantum-crew gen-assets (tsx: the atlas-client uses syntax Node can't strip)
-// [--dry-run] [--only key,key] [--force] [--machine fake_fez]
+// [--dry-run] [--only key,key] [--force] [--machine fake_fez] [--blur-source drawn]
 //
 // Makes the station and crew art with Atlas engines (1 credit per job, 7 jobs for everything):
 //  - Tessa (tessa-image-v1) encodes our 64×64-max pixel art onto quantum circuits and measures it back. On a
@@ -31,6 +31,8 @@ const dryRun = flag("dry-run");
 const force = flag("force");
 const only = value("only")?.split(",");
 const machine = (value("machine") ?? "fake_fez") as "fake_fez";
+// --blur-source drawn: blur our drawn station directly (e.g. when Tessa is unavailable) instead of the Tessa output.
+const blurFromDrawn = value("blur-source") === "drawn";
 
 type Job = {
   key: string;
@@ -56,7 +58,8 @@ const JOBS: Job[] = [
     ([level, strength]): Job => ({
       key: `station-stability-${level}`,
       engine: "blur-v1",
-      input: join(ASSETS, "station-base.png"), // blur the quantum-encoded station
+      // Blur the quantum-encoded station, or the drawn one with --blur-source drawn.
+      input: blurFromDrawn ? join(INPUTS, "station.png") : join(ASSETS, "station-base.png"),
       params: { strength, reach: 0, style: "rx" },
     }),
   ),
