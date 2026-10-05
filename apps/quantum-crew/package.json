@@ -13,7 +13,8 @@
     "sim": "tsx scripts/sim.ts",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.app.json",
     "start": "node server/index.ts",
-    "smoke": "node scripts/smoke.ts"
+    "smoke": "node scripts/smoke.ts",
+    "assets": "node scripts/assets.ts"
   },
   "devDependencies": {
     "@types/qrcode": "^1.5.6",

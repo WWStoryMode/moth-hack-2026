@@ -23,14 +23,17 @@ M0–M6. See the root CLAUDE.md for repo rules.
   Client: `net/socket.ts` (auto-reconnect, `hello` re-identifies), `net/hostStore.ts`, `net/playerStore.ts`
   (sessionStorage keeps the seat across reloads), `screens/Screen.tsx` (TV), `screens/Play.tsx` (phone).
   `pnpm start` = `node server/index.ts` (Node type stripping, no tsx). `pnpm smoke` = real-WS end-to-end check.
-- **Atlas assets:** drop files into `src/assets/atlas/` named by manifest key (any extension); `import.meta.glob`
-  picks them up and placeholders vanish. Fill `params` in `manifest.ts` for the credits. NB the root .gitignore
-  ignores *.mp4/*.wav: use png/webm/mp3 or add an exception.
+- **Atlas assets:** drop files into `src/assets/atlas/` named by key (any extension); `manifest.ts` resolves them via
+  `import.meta.glob` and placeholders vanish. The list + `params` for credits live in `list.ts` (plain data, also
+  read by `pnpm assets`, the checklist). Root .gitignore ignores *.mp4/*.wav: use png/webp/webm/mp3.
+  Swap verified 2026-10-05 with temporary SVGs (station-base, crew-icons sprite halves, entanglement-reveal).
+- **Sound (M5):** `audio/sfx.ts` plays `sfx-*` files or a Web Audio stand-in; mute per context (solo/tv/phone) in
+  localStorage, defaults on/on/off; audio unlocks on the first tap. Triggers: win chime (solo round won, TV when
+  ≥ half the pairs held, phone flash), alarm (batch ends < 80%, TV rolling crosses below 80%), reveal (tool).
 - **Git:** one branch per milestone (`quantum-crew/mN-…`), PR per milestone, user reviews before merge.
-- **Status (2026-10-05):** M0–M3 merged. M4 (Act III multiplayer + TV debrief) done on `quantum-crew/m4-act3`:
-  41 tests (incl. Act III win rate ≈ 85.4% for A-first / B-first / alternating, no-signalling marginals, measured
-  valve only to the measurer), TV + 3 phones driven through Act II → ceiling → tool → Act III → debrief.
-  Next: M5 Atlas assets (William) + sounds/mute + polish.
+- **Status (2026-10-05):** M0–M4 merged. M5 (Atlas asset pipeline, sounds + mute, crew icons, Act III backdrop,
+  TV layout fixes) done on `quantum-crew/m5-polish`. No real Atlas assets yet (0/11). Next: William adds assets +
+  params; deploy (host TBD); submission.json copy, poster, video. M6 (Act I) only if time allows.
 - **Decisions:** marginals in `simulate` are the fraction of CLOSED valves. In simulation, who measures first is a coin
   flip per round unless `order` is given. Solo: the player always measures first; Act II plan pickers feed the
   1,000-round test (rounds are tapped live); the meter spans 50–100%; the 75 line appears from the ceiling reveal

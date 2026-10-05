@@ -160,6 +160,8 @@ export const S = {
     },
   },
 
+  sound: { mute: "Mute sound", unmute: "Turn sound on" },
+
   credits: {
     title: "Credits",
     lead: "Made for Moth Hack 2026 (FQxI Challenge) with Moth Quantum Atlas engines.",

@@ -69,9 +69,10 @@ In the game, the entangled pair is simulated with the exact quantum probabilitie
 player to measure gets a fair coin, and the second player's result matches it with probability cos²(Δθ).
 
 ## Atlas engines
-The station art, its degradation levels, the tool reveal and the sounds are made with Moth Quantum Atlas engines
-on platform.mothquantum.com. They are listed with their parameters in `src/assets/atlas/manifest.ts` and on the
-Credits screen. Any asset that hasn't been added yet shows a CSS/SVG placeholder.
+The station art, its degradation levels, the crew avatars, the tool reveal and the sounds are made with Moth Quantum
+Atlas engines on platform.mothquantum.com. They are listed with their parameters in `src/assets/atlas/list.ts` and
+on the Credits screen. Any asset that hasn't been added yet shows a placeholder (CSS/SVG art, or a short Web Audio
+sound), so the game always works.
 
 | Asset | Engine |
 |---|---|
@@ -80,6 +81,22 @@ Credits screen. Any asset that hasn't been added yet shows a CSS/SVG placeholder
 | `entanglement-reveal` | Entanglement Shader (`entanglement-shader-v1`) |
 | `sfx-alarm`, `sfx-win`, `sfx-reveal` | Atlas sound engine (to confirm) |
 
+### Adding an asset
+1. Make it on the platform and save it into `src/assets/atlas/`, named after its key with any extension
+   (`station-stability-2.png`, `entanglement-reveal.webm`, `sfx-win.mp3`…). Vite picks it up; no code change.
+2. Fill its `params` in `src/assets/atlas/list.ts` so the Credits screen shows how it was made.
+3. Run `pnpm --filter @moth-hack/quantum-crew assets` for a checklist: present / missing, missing params, files over
+   5 MB, and types the repo gitignores (`.mp4`, `.wav`: use `.webm`, `.png`, `.mp3`).
+
+Where they appear: `station-base` and `station-stability-0…4` on the TV, readouts and landing (the level follows
+stability: 0 failing … 4 stable); `crew-icons` (one image, Table A left half, Table B right half) on the TV pair
+cards and phones; `entanglement-reveal` behind the tool reveal and as the Act III background; `sfx-win` on a won
+round, `sfx-alarm` when stability drops below 80% or a batch ends below it, `sfx-reveal` when the tool arrives.
+
+### Sound
+Every screen has a mute button. Sound is on by default in solo and on the TV, and off by default on event phones
+(a room of 8 phones chiming is a lot); each device remembers its choice.
+
 ## Run it locally
 ```sh
 pnpm install
@@ -87,6 +104,7 @@ pnpm --filter @moth-hack/quantum-crew dev        # http://localhost:5173/solo
 pnpm --filter @moth-hack/quantum-crew dev:phone  # same, reachable from a phone on your Wi-Fi
 pnpm --filter @moth-hack/quantum-crew test       # core logic + solo flow tests
 pnpm --filter @moth-hack/quantum-crew sim        # classical best, quantum optimum, top-5 dial setups
+pnpm --filter @moth-hack/quantum-crew assets     # Atlas asset checklist
 pnpm --filter @moth-hack/quantum-crew build      # static build in dist/
 ```
 

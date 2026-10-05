@@ -2,7 +2,11 @@
 // buttons or MEASURE with the dial in use, countdown). Everything else is on the TV.
 import { useEffect, useState, type ReactNode } from "react";
 import { Countdown } from "../components/Countdown.tsx";
+import { playSfx } from "../audio/sfx.ts";
+import { CrewIcon } from "../components/CrewIcon.tsx";
 import { Dial } from "../components/Dial.tsx";
+import { MuteToggle } from "../components/MuteToggle.tsx";
+import { QuantumBackdrop } from "../components/QuantumBackdrop.tsx";
 import { SensorLight } from "../components/SensorLight.tsx";
 import { navigate } from "../lib/router.ts";
 import { usePlayer } from "../net/playerStore.ts";
@@ -124,6 +128,15 @@ function InRoom() {
     return () => window.removeEventListener("keydown", onKey);
   }, [answer, measure]);
 
+  // Phone sounds (off by default in a room; see audio/sfx.ts).
+  useEffect(() => {
+    if (flash?.win) playSfx("win", "phone");
+  }, [flash]);
+  const phase = state?.phase;
+  useEffect(() => {
+    if (phase === "tool") playSfx("reveal", "phone");
+  }, [phase]);
+
   if (!state || !seat) return null;
 
   const me = state.players.find((pl) => pl.id === playerId);
@@ -131,7 +144,12 @@ function InRoom() {
   const partner = pair ? (seat.table === "A" ? pair.b : pair.a) : null;
   const otherTable = seat.table === "A" ? "B" : "A";
   const quantum = state.act === 3 && state.phase !== "debrief";
-  const wrap = (children: ReactNode) => <div className={quantum ? "quantum" : undefined}>{children}</div>;
+  const wrap = (children: ReactNode) => (
+    <div className={quantum ? "quantum" : undefined}>
+      {quantum && <QuantumBackdrop />}
+      {children}
+    </div>
+  );
 
   // During a live round the phone shows only the light, the control and the countdown.
   if (round && round.answered === null) {
@@ -173,9 +191,13 @@ function InRoom() {
 
   return wrap(
     <main className="screen">
-      <div className="meter__head">
-        <span className="kicker">{S.phone.seat(seat.table, seat.name)}</span>
+      <div className="screen-top">
+        <span className="dial__label">
+          <CrewIcon table={seat.table} />
+          <span className="kicker">{S.phone.seat(seat.table, seat.name)}</span>
+        </span>
         {status !== "open" && <span className="kicker">{S.event.reconnecting}</span>}
+        <MuteToggle where="phone" />
       </div>
       {partner && <p className="muted">{S.phone.partner(partner.name, otherTable)}</p>}
 

@@ -1,12 +1,15 @@
 // The emotional peak: the Entanglement Tool arrives, in a look the game hasn't used before.
 // Background: William's Entanglement Shader asset if present, else a slow conic shimmer.
+import { useEffect } from "react";
 import { atlasUrl, isVideo } from "../assets/atlas/manifest.ts";
+import { playSfx } from "../audio/sfx.ts";
 import { S } from "../strings.ts";
 import { useSolo } from "./soloStore.ts";
 
 export function ToolReveal() {
   const openTool = useSolo((s) => s.openTool);
   const art = atlasUrl("entanglement-reveal");
+  useEffect(() => playSfx("reveal", "solo"), []);
   return (
     <main className="screen reveal">
       <div className="reveal__field" aria-hidden="true" style={art ? { filter: "none", opacity: 0.5 } : undefined}>
