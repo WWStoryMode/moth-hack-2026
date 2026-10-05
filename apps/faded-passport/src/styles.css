@@ -12,6 +12,7 @@ body {
 .paper {
   width: 100%;
   max-width: 520px;
+  min-height: var(--page-height); /* every screen is at least one full screen tall */
   align-self: flex-start;
   display: flex;
   flex-direction: column;
@@ -131,6 +132,9 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
 .officer-line { margin: 0; font-size: 22px; font-weight: 700; }
 
 .photo, .document { display: block; width: 100%; height: auto; border: var(--photo-border); outline: var(--border-hair); }
+.photo { width: min(100%, var(--photo-max)); margin: 0 auto; }
+/* Permit preview: leave room below for the download buttons and the processing record. */
+.document { width: min(100%, calc((var(--page-height) - 400px) * 1240 / 1754)); margin: 0 auto; }
 .document { border-width: 0; box-shadow: var(--shadow-document); }
 
 /* Passport photo: 35:45, centre-cropped, sepia except the Teleblur-processed face. */
@@ -151,7 +155,7 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   mask-mode: luminance; /* white outline = untreated; black = sepia shows through */
 }
-.mask-view { position: relative; width: 100%; aspect-ratio: 1; border: var(--photo-border); outline: var(--border-hair); }
+.mask-view { position: relative; width: min(100%, var(--photo-max)); margin: 0 auto; aspect-ratio: 1; border: var(--photo-border); outline: var(--border-hair); }
 .mask-inner { position: relative; aspect-ratio: 1; }
 .mask-inner img, .mask-inner canvas { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; -webkit-user-select: none; }
 
@@ -308,6 +312,9 @@ html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .se
 .record-heading { margin: 0; font: 700 14px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
 .record-row { justify-content: center; gap: 0 var(--space-2); }
 .record-row > * { flex: 0 1 auto; }
+/* Compact one-line tool row (mask screen: Undo · Start over · Zoom · Move). */
+.row.tools { flex-wrap: nowrap; gap: var(--space-1); }
+.row.tools > button { flex: 1 1 0; min-width: 0; min-height: 44px; padding: 10px 6px; font-size: 13px; letter-spacing: 0.03em; }
 .debug-badge {
   position: fixed;
   top: 1px;
