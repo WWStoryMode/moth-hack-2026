@@ -1,0 +1,54 @@
+/*
+ * Design tokens: every colour, font stack, size and border lives here; styles.css reads them.
+ * Retro-futurist control panel: near-black steel, amber readouts, high contrast for a TV across the room.
+ */
+:root {
+  /* Panel */
+  --bg: #0a0e13;
+  --bg-glow: #142030;
+  --panel: #131a23;
+  --panel-raised: #1b2531;
+  --edge: #2c3a4a;
+  --edge-bright: #4a5e74;
+  --rivet: #56677a;
+
+  /* Text */
+  --ink: #eef3f8;
+  --ink-muted: #9db0c4; /* 7:1 on --panel */
+  --amber: #ffb627; /* readouts, primary actions */
+  --amber-deep: #b87a00;
+
+  /* Signals (the two sensor lights and round outcomes) */
+  --green: #39e58c;
+  --green-deep: #0f6b3d;
+  --red: #ff4f5e;
+  --red-deep: #7a1720;
+  --win: var(--green);
+  --loss: var(--red);
+
+  /* Meter lines */
+  --line-ceiling: #ffd166;
+  --line-survival: #f2f6fa;
+  --line-limit: #c77dff;
+
+  /* The Entanglement Tool: a look that appears nowhere before Act III */
+  --q-1: #c77dff;
+  --q-2: #ff5fd2;
+  --q-3: #5ee7ff;
+  --q-bg: #12061f;
+
+  /* Type */
+  --font: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
+  --fs-s: 0.9rem;
+  --fs-m: 1.05rem;
+  --fs-l: 1.4rem;
+  --fs-xl: clamp(1.9rem, 7vw, 2.6rem);
+  --fs-huge: clamp(3.5rem, 18vw, 6rem);
+
+  /* Space and shape */
+  --gap: 16px;
+  --radius: 10px;
+  --border: 2px solid var(--edge);
+  --press: 0 5px 0 0 rgba(0, 0, 0, 0.55);
+  --tap: 72px; /* minimum height of a round button */
+}

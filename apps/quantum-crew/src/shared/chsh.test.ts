@@ -8,6 +8,8 @@ import {
   classicalExpectedWinRate,
   classicalStrategyFn,
   isWin,
+  openRatesByPartnerLight,
+  playRounds,
   quantumExpectedWinRate,
   quantumStrategyFn,
   scoreRound,
@@ -86,6 +88,18 @@ describe("no-signalling", () => {
       expect(Math.abs(r.bMarginal - 0.5)).toBeLessThan(0.005);
     },
   );
+});
+
+describe("openRatesByPartnerLight", () => {
+  it("each player's OPEN rate is ≈ 50% whatever the partner's light", () => {
+    const rounds = playRounds(quantumStrategyFn(OPTIMAL_TUNING.A, OPTIMAL_TUNING.B), N, mulberry32(4));
+    const { a, b } = openRatesByPartnerLight(rounds);
+    for (const r of [a.partnerGreen, a.partnerRed, b.partnerGreen, b.partnerRed]) expect(Math.abs(r! - 0.5)).toBeLessThan(0.005);
+  });
+
+  it("skips timeouts and returns null without rounds", () => {
+    expect(openRatesByPartnerLight([scoreRound(0, 1, null, 0)]).a).toEqual({ partnerGreen: null, partnerRed: null });
+  });
 });
 
 describe("scoring", () => {

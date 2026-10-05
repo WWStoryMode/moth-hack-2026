@@ -5,11 +5,24 @@
   "type": "module",
   "description": "A co-op party game where two tables of players hit the 75% classical limit of the CHSH game, then beat it with an entanglement tool.",
   "scripts": {
+    "dev": "vite",
+    "dev:phone": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "vitest run",
     "sim": "tsx scripts/sim.ts",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.app.json"
   },
   "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "vite": "^8.3.1",
     "vitest": "^5.0.3"
+  },
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zustand": "^5.0.15"
   }
 }
