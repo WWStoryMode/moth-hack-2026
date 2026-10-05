@@ -59,8 +59,16 @@ export const ATLAS_ASSETS: AtlasAsset[] = [
     file: "entanglement-lut.json",
     engine: "Entanglement Shader",
     engineId: "entanglement-shader-v1",
-    // TODO(William): the exact parameters used for job a08def9e (style, layers, incoming_rays, reflectance,
-    // absorption, interaction, resolution). The LUTs are 60×60, so resolution was 60.
+    // Run on the platform by William (job a08def9e). The LUTs it returned are 60×60, i.e. resolution 60.
+    params: {
+      style: "frustrated",
+      layers: 3,
+      incoming_rays: 8,
+      reflectance: 0.3,
+      absorption: 0.6,
+      interaction: 1,
+      resolution: 60,
+    },
     placeholder: "css",
     use: "The Entanglement Tool's crystals, the reveal and the Act III background, rendered live from the engine's shader",
   },

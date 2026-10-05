@@ -31,7 +31,8 @@ M0–M6. See the root CLAUDE.md for repo rules.
   `atlas-src/entanglement-shader/`; `pnpm bake-shader` decodes R/T `.hdr` → `src/assets/atlas/entanglement-lut.json`.
   `atlas/entanglementShader.ts` = WebGL2 port of the engine's GLSL (`lutColour` is line-for-line) + scenes (film,
   two synced faceted crystals); display grading = tonemap + saturation lift only. `components/EntanglementSurface.tsx`
-  (`Crystals`, film) falls back to CSS when the LUT or WebGL2 is missing. Params of the run still TODO in list.ts.
+  (`Crystals`, film) falls back to CSS when the LUT or WebGL2 is missing. Params in list.ts (frustrated, 3 layers, 8 rays, R 0.3,
+  A 0.6, interaction 1; resolution 60 per the LUT size, although 120 was suggested).
 - **gen-assets (2026-10-06):** `scripts/gen-assets.ts` (tsx; atlas-client can't be type-stripped) + `scripts/lib/inputs.ts`
   (procedural 64×36 station / 64×32 crew PNGs; `atlas-src/inputs/` is gitignored by the root `inputs/` rule, it's
   regenerated each run). Tessa max 64×64 on simulators. Tessa jobs 2e442ee7, 7a263168 (fake_fez) and 0510ac96 (aer)
