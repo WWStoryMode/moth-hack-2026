@@ -13,7 +13,10 @@
     "sim": "tsx scripts/sim.ts",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.app.json",
     "start": "node server/index.ts",
-    "smoke": "node scripts/smoke.ts"
+    "smoke": "node scripts/smoke.ts",
+    "assets": "node scripts/assets.ts",
+    "bake-shader": "node scripts/bake-shader.ts",
+    "gen-assets": "tsx scripts/gen-assets.ts"
   },
   "devDependencies": {
     "@types/qrcode": "^1.5.6",
@@ -25,6 +28,7 @@
     "vitest": "^5.0.3"
   },
   "dependencies": {
+    "@moth-hack/atlas-client": "workspace:*",
     "qrcode": "^1.5.4",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

@@ -69,16 +69,51 @@ In the game, the entangled pair is simulated with the exact quantum probabilitie
 player to measure gets a fair coin, and the second player's result matches it with probability cos²(Δθ).
 
 ## Atlas engines
-The station art, its degradation levels, the tool reveal and the sounds are made with Moth Quantum Atlas engines
-on platform.mothquantum.com. They are listed with their parameters in `src/assets/atlas/manifest.ts` and on the
-Credits screen. Any asset that hasn't been added yet shows a CSS/SVG placeholder.
+The station art, its degradation levels, the crew avatars, the tool reveal and the sounds are made with Moth Quantum
+Atlas engines on platform.mothquantum.com. They are listed with their parameters in `src/assets/atlas/list.ts` and
+on the Credits screen. Any asset that hasn't been added yet shows a placeholder (CSS/SVG art, or a short Web Audio
+sound), so the game always works.
 
 | Asset | Engine |
 |---|---|
 | `station-base`, `crew-icons` | Tessa (`tessa-image-v1`) |
 | `station-stability-0…4` | Quantum Blur (`blur-v1`) |
-| `entanglement-reveal` | Entanglement Shader (`entanglement-shader-v1`) |
+| `entanglement-reveal` | Entanglement Shader (`entanglement-shader-v1`), **rendered live** (see below) |
 | `sfx-alarm`, `sfx-win`, `sfx-reveal` | Atlas sound engine (to confirm) |
+
+### The Entanglement Shader, live
+`entanglement-shader-v1` doesn't return an image: it simulates light bouncing between stacked, ultra-thin conducting
+layers with entangled (quantum) interactions, and returns a shader plus two lookup tables (how much red, green and
+blue light is reflected or transmitted at each viewing angle). The engine's raw output is committed in
+`atlas-src/entanglement-shader/`. `pnpm --filter @moth-hack/quantum-crew bake-shader` decodes its lookup tables into
+`src/assets/atlas/entanglement-lut.json`, and `src/atlas/entanglementShader.ts` runs a WebGL 2 port of the engine's own
+GLSL in the browser. The tool's two crystals tilt in sync and shift colour with the viewing angle, and the same
+shader ripples behind the tool reveal and every Act III screen. Without WebGL 2 the CSS placeholders show instead.
+
+### Generating the station art (`pnpm gen-assets`)
+`pnpm --filter @moth-hack/quantum-crew gen-assets` draws a 64×36 pixel-art station and a 64×32 crew sprite in code
+(`scripts/lib/inputs.ts`), uploads them and runs the engines through `@moth-hack/atlas-client` (1 credit per job):
+Tessa on a noisy `fake_fez` simulator for `station-base` / `crew-icons`, then Quantum Blur at strengths
+0.05 / 0.25 / 0.45 / 0.7 / 1.0 for `station-stability-4 … 0`. Each result is saved with a `.provenance.json` (engine,
+job id, params), which the Credits screen shows. Existing assets are skipped unless `--force`; `--dry-run` shows the
+plan. On 6 Oct the Tessa engine timed out (`engine_timeout`, three tries, also on `aer`), so the five Blur levels were
+made from the drawn station with `--blur-source drawn`; `station-base` and `crew-icons` keep their placeholders.
+
+### Adding an asset
+1. Make it on the platform and save it into `src/assets/atlas/`, named after its key with any extension
+   (`station-stability-2.png`, `entanglement-reveal.webm`, `sfx-win.mp3`…). Vite picks it up; no code change.
+2. Fill its `params` in `src/assets/atlas/list.ts` so the Credits screen shows how it was made.
+3. Run `pnpm --filter @moth-hack/quantum-crew assets` for a checklist: present / missing, missing params, files over
+   5 MB, and types the repo gitignores (`.mp4`, `.wav`: use `.webm`, `.png`, `.mp3`).
+
+Where they appear: `station-base` and `station-stability-0…4` on the TV, readouts and landing (the level follows
+stability: 0 failing … 4 stable); `crew-icons` (one image, Table A left half, Table B right half) on the TV pair
+cards and phones; `entanglement-reveal` behind the tool reveal and as the Act III background; `sfx-win` on a won
+round, `sfx-alarm` when stability drops below 80% or a batch ends below it, `sfx-reveal` when the tool arrives.
+
+### Sound
+Every screen has a mute button. Sound is on by default in solo and on the TV, and off by default on event phones
+(a room of 8 phones chiming is a lot); each device remembers its choice.
 
 ## Run it locally
 ```sh
@@ -87,6 +122,7 @@ pnpm --filter @moth-hack/quantum-crew dev        # http://localhost:5173/solo
 pnpm --filter @moth-hack/quantum-crew dev:phone  # same, reachable from a phone on your Wi-Fi
 pnpm --filter @moth-hack/quantum-crew test       # core logic + solo flow tests
 pnpm --filter @moth-hack/quantum-crew sim        # classical best, quantum optimum, top-5 dial setups
+pnpm --filter @moth-hack/quantum-crew assets     # Atlas asset checklist
 pnpm --filter @moth-hack/quantum-crew build      # static build in dist/
 ```
 

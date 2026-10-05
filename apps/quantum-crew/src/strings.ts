@@ -160,6 +160,8 @@ export const S = {
     },
   },
 
+  sound: { mute: "Mute sound", unmute: "Turn sound on" },
+
   credits: {
     title: "Credits",
     lead: "Made for Moth Hack 2026 (FQxI Challenge) with Moth Quantum Atlas engines.",
@@ -167,6 +169,7 @@ export const S = {
       "The entangled pair in the game is simulated in your browser with the exact quantum probabilities. The station art, the tool reveal and the sounds come from Atlas engines.",
     assets: "Atlas assets",
     pending: "placeholder until the asset is added",
+    job: (id: string) => `Atlas job ${id}`,
     learn: "Learn more: the CHSH game on IBM Quantum Learning",
     learnUrl:
       "https://quantum.cloud.ibm.com/learning/en/courses/basics-of-quantum-information/entanglement-in-action/chsh-game",

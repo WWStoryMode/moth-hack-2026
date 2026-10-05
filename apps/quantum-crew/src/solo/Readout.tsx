@@ -1,7 +1,10 @@
 // After each batch: how it went, the station, and a 1,000-round test to see past small-sample luck.
+import { useEffect } from "react";
+import { playSfx } from "../audio/sfx.ts";
 import { StabilityMeter } from "../components/StabilityMeter.tsx";
 import { StationVisual } from "../components/StationVisual.tsx";
 import { BATCH_SIZE } from "../config.ts";
+import { SURVIVAL_THRESHOLD } from "../shared/chsh.ts";
 import { S } from "../strings.ts";
 import { actOf, canReportCeiling, debriefAvailable, displayedStability, useSolo } from "./soloStore.ts";
 
@@ -12,6 +15,12 @@ export function Readout() {
   const wins = s.batch.filter((r) => r.win).length;
   const rounds = act === 2 ? s.act2 : s.act3;
   const value = displayedStability(s);
+
+  // Alarm once when a batch ends with the station below the survival line.
+  const batchRate = wins / BATCH_SIZE;
+  useEffect(() => {
+    if (batchRate < SURVIVAL_THRESHOLD) playSfx("alarm", "solo");
+  }, [batchRate]);
 
   return (
     <main className="screen">

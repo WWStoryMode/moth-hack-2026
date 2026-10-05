@@ -2,6 +2,7 @@
 // Buttons fire on pointer-down for speed; a second event in the same round is ignored by the store.
 // Keyboard: O / ← = OPEN, C / → = CLOSED in Act II; Space / Enter = MEASURE in Act III.
 import { useEffect } from "react";
+import { playSfx } from "../audio/sfx.ts";
 import { Countdown } from "../components/Countdown.tsx";
 import { Dial } from "../components/Dial.tsx";
 import { SensorLight } from "../components/SensorLight.tsx";
@@ -25,6 +26,10 @@ export function Batch() {
     else t = setTimeout(() => timeout(Date.now()), Math.max(0, round.deadline - Date.now()) + 20);
     return () => clearTimeout(t);
   }, [round, advance, timeout]);
+
+  useEffect(() => {
+    if (round?.result?.win) playSfx("win", "solo");
+  }, [round?.result]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

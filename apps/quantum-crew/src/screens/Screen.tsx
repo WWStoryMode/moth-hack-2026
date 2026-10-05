@@ -1,14 +1,21 @@
 // The shared TV / projector: room code + QR, the station, pooled stability, per-pair meters, round timer,
 // and the facilitator's host controls. Readable from across a room.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { Countdown } from "../components/Countdown.tsx";
 import { StabilityMeter, pct } from "../components/StabilityMeter.tsx";
-import { atlasUrl, isVideo } from "../assets/atlas/manifest.ts";
+import { atlasUrl } from "../assets/atlas/manifest.ts";
+import { Crystals } from "../components/EntanglementSurface.tsx";
+import { RevealField } from "../solo/ToolReveal.tsx";
+import { playSfx } from "../audio/sfx.ts";
 import { CreditsList } from "../components/CreditsList.tsx";
+import { CrewIcon } from "../components/CrewIcon.tsx";
+import { MuteToggle } from "../components/MuteToggle.tsx";
+import { QuantumBackdrop } from "../components/QuantumBackdrop.tsx";
 import { OptimalDials, fmt } from "../components/DebriefParts.tsx";
 import { StationVisual } from "../components/StationVisual.tsx";
 import { MP_ROUND_MS } from "../config.ts";
+import { SURVIVAL_THRESHOLD } from "../shared/chsh.ts";
 import { useHost } from "../net/hostStore.ts";
 import { useRemainingMs } from "../net/useCountdown.ts";
 import type { HostCommand, PairInfo, RateSummary, RoomState } from "../shared/protocol.ts";
@@ -26,6 +33,7 @@ export function Screen() {
     if (state?.phase !== "debrief") setStep(0);
     if (!state?.toolUnlocked) setHint(false);
   }, [state?.phase, state?.toolUnlocked]);
+  useTvSounds(state, results);
 
   if (!state) {
     return (
@@ -42,11 +50,15 @@ export function Screen() {
   const quantum = state.act === 3 && state.phase !== "debrief";
   return (
     <main className={`tv ${quantum ? "quantum" : ""}`}>
+      {quantum && <QuantumBackdrop />}
       <header className="tv__head">
         <p className="kicker">{S.title}</p>
-        <p className="kicker">
-          {S.tv.station(state.room)} {status !== "open" && `· ${S.event.reconnecting}`}
-        </p>
+        <div className="screen-top">
+          <p className="kicker">
+            {S.tv.station(state.room)} {status !== "open" && `· ${S.event.reconnecting}`}
+          </p>
+          <MuteToggle where="tv" />
+        </div>
       </header>
 
       <section className="tv__main">
@@ -92,6 +104,35 @@ export function Screen() {
   );
 }
 
+/**
+ * TV sounds: a chime when most pairs held a round, the alarm when pooled stability drops below the survival line
+ * (or a batch ends below it), and the reveal when the tool unlocks.
+ */
+function useTvSounds(state: RoomState | null, results: { roundId: string; results: { win: boolean }[] } | null) {
+  const prev = useRef<{ roundId?: string; rolling: number | null; phase?: string }>({ rolling: null });
+  useEffect(() => {
+    const p = prev.current;
+    if (results && results.roundId !== p.roundId) {
+      p.roundId = results.roundId;
+      const wins = results.results.filter((r) => r.win).length;
+      if (results.results.length && wins * 2 >= results.results.length) playSfx("win", "tv");
+    }
+  }, [results]);
+  useEffect(() => {
+    if (!state) return;
+    const p = prev.current;
+    const r = state.stability.rolling;
+    const crossed = p.rolling !== null && r !== null && p.rolling >= SURVIVAL_THRESHOLD && r < SURVIVAL_THRESHOLD;
+    const batchLow =
+      state.phase === "batchDone" && p.phase !== "batchDone" && !!state.lastBatch &&
+      state.lastBatch.wins / Math.max(1, state.lastBatch.rounds) < SURVIVAL_THRESHOLD;
+    if (crossed || batchLow) playSfx("alarm", "tv");
+    if (state.phase === "tool" && p.phase !== "tool") playSfx("reveal", "tv");
+    p.rolling = r;
+    p.phase = state.phase;
+  }, [state]);
+}
+
 function PhaseBanner({ state, localDeadline }: { state: RoomState; localDeadline: number | null }) {
   const left = useRemainingMs(localDeadline);
   const inBatch = state.phase === "round" || state.phase === "roundResult";
@@ -118,7 +159,7 @@ function PhaseBanner({ state, localDeadline }: { state: RoomState; localDeadline
 
 function CeilingPanel() {
   return (
-    <div className="panel stack">
+    <div className="panel stack tv__ceiling">
       <div className="huge">{S.ceiling.big}</div>
       {S.ceiling.lines.map((l) => (
         <p key={l} className="tv__line">
@@ -133,13 +174,8 @@ function ToolPanel() {
   const art = atlasUrl("entanglement-reveal");
   return (
     <div className="panel stack reveal">
-      <div className="reveal__field" aria-hidden="true" style={art ? { filter: "none", opacity: 0.5 } : undefined}>
-        {art && (isVideo(art) ? <video src={art} autoPlay loop muted playsInline /> : <img src={art} alt="" />)}
-      </div>
-      <div className="reveal__crystals" aria-hidden="true">
-        <div className="crystal" />
-        <div className="crystal" />
-      </div>
+      <RevealField art={art} />
+      <Crystals />
       {S.tv.toolLines.map((l) => (
         <p key={l} className="tv__line">
           {l}
@@ -297,6 +333,7 @@ function PairCard({ pair, state, result }: { pair: PairInfo; state: RoomState; r
     const answered = state.phase === "round" && pair.answered[side];
     return (
       <span className={`seat ${connected(s.playerId) ? "" : "seat--off"} ${s.playerId === null ? "seat--bot" : ""}`}>
+        <CrewIcon table={side === "a" ? "A" : "B"} bot={s.playerId === null} size={28} />
         <b>{side.toUpperCase()}</b> {s.name}
         {answered && " ✓"}
       </span>

@@ -886,6 +886,27 @@ p {
   .tv__side {
     overflow-y: auto;
   }
+
+  /* Nothing in the main column may spill over the host controls. */
+  .tv__main {
+    overflow: hidden;
+  }
+
+  .tv__main > .panel:not(.tv__debrief):not(.tv__ceiling):not(.reveal) {
+    flex: none;
+  }
+
+  .tv__ceiling,
+  .tv__main > .reveal {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
+.tv__head .mute {
+  min-height: 36px;
+  padding: 2px 8px;
 }
 
 .tv__head {
@@ -1165,4 +1186,134 @@ p {
 .marginals__crew td {
   font-weight: 800;
   border-bottom: 1px solid var(--edge);
+}
+
+/* ---------- Mute toggle ---------- */
+
+.mute {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 4px 10px;
+  font-size: 1.2rem;
+  letter-spacing: 0;
+}
+
+.screen-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gap);
+}
+
+.mute--float {
+  position: fixed;
+  top: max(8px, env(safe-area-inset-top));
+  right: 8px;
+  z-index: 10;
+}
+
+/* Act III background from the Entanglement Shader asset */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.backdrop img,
+.backdrop video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.quantum {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Keep the first row of a solo screen clear of the floating mute button. */
+.solo .screen > :first-child {
+  padding-right: 52px;
+}
+
+.crew-icon {
+  display: inline-block;
+  flex: none;
+  vertical-align: middle;
+  border-radius: 50%;
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+}
+
+.seat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tv .reveal .tv__line,
+.tv__ceiling .tv__line {
+  font-size: clamp(1rem, 1.5vw, 1.8rem);
+}
+
+.tv .reveal .reveal__crystals {
+  margin: 0;
+}
+
+.tv .reveal .crystal {
+  width: 36px;
+  height: 56px;
+}
+
+/* ---------- Live Entanglement Shader ---------- */
+
+.entangle {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.reveal__field--art {
+  inset: 0;
+  padding: 0 !important;
+  filter: none;
+  opacity: 0.5;
+  animation: none;
+  background: none;
+}
+
+/* Keep text readable over the live film. */
+.reveal__field--art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(18, 6, 31, 0.15), rgba(18, 6, 31, 0.55));
+}
+
+.backdrop .entangle {
+  opacity: 1;
+}
+
+.crystals {
+  width: 100%;
+  max-width: 360px;
+  height: 120px;
+  margin: 6px auto;
+}
+
+.tv .crystals {
+  height: clamp(90px, 14vh, 160px);
+}
+
+/* Atlas pixel art (Tessa works at ≤ 64×64): scale up with crisp pixels. */
+.station img,
+.crew-icon {
+  image-rendering: pixelated;
+}
+
+/* Show the whole station (the pixel art is 16:9; the TV box is wider). */
+.station img {
+  object-fit: contain;
 }
