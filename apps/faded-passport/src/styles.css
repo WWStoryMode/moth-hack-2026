@@ -201,12 +201,8 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
 .passport-photo .stamp strong { font-size: clamp(18px, 6.4vw, 26px); }
 .passport-photo .stamp span { font-size: clamp(11px, 3.4vw, 13px); }
 .stamp span { font: 700 14px var(--mono); }
-.stamp-hover { animation: hover 1.6s ease-in-out infinite; opacity: .55; }
-@keyframes hover {
-  0%, 100% { transform: rotate(-12deg) translateY(-18px) scale(1.06); }
-  50% { transform: rotate(-10deg) translateY(-26px) scale(1.08); }
-}
-@media (prefers-reduced-motion: reduce) { .stamp-hover, .stamp-land { animation: none; } }
+
+@media (prefers-reduced-motion: reduce) { .stamp-land { animation: none; } }
 
 .title-page { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: var(--space-6) 0 var(--space-2); }
 .title { margin: 0; font-size: clamp(44px, 13vw, 64px); line-height: 1; letter-spacing: .01em; }
