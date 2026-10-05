@@ -78,8 +78,17 @@ sound), so the game always works.
 |---|---|
 | `station-base`, `crew-icons` | Tessa (`tessa-image-v1`) |
 | `station-stability-0…4` | Quantum Blur (`blur-v1`) |
-| `entanglement-reveal` | Entanglement Shader (`entanglement-shader-v1`) |
+| `entanglement-reveal` | Entanglement Shader (`entanglement-shader-v1`), **rendered live** (see below) |
 | `sfx-alarm`, `sfx-win`, `sfx-reveal` | Atlas sound engine (to confirm) |
+
+### The Entanglement Shader, live
+`entanglement-shader-v1` doesn't return an image: it simulates light bouncing between stacked, ultra-thin conducting
+layers with entangled (quantum) interactions, and returns a shader plus two lookup tables (how much red, green and
+blue light is reflected or transmitted at each viewing angle). The engine's raw output is committed in
+`atlas-src/entanglement-shader/`. `pnpm --filter @moth-hack/quantum-crew bake-shader` decodes its lookup tables into
+`src/assets/atlas/entanglement-lut.json`, and `src/atlas/entanglementShader.ts` runs a WebGL 2 port of the engine's own
+GLSL in the browser. The tool's two crystals tilt in sync and shift colour with the viewing angle, and the same
+shader ripples behind the tool reveal and every Act III screen. Without WebGL 2 the CSS placeholders show instead.
 
 ### Adding an asset
 1. Make it on the platform and save it into `src/assets/atlas/`, named after its key with any extension

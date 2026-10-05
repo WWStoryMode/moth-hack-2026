@@ -27,6 +27,11 @@ M0–M6. See the root CLAUDE.md for repo rules.
   `import.meta.glob` and placeholders vanish. The list + `params` for credits live in `list.ts` (plain data, also
   read by `pnpm assets`, the checklist). Root .gitignore ignores *.mp4/*.wav: use png/webp/webm/mp3.
   Swap verified 2026-10-05 with temporary SVGs (station-base, crew-icons sprite halves, entanglement-reveal).
+- **Entanglement Shader (live):** engine output (job `entanglement-shader-v1-a08def9e`, LUTs 60×60) is committed in
+  `atlas-src/entanglement-shader/`; `pnpm bake-shader` decodes R/T `.hdr` → `src/assets/atlas/entanglement-lut.json`.
+  `atlas/entanglementShader.ts` = WebGL2 port of the engine's GLSL (`lutColour` is line-for-line) + scenes (film,
+  two synced faceted crystals); display grading = tonemap + saturation lift only. `components/EntanglementSurface.tsx`
+  (`Crystals`, film) falls back to CSS when the LUT or WebGL2 is missing. Params of the run still TODO in list.ts.
 - **Sound (M5):** `audio/sfx.ts` plays `sfx-*` files or a Web Audio stand-in; mute per context (solo/tv/phone) in
   localStorage, defaults on/on/off; audio unlocks on the first tap. Triggers: win chime (solo round won, TV when
   ≥ half the pairs held, phone flash), alarm (batch ends < 80%, TV rolling crosses below 80%), reveal (tool).

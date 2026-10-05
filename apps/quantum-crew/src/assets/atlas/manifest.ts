@@ -17,6 +17,14 @@ for (const [path, url] of Object.entries(files)) {
   byKey.set(name, url);
 }
 
+// The Entanglement Shader asset is data (lookup tables), not a media file.
+const shaderLut = import.meta.glob("./entanglement-lut.json");
+
+/** Whether an asset is in place (a media file, or the baked shader for entanglement-reveal). */
+export function assetPresent(key: string): boolean {
+  return byKey.has(key) || (key === "entanglement-reveal" && Object.keys(shaderLut).length > 0);
+}
+
 /** URL of the asset for this key, or undefined if William hasn't added it yet. */
 export function atlasUrl(key: string): string | undefined {
   return byKey.get(key);

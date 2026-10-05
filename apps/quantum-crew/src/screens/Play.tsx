@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Countdown } from "../components/Countdown.tsx";
 import { playSfx } from "../audio/sfx.ts";
 import { CrewIcon } from "../components/CrewIcon.tsx";
+import { Crystals } from "../components/EntanglementSurface.tsx";
 import { Dial } from "../components/Dial.tsx";
 import { MuteToggle } from "../components/MuteToggle.tsx";
 import { QuantumBackdrop } from "../components/QuantumBackdrop.tsx";
@@ -218,10 +219,7 @@ function InRoom() {
 
       {!round && state.phase === "tool" && (
         <div className="stack reveal">
-          <div className="reveal__crystals" aria-hidden="true">
-            <div className="crystal" />
-            <div className="crystal" />
-          </div>
+          <Crystals />
           <h2 className="reveal__title">{S.tool.title}</h2>
           {S.tool.lines.slice(0, 2).map((l) => (
             <p key={l}>{l}</p>

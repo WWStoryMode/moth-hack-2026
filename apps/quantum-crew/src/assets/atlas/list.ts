@@ -54,11 +54,15 @@ export const ATLAS_ASSETS: AtlasAsset[] = [
   },
   {
     key: "entanglement-reveal",
-    file: "entanglement-reveal.png",
+    // The engine returns a shader + lookup tables, not an image: `pnpm bake-shader` turns its output
+    // (atlas-src/entanglement-shader/<job>/) into this file, rendered live by a WebGL port of its GLSL.
+    file: "entanglement-lut.json",
     engine: "Entanglement Shader",
     engineId: "entanglement-shader-v1",
+    // TODO(William): the exact parameters used for job a08def9e (style, layers, incoming_rays, reflectance,
+    // absorption, interaction, resolution). The LUTs are 60×60, so resolution was 60.
     placeholder: "css",
-    use: "Entanglement Tool reveal and Act III background",
+    use: "The Entanglement Tool's crystals, the reveal and the Act III background, rendered live from the engine's shader",
   },
   ...(["alarm", "win", "reveal"] as const).map(
     (name): AtlasAsset => ({

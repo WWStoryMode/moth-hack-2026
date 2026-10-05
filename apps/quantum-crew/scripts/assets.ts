@@ -11,8 +11,8 @@ const MEDIA = /\.(png|jpe?g|webp|gif|svg|mp4|webm|mp3|ogg|wav|m4a)$/i;
 const GITIGNORED = new Set([".mp4", ".wav", ".mov", ".aiff", ".heic"]);
 const MAX_BYTES = 5 * 1024 * 1024;
 
-const files = readdirSync(DIR).filter((f) => MEDIA.test(f));
-const byKey = new Map(files.map((f) => [f.replace(/\.[^.]+$/, ""), f]));
+const files = readdirSync(DIR).filter((f) => MEDIA.test(f) || f === "entanglement-lut.json");
+const byKey = new Map(files.map((f) => [f === "entanglement-lut.json" ? "entanglement-reveal" : f.replace(/\.[^.]+$/, ""), f]));
 const mb = (b: number) => `${(b / 1024 / 1024).toFixed(2)} MB`;
 
 let present = 0;
@@ -30,7 +30,7 @@ for (const a of ATLAS_ASSETS) {
   if (GITIGNORED.has(extname(file).toLowerCase())) notes.push(`${file}: this type is gitignored at the repo root; convert it (png/webp/webm/mp3) or add an exception.`);
   if (size > MAX_BYTES) notes.push(`${file}: over 5 MB; keep repo assets small (compress or shorten).`);
 }
-for (const f of files) if (!ATLAS_ASSETS.some((a) => f.startsWith(`${a.key}.`))) notes.push(`${f}: not in the manifest (name it after a key).`);
+for (const [key, f] of byKey) if (!ATLAS_ASSETS.some((a) => a.key === key)) notes.push(`${f}: not in the manifest (name it after a key).`);
 
 console.log(`\n${present}/${ATLAS_ASSETS.length} Atlas assets present.`);
 for (const n of notes) console.log(`⚠ ${n}`);

@@ -14,7 +14,8 @@
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.app.json",
     "start": "node server/index.ts",
     "smoke": "node scripts/smoke.ts",
-    "assets": "node scripts/assets.ts"
+    "assets": "node scripts/assets.ts",
+    "bake-shader": "node scripts/bake-shader.ts"
   },
   "devDependencies": {
     "@types/qrcode": "^1.5.6",

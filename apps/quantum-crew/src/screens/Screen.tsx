@@ -4,7 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { Countdown } from "../components/Countdown.tsx";
 import { StabilityMeter, pct } from "../components/StabilityMeter.tsx";
-import { atlasUrl, isVideo } from "../assets/atlas/manifest.ts";
+import { atlasUrl } from "../assets/atlas/manifest.ts";
+import { Crystals } from "../components/EntanglementSurface.tsx";
+import { RevealField } from "../solo/ToolReveal.tsx";
 import { playSfx } from "../audio/sfx.ts";
 import { CreditsList } from "../components/CreditsList.tsx";
 import { CrewIcon } from "../components/CrewIcon.tsx";
@@ -172,13 +174,8 @@ function ToolPanel() {
   const art = atlasUrl("entanglement-reveal");
   return (
     <div className="panel stack reveal">
-      <div className="reveal__field" aria-hidden="true" style={art ? { filter: "none", opacity: 0.5 } : undefined}>
-        {art && (isVideo(art) ? <video src={art} autoPlay loop muted playsInline /> : <img src={art} alt="" />)}
-      </div>
-      <div className="reveal__crystals" aria-hidden="true">
-        <div className="crystal" />
-        <div className="crystal" />
-      </div>
+      <RevealField art={art} />
+      <Crystals />
       {S.tv.toolLines.map((l) => (
         <p key={l} className="tv__line">
           {l}
