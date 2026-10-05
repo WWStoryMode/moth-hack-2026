@@ -34,8 +34,8 @@
   },
   "links": {
     "repo": null,
-    "demo": null,
+    "demo": "https://faded-passport.vercel.app",
     "video": null
   },
-  "status": "building"
+  "status": "ready"
 }
