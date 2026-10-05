@@ -134,7 +134,7 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
 .photo, .document { display: block; width: 100%; height: auto; border: var(--photo-border); outline: var(--border-hair); }
 .photo { width: min(100%, var(--photo-max)); margin: 0 auto; }
 /* Permit preview: leave room below for the download buttons and the processing record. */
-.document { width: min(100%, calc((var(--page-height) - 400px) * 1240 / 1754)); margin: 0 auto; }
+.document { width: min(100%, calc((var(--page-height) - 195px) * 1240 / 1754)); margin: 0 auto; }
 .document { border-width: 0; box-shadow: var(--shadow-document); }
 
 /* Passport photo: 35:45, centre-cropped, sepia except the Teleblur-processed face. */
@@ -315,6 +315,14 @@ html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .se
 /* Compact one-line tool row (mask screen: Undo · Start over · Zoom · Move). */
 .row.tools { flex-wrap: nowrap; gap: var(--space-1); }
 .row.tools > button { flex: 1 1 0; min-width: 0; min-height: 44px; padding: 10px 6px; font-size: 13px; letter-spacing: 0.03em; }
+.passport-photo.pp-large { width: var(--passport-large-width); }
+/* Document screen: compact controls so the permit preview can be large. */
+.doc-actions { flex-wrap: nowrap; }
+.doc-actions > * { flex: 1 1 0; min-width: 0; font-size: 14px; padding: 12px 8px; letter-spacing: 0.04em; }
+.record { gap: 0; padding-top: var(--space-2); }
+.record .fineprint { display: none; } /* the heading + labels say enough; keeps the permit large */
+.record-row { flex-wrap: wrap; gap: 0 var(--space-1); }
+.record-row > .text-button { min-height: 40px; padding: 6px 6px; font-size: 13px; }
 .debug-badge {
   position: fixed;
   top: 1px;

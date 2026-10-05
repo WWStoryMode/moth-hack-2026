@@ -13,7 +13,7 @@ export function ProcessingScreen(props: { elapsedMs: number; portraitUrl: string
   return (
     <Paper>
       <BoothWindow line={line} />
-      <PassportPhoto src={props.portraitUrl} alt="">
+      <PassportPhoto src={props.portraitUrl} alt="" large>
         <ScanOverlay phase={props.phase} job={props.job} />
         <Stamp hovering />
       </PassportPhoto>

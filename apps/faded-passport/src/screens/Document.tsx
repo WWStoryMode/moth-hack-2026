@@ -27,7 +27,7 @@ export function DocumentScreen(props: { input: DocumentInput; record: Omit<Recor
       ) : (
         <p className="hint">…</p>
       )}
-      <div className="row">
+      <div className="row doc-actions">
         {doc && (
           <a className="button primary" href={doc.url} download={`${stem}-permit.png`}>
             {S.document.download}

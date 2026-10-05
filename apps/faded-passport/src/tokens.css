@@ -88,6 +88,10 @@
   --passport-max-h: 36vh;
   --passport-max-h: 36dvh; /* height of a 35:45 passport photo */
   --passport-width: min(78%, calc(var(--passport-max-h) * 35 / 45));
+  /* Processing and verdict have little else on screen, so their passport photo can be bigger. */
+  --passport-large-h: 51vh;
+  --passport-large-h: 51dvh;
+  --passport-large-width: min(92%, calc(var(--passport-large-h) * 35 / 45));
   --photo-treatment: sepia(0.45) saturate(0.7) contrast(0.95) brightness(1.03); /* display only */
   --button-border-width: 2px;
   --radius: 2px;
