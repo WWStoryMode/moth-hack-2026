@@ -34,6 +34,8 @@ for repo rules.
   granted; else homeness ≥ 0.50 → "cannot be distinguished from the declared destination", ≥ 0.40 → address, else no
   match. Thresholds `VERDICT` in config.ts, measured on the user's 1–40 sweeps (granted 1–6, place 38–40). Green
   stamp `--stamp-granted`; both stamp inks clamped ≥ 3:1 when aged. The sweep CSV reports likeness/homeness/outcome.
+- **Processing record (branch faded-passport/process-record):** the Document screen downloads the raw Teleblur output,
+  `parameters.json` (`lib/record.ts`, real values only) or a zip with the permit + output + params + the exact inputs.
 - **Tuning TODO:** verdict thresholds come from one photo pair; re-check with other faces/homes via a sweep's summary.csv. Teleblur `size` may
   round up to a power of two (as Quantum Blur does), so sizes 65–128 could look identical; unverified.
 - **Sweep:** `?debug` home step → "Download inputs" zip → `pnpm sweep <zip> --years …` (1 credit/year, `--dry-run`

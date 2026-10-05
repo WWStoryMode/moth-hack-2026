@@ -303,6 +303,11 @@ html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .se
 .photo-input-quiet { justify-content: center; gap: 0 var(--space-2); }
 .photo-input-quiet > * { flex: 0 1 auto; }
 /* Compact, one line, in the top gutter above the paper: never covers controls. */
+/* Processing record under the permit */
+.record { display: flex; flex-direction: column; gap: var(--space-1); border-top: var(--border-hair); padding-top: var(--space-3); }
+.record-heading { margin: 0; font: 700 14px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
+.record-row { justify-content: center; gap: 0 var(--space-2); }
+.record-row > * { flex: 0 1 auto; }
 .debug-badge {
   position: fixed;
   top: 1px;

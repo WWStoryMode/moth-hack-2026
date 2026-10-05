@@ -10,6 +10,8 @@ import { applyAge, stageFor } from "./lib/ageing.ts";
 import { DEBUG } from "./lib/debug.ts";
 import { verdictFor } from "./lib/diff.ts";
 import type { DocumentInput } from "./lib/document.ts";
+import type { Verdict } from "./lib/diff.ts";
+import type { RecordInput } from "./lib/record.ts";
 import type { Prepared } from "./lib/image.ts";
 import { DocumentScreen } from "./screens/Document.tsx";
 import { IntroScreen } from "./screens/Intro.tsx";
@@ -31,9 +33,13 @@ type Step = "title" | "story" | "intro" | "portrait" | "mask" | "home" | "proces
 interface Outcome {
   job: Job;
   morphUrl: string;
+  /** Teleblur's output image as returned (kept for the processing-record download). */
+  morph: Blob;
   /** Granted while the face is still recognisable (see VERDICT in config.ts). */
   accepted: boolean;
   reason: string;
+  verdict: Verdict;
+  completedAt: Date;
 }
 
 export function App() {
@@ -84,7 +90,7 @@ export function App() {
       // The verdict comes from what the quantum morph actually did to the face.
       const v = await verdictFor(portrait.url, morphUrl, homePhoto.url, face.url);
       if (import.meta.env.DEV) console.info(`[faded-passport] strength ${job.params.strength} → likeness ${v.likeness.toFixed(3)} · homeness ${v.homeness.toFixed(3)} → ${v.reason}`);
-      setOutcome({ job, morphUrl, accepted: v.accepted, reason: S.verdict.reasons[v.reason] });
+      setOutcome({ job, morph, morphUrl, accepted: v.accepted, reason: S.verdict.reasons[v.reason], verdict: v, completedAt: new Date() });
       // Keep the job readout on screen for at least ~1.5 s so it can be read; never longer otherwise.
       const shown = Date.now() - jobShownAt;
       if (shown < SCAN_MIN_MS) await new Promise((r) => setTimeout(r, SCAN_MIN_MS - shown));
@@ -102,6 +108,26 @@ export function App() {
         ? { morphUrl: outcome.morphUrl, outlineUrl: face.url, homeUrl: home.url, years, accepted: outcome.accepted, reason: outcome.reason, jobId: outcome.job.jobId, params: outcome.job.params }
         : null,
     [outcome, home, face, years],
+  );
+
+  /** Everything needed for the processing record (raw output + parameters + the exact inputs sent). */
+  const record = useMemo<Omit<RecordInput, "document"> | null>(
+    () =>
+      outcome && portrait && home && mask && face
+        ? {
+            jobId: outcome.job.jobId,
+            params: outcome.job.params,
+            years,
+            portrait: portrait.blob,
+            home: home.blob,
+            mask: mask.blob,
+            outline: face.blob,
+            morph: outcome.morph,
+            verdict: outcome.verdict,
+            completedAt: outcome.completedAt,
+          }
+        : null,
+    [outcome, portrait, home, mask, face, years],
   );
 
   return (
@@ -147,7 +173,7 @@ export function App() {
           <VerdictScreen morphUrl={outcome.morphUrl} outlineUrl={face.url} accepted={outcome.accepted} reason={outcome.reason} years={years} onNext={() => setStep("document")} />
         );
       case "document":
-        return doc && <DocumentScreen input={doc} onAgain={reset} />;
+        return doc && record && <DocumentScreen input={doc} record={record} onAgain={reset} />;
       case "error":
         return (
           <Paper>
