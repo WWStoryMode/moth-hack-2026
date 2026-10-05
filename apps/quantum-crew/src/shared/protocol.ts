@@ -6,7 +6,7 @@ export type Act = 2 | 3;
 
 /**
  * lobby → strategy (huddle, timed) → round ⇄ roundResult (× batch size) → batchDone → … → ceiling (Act II ends)
- * → tool (Act III unlocked, M4) → … → debrief (M4).
+ * → tool (Entanglement Tool unlocked, Act III) → strategy → round … → debrief.
  */
 export type RoomPhase = "lobby" | "strategy" | "round" | "roundResult" | "batchDone" | "ceiling" | "tool" | "debrief";
 
@@ -50,6 +50,17 @@ export type RoomState = {
   lastBatch: RateSummary | null;
   ceilingRevealed: boolean;
   toolUnlocked: boolean;
+  /** Act III no-signalling data, sent only during the debrief. `crew` pools every seat (bigger sample, closer to 50%). */
+  marginals: { rows: MarginalRow[]; crew: Omit<MarginalRow, "name" | "table"> } | null;
+};
+
+/** One seat's Act III valves: how often it came out OPEN, split by the partner's light. ≈ 0.5 both ways. */
+export type MarginalRow = {
+  name: string;
+  table: Table;
+  partnerGreen: number | null;
+  partnerRed: number | null;
+  rounds: number;
 };
 
 export type ClientMsg =
@@ -68,7 +79,7 @@ export type ServerMsg =
   | { type: "player:joined"; room: string; playerId: string; name: string; table: Table }
   | { type: "room:state"; state: RoomState }
   /** To one phone: its own light only. */
-  | { type: "round:start"; roundId: string; act: Act; light: Light; deadline: number; serverNow: number }
+  | { type: "round:start"; roundId: string; act: Act; light: Light; deadline: number; serverNow: number; dialDeg?: number }
   /** Act III, to the measuring phone only. */
   | { type: "round:measured"; roundId: string; valve: Valve }
   /** To the two phones of a pair. */

@@ -27,9 +27,10 @@ M0–M6. See the root CLAUDE.md for repo rules.
   picks them up and placeholders vanish. Fill `params` in `manifest.ts` for the credits. NB the root .gitignore
   ignores *.mp4/*.wav: use png/webm/mp3 or add an exception.
 - **Git:** one branch per milestone (`quantum-crew/mN-…`), PR per milestone, user reviews before merge.
-- **Status (2026-10-05):** M0–M2 merged. M3 (rooms + TV + phones, Act II) done on `quantum-crew/m3-rooms`: 34 tests,
-  `pnpm smoke` passes, TV + 3 phones driven in headless Chrome (join, huddle, batch, ceiling, reload-rejoin).
-  Next: M4 Act III multiplayer (tuning, server-side measure order, `round:measured`) + TV debrief with marginals.
+- **Status (2026-10-05):** M0–M3 merged. M4 (Act III multiplayer + TV debrief) done on `quantum-crew/m4-act3`:
+  41 tests (incl. Act III win rate ≈ 85.4% for A-first / B-first / alternating, no-signalling marginals, measured
+  valve only to the measurer), TV + 3 phones driven through Act II → ceiling → tool → Act III → debrief.
+  Next: M5 Atlas assets (William) + sounds/mute + polish.
 - **Decisions:** marginals in `simulate` are the fraction of CLOSED valves. In simulation, who measures first is a coin
   flip per round unless `order` is given. Solo: the player always measures first; Act II plan pickers feed the
   1,000-round test (rounds are tapped live); the meter spans 50–100%; the 75 line appears from the ceiling reveal
@@ -37,5 +38,7 @@ M0–M6. See the root CLAUDE.md for repo rules.
   batches under 80%. No framer-motion yet (CSS animations suffice); sounds and mute toggle are M5.
   Event: rounds 3.5 s (MP_ROUND_MS); the huddle's end auto-starts the batch; a round resolves early once everyone
   answered; joiners mid-batch are seated after it; max 4 per table; empty seat = bot (always OPEN in Act II);
-  the TV QR uses the URL the TV was opened at.
+  the TV QR uses the URL the TV was opened at. Act III: bots measure at round start (always first); tunings snap to
+  the 8 dial stops; the tool unlocks only after the ceiling reveal; hint and debrief step are TV-local state;
+  per-seat marginals are sent only in the debrief phase (plus a pooled "whole crew" row).
 - **Open questions:** which Atlas sound engine for sfx; deploy host (decide after M2/M3).

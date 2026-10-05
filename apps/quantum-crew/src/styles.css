@@ -879,7 +879,7 @@ p {
 
   .tv .station {
     flex: 1 1 0;
-    min-height: 100px;
+    min-height: 0;
     aspect-ratio: auto;
   }
 
@@ -1087,4 +1087,82 @@ p {
   top: 0;
   bottom: 0;
   border-left: 2px solid var(--line-survival);
+}
+
+/* ---------- TV: Act III and debrief ---------- */
+
+.tv.quantum {
+  min-height: 0;
+}
+
+.tv__debrief {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.tv__debrief h1 {
+  font-size: clamp(1.6rem, 3vw, 3rem);
+}
+
+.tv__marginals {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--gap);
+}
+
+.tv__hint {
+  margin: 0;
+  color: var(--q-3);
+  font-size: clamp(1.1rem, 1.8vw, 1.8rem);
+  font-weight: 700;
+}
+
+.marginals {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: clamp(0.95rem, 1.2vw, 1.3rem);
+}
+
+.marginals th {
+  text-align: left;
+  font-weight: 400;
+  color: var(--ink-muted);
+  font-size: 0.8em;
+  padding: 0 12px 8px 0;
+}
+
+.marginals td {
+  padding: 6px 12px 6px 0;
+  vertical-align: middle;
+}
+
+.marginals td .bar__track {
+  display: inline-block;
+  width: calc(100% - 5em);
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.tv__debrief .tv__line {
+  font-size: clamp(1rem, 1.45vw, 1.6rem);
+}
+
+.tv__debrief .tv__big {
+  font-size: clamp(1.2rem, 2vw, 2rem);
+}
+
+/* Back / Next stay in view however long the step is. */
+.tv__debrief-nav {
+  position: sticky;
+  bottom: calc(var(--gap) * -1);
+  margin: 0 calc(var(--gap) * -1) calc(var(--gap) * -1);
+  padding: var(--gap);
+  background: var(--panel);
+  border-top: 1px solid var(--edge);
+}
+
+.marginals__crew td {
+  font-weight: 800;
+  border-bottom: 1px solid var(--edge);
 }

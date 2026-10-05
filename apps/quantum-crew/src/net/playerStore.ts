@@ -1,8 +1,8 @@
 // A phone's connection: joins a room at a table, receives only its own light, and sends valve intents.
 import { create } from "zustand";
-import type { ClassicalStrategy, Light, Table, Valve } from "../shared/chsh.ts";
+import type { ClassicalStrategy, Light, Table, TuningConfig, Valve } from "../shared/chsh.ts";
 import type { Act, RoomState } from "../shared/protocol.ts";
-import { DEFAULT_PLAN } from "../config.ts";
+import { DEFAULT_PLAN, DEFAULT_TUNING } from "../config.ts";
 import { toLocalDeadline } from "./useCountdown.ts";
 import { connectStation, session, type SocketStatus, type Station } from "./socket.ts";
 
@@ -10,7 +10,19 @@ const KEY = "qc-player";
 
 export type Seat = { room: string; name: string; table: Table };
 
-type LiveRound = { roundId: string; act: Act; light: Light; ms: number; answered: Valve | null };
+/**
+ * `answered`: the valve this phone set (Act II) or got back from MEASURE (Act III). `measuring`: MEASURE was tapped
+ * and the result hasn't arrived yet.
+ */
+type LiveRound = {
+  roundId: string;
+  act: Act;
+  light: Light;
+  ms: number;
+  dialDeg: number | null;
+  answered: Valve | null;
+  measuring: boolean;
+};
 
 type PlayerStore = {
   status: SocketStatus | "idle";
@@ -21,11 +33,14 @@ type PlayerStore = {
   round: LiveRound | null;
   flash: { roundId: string; win: boolean; timedOut: boolean } | null;
   plan: ClassicalStrategy;
+  tuning: TuningConfig;
   error: string | null;
   join(seat: Seat): void;
   resume(): boolean;
   answer(valve: Valve): void;
+  measure(): void;
   setPlan(plan: ClassicalStrategy): void;
+  setTuning(tuning: TuningConfig): void;
   leave(): void;
 };
 
@@ -40,6 +55,7 @@ export const usePlayer = create<PlayerStore>()((set, get) => ({
   round: null,
   flash: null,
   plan: DEFAULT_PLAN,
+  tuning: DEFAULT_TUNING,
   error: null,
 
   join(seat) {
@@ -47,7 +63,13 @@ export const usePlayer = create<PlayerStore>()((set, get) => ({
     set({ seat, error: null, status: "connecting" });
     station = connectStation({
       onStatus: (status) => set({ status }),
-      hello: (send) => send({ type: "player:join", ...seat }),
+      hello: (send) => {
+        send({ type: "player:join", ...seat });
+        // Re-send this phone's choices so a reconnect (or a server restart mid-session) keeps them.
+        const { plan, tuning } = get();
+        send({ type: "player:strategy", act: 2, classical: plan });
+        send({ type: "player:strategy", act: 3, tuning });
+      },
       onMessage: (msg) => {
         switch (msg.type) {
           case "player:joined":
@@ -55,7 +77,10 @@ export const usePlayer = create<PlayerStore>()((set, get) => ({
             return set({ playerId: msg.playerId, seat: { ...seat, name: msg.name } });
           case "room:state": {
             const inRound = msg.state.phase === "round" || msg.state.phase === "roundResult";
+            // After a host reset the server forgets plans and dials; forget them here too.
+            const fresh = msg.state.phase === "lobby" && msg.state.batchNo === 0;
             return set({
+              ...(fresh ? { plan: DEFAULT_PLAN, tuning: DEFAULT_TUNING } : {}),
               state: msg.state,
               localDeadline: toLocalDeadline(msg.state.deadline, msg.state.serverNow),
               ...(inRound ? {} : { round: null }),
@@ -63,9 +88,22 @@ export const usePlayer = create<PlayerStore>()((set, get) => ({
           }
           case "round:start":
             return set({
-              round: { roundId: msg.roundId, act: msg.act, light: msg.light, ms: Math.max(0, msg.deadline - msg.serverNow), answered: null },
+              round: {
+                roundId: msg.roundId,
+                act: msg.act,
+                light: msg.light,
+                ms: Math.max(0, msg.deadline - msg.serverNow),
+                dialDeg: msg.dialDeg ?? null,
+                answered: null,
+                measuring: false,
+              },
               flash: null,
             });
+          case "round:measured": {
+            const { round } = get();
+            if (round?.roundId === msg.roundId) set({ round: { ...round, answered: msg.valve, measuring: false } });
+            return;
+          }
           case "round:result":
             return set({ round: null, flash: { roundId: msg.roundId, win: msg.win, timedOut: msg.timedOut } });
           case "error":
@@ -91,9 +129,21 @@ export const usePlayer = create<PlayerStore>()((set, get) => ({
 
   answer(valve) {
     const { round } = get();
-    if (!round || round.answered !== null) return;
+    if (!round || round.act !== 2 || round.answered !== null) return;
     station?.send({ type: "player:valve", roundId: round.roundId, valve });
     set({ round: { ...round, answered: valve } });
+  },
+
+  measure() {
+    const { round } = get();
+    if (!round || round.act !== 3 || round.answered !== null || round.measuring) return;
+    station?.send({ type: "player:measure", roundId: round.roundId });
+    set({ round: { ...round, measuring: true } });
+  },
+
+  setTuning(tuning) {
+    set({ tuning });
+    station?.send({ type: "player:strategy", act: 3, tuning });
   },
 
   setPlan(plan) {
