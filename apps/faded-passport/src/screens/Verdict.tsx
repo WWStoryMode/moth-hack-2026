@@ -9,7 +9,7 @@ export function VerdictScreen(props: { morphUrl: string; outlineUrl: string; acc
   return (
     <Paper>
       <BoothWindow line={props.accepted ? S.verdict.officerGranted : S.verdict.officer} />
-      <PassportPhoto src={props.morphUrl} processedMask={props.outlineUrl} alt="Your passport photo, after the quantum morph">
+      <PassportPhoto src={props.morphUrl} processedMask={props.outlineUrl} alt="Your passport photo, after the quantum morph" large>
         <Stamp years={props.years} landing granted={props.accepted} />
       </PassportPhoto>
       <p className="reason">{props.reason}</p>

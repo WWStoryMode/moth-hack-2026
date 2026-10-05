@@ -101,6 +101,12 @@ export const S = {
     stamp: "Entry denied",
     stampGranted: "Entry granted",
     download: "Download document",
+    /** The processing record: raw Teleblur output and the exact parameters (and inputs) used. */
+    recordHeading: "Processing record",
+    downloadImage: "Processed image",
+    downloadParams: "Parameters (JSON)",
+    downloadAll: "Everything (.zip)",
+    recordNote: "The raw Teleblur output and exactly how it was made. Saved to your device only.",
     again: "Try to return again",
     processedBy: "Processed on the Moth Quantum Atlas API",
   },

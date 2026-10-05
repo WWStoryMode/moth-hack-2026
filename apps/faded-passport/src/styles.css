@@ -12,6 +12,7 @@ body {
 .paper {
   width: 100%;
   max-width: 520px;
+  min-height: var(--page-height); /* every screen is at least one full screen tall */
   align-self: flex-start;
   display: flex;
   flex-direction: column;
@@ -131,6 +132,9 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
 .officer-line { margin: 0; font-size: 22px; font-weight: 700; }
 
 .photo, .document { display: block; width: 100%; height: auto; border: var(--photo-border); outline: var(--border-hair); }
+.photo { width: min(100%, var(--photo-max)); margin: 0 auto; }
+/* Permit preview: leave room below for the download buttons and the processing record. */
+.document { width: min(100%, calc((var(--page-height) - 195px) * 1240 / 1754)); margin: 0 auto; }
 .document { border-width: 0; box-shadow: var(--shadow-document); }
 
 /* Passport photo: 35:45, centre-cropped, sepia except the Teleblur-processed face. */
@@ -151,7 +155,7 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   mask-mode: luminance; /* white outline = untreated; black = sepia shows through */
 }
-.mask-view { position: relative; width: 100%; aspect-ratio: 1; border: var(--photo-border); outline: var(--border-hair); }
+.mask-view { position: relative; width: min(100%, var(--photo-max)); margin: 0 auto; aspect-ratio: 1; border: var(--photo-border); outline: var(--border-hair); }
 .mask-inner { position: relative; aspect-ratio: 1; }
 .mask-inner img, .mask-inner canvas { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; -webkit-user-select: none; }
 
@@ -197,12 +201,8 @@ button:focus-visible, .button:focus-visible, input:focus-visible { outline: 3px 
 .passport-photo .stamp strong { font-size: clamp(18px, 6.4vw, 26px); }
 .passport-photo .stamp span { font-size: clamp(11px, 3.4vw, 13px); }
 .stamp span { font: 700 14px var(--mono); }
-.stamp-hover { animation: hover 1.6s ease-in-out infinite; opacity: .55; }
-@keyframes hover {
-  0%, 100% { transform: rotate(-12deg) translateY(-18px) scale(1.06); }
-  50% { transform: rotate(-10deg) translateY(-26px) scale(1.08); }
-}
-@media (prefers-reduced-motion: reduce) { .stamp-hover, .stamp-land { animation: none; } }
+
+@media (prefers-reduced-motion: reduce) { .stamp-land { animation: none; } }
 
 .title-page { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: var(--space-6) 0 var(--space-2); }
 .title { margin: 0; font-size: clamp(44px, 13vw, 64px); line-height: 1; letter-spacing: .01em; }
@@ -303,6 +303,22 @@ html[data-age-mode="all"]:is([data-stage="stained"], [data-stage="creased"]) .se
 .photo-input-quiet { justify-content: center; gap: 0 var(--space-2); }
 .photo-input-quiet > * { flex: 0 1 auto; }
 /* Compact, one line, in the top gutter above the paper: never covers controls. */
+/* Processing record under the permit */
+.record { display: flex; flex-direction: column; gap: var(--space-1); border-top: var(--border-hair); padding-top: var(--space-3); }
+.record-heading { margin: 0; font: 700 14px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
+.record-row { justify-content: center; gap: 0 var(--space-2); }
+.record-row > * { flex: 0 1 auto; }
+/* Compact one-line tool row (mask screen: Undo · Start over · Zoom · Move). */
+.row.tools { flex-wrap: nowrap; gap: var(--space-1); }
+.row.tools > button { flex: 1 1 0; min-width: 0; min-height: 44px; padding: 10px 6px; font-size: 13px; letter-spacing: 0.03em; }
+.passport-photo.pp-large { width: var(--passport-large-width); }
+/* Document screen: compact controls so the permit preview can be large. */
+.doc-actions { flex-wrap: nowrap; }
+.doc-actions > * { flex: 1 1 0; min-width: 0; font-size: 14px; padding: 12px 8px; letter-spacing: 0.04em; }
+.record { gap: 0; padding-top: var(--space-2); }
+.record .fineprint { display: none; } /* the heading + labels say enough; keeps the permit large */
+.record-row { flex-wrap: wrap; gap: 0 var(--space-1); }
+.record-row > .text-button { min-height: 40px; padding: 6px 6px; font-size: 13px; }
 .debug-badge {
   position: fixed;
   top: 1px;

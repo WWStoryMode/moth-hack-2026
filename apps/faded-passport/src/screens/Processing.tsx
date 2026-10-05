@@ -3,7 +3,6 @@ import { BoothWindow } from "../components/BoothWindow.tsx";
 import { Paper } from "../components/Paper.tsx";
 import { PassportPhoto } from "../components/PassportPhoto.tsx";
 import { ScanOverlay, type ScanPhase } from "../components/ScanOverlay.tsx";
-import { Stamp } from "../components/Stamp.tsx";
 import type { Job } from "../lib/api.ts";
 import { S } from "../strings.ts";
 
@@ -13,9 +12,8 @@ export function ProcessingScreen(props: { elapsedMs: number; portraitUrl: string
   return (
     <Paper>
       <BoothWindow line={line} />
-      <PassportPhoto src={props.portraitUrl} alt="">
+      <PassportPhoto src={props.portraitUrl} alt="" large>
         <ScanOverlay phase={props.phase} job={props.job} />
-        <Stamp hovering />
       </PassportPhoto>
     </Paper>
   );

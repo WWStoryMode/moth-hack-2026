@@ -4,10 +4,11 @@
 // mask, so the region Teleblur processed stays in true colour and stands out.
 import type { ReactNode } from "react";
 
-export function PassportPhoto(props: { src: string; alt: string; processedMask?: string; children?: ReactNode }) {
+/** `large`: for screens with little else on them (processing, verdict). */
+export function PassportPhoto(props: { src: string; alt: string; processedMask?: string; large?: boolean; children?: ReactNode }) {
   const mask = props.processedMask ? `url(${props.processedMask})` : undefined;
   return (
-    <div className="passport-photo">
+    <div className={`passport-photo${props.large ? " pp-large" : ""}`}>
       <img className="pp-treated" src={props.src} alt={props.alt} draggable={false} />
       {mask && (
         <img className="pp-processed" src={props.src} alt="" aria-hidden="true" draggable={false} style={{ maskImage: mask, WebkitMaskImage: mask }} />

@@ -33,7 +33,8 @@
   --booth-rim: #b9cdc5;
   --booth-sill: #7c8480;
   --booth-frame: #4a514e;
-  --booth-height: clamp(112px, 20vh, 170px);
+  --booth-height: clamp(100px, 16vh, 150px);
+  --booth-height: clamp(100px, 16dvh, 150px);
 
   /* Machine scan (Teleblur reading the photo) */
   --scan-veil: rgba(0, 0, 0, 0.74);
@@ -78,7 +79,19 @@
   --frame-double: 3px double var(--rule);
   --photo-border: 8px solid var(--photo-mat);
   --passport-ratio: 35 / 45;
-  --passport-width: 78%; /* keeps the 35:45 frame about as tall as the old square photo */
+  /* Consistent page height: the paper fills the screen, and photos scale with the screen height so
+     photo screens fit in that same height (100vh first as the fallback for browsers without dvh). */
+  --page-height: calc(100vh - 2 * var(--space-4));
+  --page-height: calc(100dvh - 2 * var(--space-4));
+  --photo-max: 42vh;
+  --photo-max: 42dvh; /* longest side of a square photo */
+  --passport-max-h: 36vh;
+  --passport-max-h: 36dvh; /* height of a 35:45 passport photo */
+  --passport-width: min(78%, calc(var(--passport-max-h) * 35 / 45));
+  /* Processing and verdict have little else on screen, so their passport photo can be bigger. */
+  --passport-large-h: 51vh;
+  --passport-large-h: 51dvh;
+  --passport-large-width: min(92%, calc(var(--passport-large-h) * 35 / 45));
   --photo-treatment: sepia(0.45) saturate(0.7) contrast(0.95) brightness(1.03); /* display only */
   --button-border-width: 2px;
   --radius: 2px;

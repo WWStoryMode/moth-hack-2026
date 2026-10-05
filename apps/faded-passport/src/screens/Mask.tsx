@@ -136,7 +136,7 @@ export function MaskScreen(props: { portraitUrl: string; onDone: (masks: { outli
           </figcaption>
         </figure>
       )}
-      <div className="row">
+      <div className="row tools">
         <button type="button" className="secondary" disabled={!strokes.length} onClick={() => setStrokes((s) => s.slice(0, -1))}>
           {S.mask.undo}
         </button>

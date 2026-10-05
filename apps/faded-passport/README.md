@@ -47,6 +47,18 @@ in every variant.
 
 All text stays at WCAG AA contrast at 40 years (the ageing colours are clamped in `src/lib/ageing.ts`).
 
+## Processing record (for Challenge 01 and reproducibility)
+
+On the final screen, under the permit, **Processing record** offers:
+
+- **Processed image**: the raw Teleblur output, byte-for-byte as returned by the API
+- **Parameters (JSON)**: engine, job ID, the server-confirmed Teleblur params, years, the mask recipe, the
+  years → strength/size mapping, and the verdict scores (likeness, homeness, thresholds)
+- **Everything (.zip)**: the permit, the raw output, `parameters.json`, and the exact inputs sent (`image1`
+  portrait, `image2` home, `mask`) plus the drawn outline, so the run can be reproduced
+
+These are assembled in the browser from what the game already holds: no extra API calls, nothing stored.
+
 ## Privacy
 
 Photos are sent to Moth Quantum's API for processing. After the result is fetched, the server deletes the
