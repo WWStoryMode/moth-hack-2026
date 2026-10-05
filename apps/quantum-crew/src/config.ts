@@ -28,3 +28,17 @@ export const ACT2_BATCHES = 3;
 export const HINT_AFTER_FAILED_BATCHES = 3;
 /** Solo: Act III batches after which the debrief unlocks even without reaching 80%. */
 export const DEBRIEF_AFTER_BATCHES = 4;
+
+// --- Event mode (multiplayer) -------------------------------------------------------------------
+
+// DECISION: multiplayer rounds get longer than solo ones, to allow for phones and network lag.
+/** Time a phone has to answer a round. */
+export const MP_ROUND_MS = 3500;
+/** How long the result of a round shows before the next light. */
+export const MP_RESULT_MS = 1500;
+/** Strategy huddle length; the batch starts automatically when it ends. */
+export const STRATEGY_MS = 45_000;
+/** Pooled stability on the TV is the win rate of the last this-many rounds across all pairs. */
+export const ROLLING_WINDOW = 48;
+/** Up to 4 pairs: at most 4 players per table. */
+export const MAX_PAIRS = 4;
