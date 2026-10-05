@@ -4,6 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 import { Countdown } from "../components/Countdown.tsx";
 import { StabilityMeter, pct } from "../components/StabilityMeter.tsx";
+import { atlasUrl, isVideo } from "../assets/atlas/manifest.ts";
+import { CreditsList } from "../components/CreditsList.tsx";
+import { OptimalDials, fmt } from "../components/DebriefParts.tsx";
 import { StationVisual } from "../components/StationVisual.tsx";
 import { MP_ROUND_MS } from "../config.ts";
 import { useHost } from "../net/hostStore.ts";
@@ -16,6 +19,13 @@ const rate = (r: RateSummary) => (r.rounds ? r.wins / r.rounds : null);
 export function Screen() {
   const { status, state, localDeadline, results, error, start, command } = useHost();
   useEffect(() => start(), [start]);
+  // Facilitator-only, so it lives on the TV: the hint and the debrief step.
+  const [hint, setHint] = useState(false);
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    if (state?.phase !== "debrief") setStep(0);
+    if (!state?.toolUnlocked) setHint(false);
+  }, [state?.phase, state?.toolUnlocked]);
 
   if (!state) {
     return (
@@ -29,8 +39,9 @@ export function Screen() {
   const actRate = state.act === 2 ? state.stability.act2 : state.stability.act3;
   const lobby = state.phase === "lobby";
 
+  const quantum = state.act === 3 && state.phase !== "debrief";
   return (
-    <main className="tv">
+    <main className={`tv ${quantum ? "quantum" : ""}`}>
       <header className="tv__head">
         <p className="kicker">{S.title}</p>
         <p className="kicker">
@@ -39,13 +50,18 @@ export function Screen() {
       </header>
 
       <section className="tv__main">
-        <PhaseBanner state={state} localDeadline={localDeadline} />
+        {state.phase !== "debrief" && <PhaseBanner state={state} localDeadline={localDeadline} />}
+        {hint && state.act === 3 && state.phase !== "debrief" && <p className="tv__hint">{S.tuning.hint}</p>}
         {state.phase === "ceiling" ? (
           <CeilingPanel />
+        ) : state.phase === "tool" ? (
+          <ToolPanel />
+        ) : state.phase === "debrief" ? (
+          <TvDebrief state={state} step={step} setStep={setStep} />
         ) : (
           <StationVisual rate={state.stability.rolling} />
         )}
-        <div className="panel">
+        <div className="panel" hidden={state.phase === "debrief"}>
           <StabilityMeter
             value={state.stability.rolling}
             label={S.tv.pooled}
@@ -71,7 +87,7 @@ export function Screen() {
         />
       </aside>
 
-      <HostControls state={state} onCommand={command} error={error} />
+      <HostControls state={state} onCommand={command} error={error} hint={hint} onHint={() => setHint((h) => !h)} />
     </main>
   );
 }
@@ -110,6 +126,118 @@ function CeilingPanel() {
         </p>
       ))}
     </div>
+  );
+}
+
+function ToolPanel() {
+  const art = atlasUrl("entanglement-reveal");
+  return (
+    <div className="panel stack reveal">
+      <div className="reveal__field" aria-hidden="true" style={art ? { filter: "none", opacity: 0.5 } : undefined}>
+        {art && (isVideo(art) ? <video src={art} autoPlay loop muted playsInline /> : <img src={art} alt="" />)}
+      </div>
+      <div className="reveal__crystals" aria-hidden="true">
+        <div className="crystal" />
+        <div className="crystal" />
+      </div>
+      {S.tv.toolLines.map((l) => (
+        <p key={l} className="tv__line">
+          {l}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+/** The debrief on the big screen: the same four steps as solo, with the whole crew's numbers. */
+function TvDebrief({ state, step, setStep }: { state: RoomState; step: number; setStep: (n: number) => void }) {
+  const steps = S.debrief.steps;
+  const content = steps[step]!;
+  const act2 = rate(state.stability.act2);
+  const act3 = rate(state.stability.act3);
+  return (
+    <div className="panel stack tv__debrief">
+      <div className="steps" aria-hidden="true">
+        {steps.map((_, i) => (
+          <span key={i} className={i <= step ? "on" : ""} />
+        ))}
+      </div>
+      <p className="kicker">{S.debrief.kicker}</p>
+      <h1>{content.title}</h1>
+      {content.body.map((p) => (
+        <p key={p} className="tv__line">
+          {p}
+        </p>
+      ))}
+      {step === 0 && act2 !== null && <p className="tv__big">{S.tv.crewAct(2, pct(act2), state.stability.act2.rounds)}</p>}
+      {step === 1 && (
+        <>
+          {act3 !== null && <p className="tv__big">{S.tv.crewAct(3, pct(act3), state.stability.act3.rounds)}</p>}
+          <div className="row">
+            <OptimalDials table="A" />
+            <OptimalDials table="B" />
+          </div>
+        </>
+      )}
+      {step === 2 && state.marginals && (
+        <>
+          <MarginalTable {...state.marginals} />
+          <p className="muted small">{S.tv.wobble}</p>
+        </>
+      )}
+      {step === 3 && <CreditsList />}
+      <div className="row tv__debrief-nav">
+        <button className="btn" disabled={step === 0} onClick={() => setStep(step - 1)}>
+          {S.debrief.back}
+        </button>
+        <button className="btn btn--primary" disabled={step === steps.length - 1} onClick={() => setStep(step + 1)}>
+          {S.debrief.next}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Each seat's own valve: OPEN rate when the partner saw GREEN vs RED. Both ≈ 50%: no message got through. */
+function MarginalTable({ rows, crew }: NonNullable<RoomState["marginals"]>) {
+  const cell = (r: number | null) => (
+    <td>
+      <div className="bar__track">
+        <div className="bar__fill" style={{ width: `${(r ?? 0) * 100}%` }} />
+        <div className="bar__half" />
+      </div>
+      <span>{fmt(r)}</span>
+    </td>
+  );
+  return (
+    <table className="marginals">
+      <thead>
+        <tr>
+          <th>{S.tv.marginalHead.player}</th>
+          <th>{S.tv.marginalHead.green}</th>
+          <th>{S.tv.marginalHead.red}</th>
+          <th>{S.tv.marginalHead.rounds}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr className="marginals__crew">
+          <td>{S.tv.wholeCrew}</td>
+          {cell(crew.partnerGreen)}
+          {cell(crew.partnerRed)}
+          <td className="muted">{crew.rounds}</td>
+        </tr>
+        {rows.map((m) => (
+          <tr key={`${m.table}-${m.name}`}>
+            <td>
+              {m.name} <span className="muted">({m.table})</span>
+            </td>
+            {cell(m.partnerGreen)}
+            {cell(m.partnerRed)}
+            <td className="muted">{m.rounds}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 
@@ -192,19 +320,32 @@ function PairCard({ pair, state, result }: { pair: PairInfo; state: RoomState; r
   );
 }
 
-function HostControls({ state, onCommand, error }: { state: RoomState; onCommand: (c: HostCommand) => void; error: string | null }) {
+function HostControls({
+  state,
+  onCommand,
+  error,
+  hint,
+  onHint,
+}: {
+  state: RoomState;
+  onCommand: (c: HostCommand) => void;
+  error: string | null;
+  hint: boolean;
+  onHint: () => void;
+}) {
   const inBatch = state.phase === "round" || state.phase === "roundResult";
   const hasPlayers = state.players.length > 0;
   const enabled = useMemo<Record<HostCommand, boolean>>(
     () => ({
-      startStrategy: !inBatch && hasPlayers && state.phase !== "strategy" && state.phase !== "ceiling",
-      startBatch: !inBatch && hasPlayers && state.phase !== "ceiling",
+      startStrategy: !inBatch && hasPlayers && !["strategy", "ceiling", "debrief"].includes(state.phase),
+      startBatch: !inBatch && hasPlayers && !["ceiling", "debrief"].includes(state.phase),
       revealCeiling: !inBatch && state.act === 2 && state.stability.act2.rounds > 0 && state.phase !== "ceiling",
-      unlockTool: false, // M4
-      debrief: false, // M4
+      // DECISION: the tool unlocks after the ceiling has been revealed, to keep the learning arc in order.
+      unlockTool: !inBatch && state.ceilingRevealed && !state.toolUnlocked,
+      debrief: !inBatch && state.act === 3 && state.stability.act3.rounds > 0 && state.phase !== "debrief",
       reset: true,
     }),
-    [inBatch, hasPlayers, state.phase, state.act, state.stability.act2.rounds],
+    [inBatch, hasPlayers, state.phase, state.act, state.stability.act2.rounds, state.stability.act3.rounds, state.ceilingRevealed, state.toolUnlocked],
   );
   const order: HostCommand[] = ["startStrategy", "startBatch", "revealCeiling", "unlockTool", "debrief", "reset"];
   return (
@@ -215,12 +356,16 @@ function HostControls({ state, onCommand, error }: { state: RoomState; onCommand
           key={cmd}
           className={`btn ${cmd === "reset" ? "btn--ghost" : ""}`}
           disabled={!enabled[cmd]}
-          title={cmd === "unlockTool" || cmd === "debrief" ? S.tv.next : undefined}
           onClick={() => (cmd !== "reset" || confirm(S.tv.resetConfirm)) && onCommand(cmd)}
         >
           {S.tv.cmd[cmd]}
         </button>
       ))}
+      {state.act === 3 && state.phase !== "debrief" && (
+        <button className={`btn ${hint ? "btn--selected" : ""}`} onClick={onHint}>
+          {hint ? S.tv.hideHint : S.tv.showHint}
+        </button>
+      )}
       {error && <span className="tv__error">{error}</span>}
     </footer>
   );

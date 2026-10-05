@@ -14,8 +14,13 @@ import {
   STRATEGY_MS,
 } from "../src/config.ts";
 import {
+  DIAL_POSITIONS,
+  OPTIMAL_TUNING,
   classicalValve,
+  dialFor,
   drawInputs,
+  measureFirst,
+  measureSecond,
   scoreRound,
   type ClassicalStrategy,
   type Light,
@@ -59,9 +64,16 @@ type Player = {
 };
 
 type Pair = { id: number; a: Player | null; b: Player | null };
+type Side = "a" | "b";
 
-/** One pair's part of the live round. A null valve = not answered yet. */
-type PairRound = { x: Light; y: Light; a: Valve | null; b: Valve | null };
+/**
+ * One pair's part of the live round. A null valve = not answered yet. In Act III, `theta` records the dial angle
+ * each side measured at, so the second measurement can be conditioned on the first.
+ */
+type PairRound = { x: Light; y: Light; a: Valve | null; b: Valve | null; theta: { a: number | null; b: number | null } };
+
+/** Act III no-signalling record for one seat: its OPEN count split by the partner's light. */
+type SeatMarginal = { name: string; table: Table; green: { open: number; n: number }; red: { open: number; n: number } };
 
 type LiveRound = { id: string; deadline: number; byPair: Map<number, PairRound> };
 
@@ -73,6 +85,12 @@ const addResult = (r: RateSummary, o: RoundOutcome) => {
 };
 
 export const BOT_NAME = "AI crewmate";
+
+/** Snaps any angle to the nearest of the tool's 8 dial positions (mod 180°). */
+export function snapDial(deg: number): number {
+  const i = Math.round((((deg % 180) + 180) % 180) / 22.5) % DIAL_POSITIONS.length;
+  return DIAL_POSITIONS[i]!;
+}
 
 export function createRoom(code: string, deps: RoomDeps) {
   const token = deps.newId();
@@ -99,6 +117,8 @@ export function createRoom(code: string, deps: RoomDeps) {
   let pairStats = new Map<number, Record<Act, RateSummary>>();
   let batchStats: RateSummary | null = null;
   let lastBatch: RateSummary | null = null;
+  /** Keyed by player id, or `bot-<pair>-<side>` for an AI crewmate. */
+  let marginals = new Map<string, SeatMarginal>();
 
   // --- Sending ----------------------------------------------------------------------------------
 
@@ -145,6 +165,27 @@ export function createRoom(code: string, deps: RoomDeps) {
       lastBatch,
       ceilingRevealed,
       toolUnlocked,
+      // Only in the debrief: per-light counts could otherwise hint at a partner's past lights mid-game.
+      marginals: phase === "debrief" ? marginalRows() : null,
+    };
+  }
+
+  function marginalRows(): NonNullable<RoomState["marginals"]> {
+    const rate = (c: { open: number; n: number }) => (c.n ? c.open / c.n : null);
+    const all = [...marginals.values()];
+    const sum = (pick: (m: SeatMarginal) => { open: number; n: number }) =>
+      all.reduce((acc, m) => ({ open: acc.open + pick(m).open, n: acc.n + pick(m).n }), { open: 0, n: 0 });
+    const green = sum((m) => m.green);
+    const red = sum((m) => m.red);
+    return {
+      rows: all.map((m) => ({
+        name: m.name,
+        table: m.table,
+        partnerGreen: rate(m.green),
+        partnerRed: rate(m.red),
+        rounds: m.green.n + m.red.n,
+      })),
+      crew: { partnerGreen: rate(green), partnerRed: rate(red), rounds: green.n + red.n },
     };
   }
 
@@ -185,8 +226,28 @@ export function createRoom(code: string, deps: RoomDeps) {
 
   // --- Rounds -----------------------------------------------------------------------------------
 
-  /** The AI crewmate's valve for a light. Act III bots arrive in M4. */
+  /** The AI crewmate's Act II valve for a light. */
   const botValve = (light: Light): Valve => classicalValve(BOT_ACT2_PLAN, light);
+
+  /** The dial a seat uses for a light: the player's own tuning, or the optimal one for an AI crewmate. */
+  const seatDial = (pair: Pair, side: Side, light: Light) =>
+    dialFor(pair[side]?.tuning ?? OPTIMAL_TUNING[side === "a" ? "A" : "B"], light);
+
+  /**
+   * Act III: one side taps MEASURE. Whoever measures first gets a fair coin; the second result is conditioned on it
+   * (equal with probability cos²(Δθ)). Either way each side's own result stays 50/50: no signalling.
+   */
+  function measureSide(pair: Pair, pr: PairRound, side: Side): Valve {
+    const other: Side = side === "a" ? "b" : "a";
+    const theta = seatDial(pair, side, side === "a" ? pr.x : pr.y);
+    const partner = pr[other];
+    const partnerTheta = pr.theta[other];
+    const valve =
+      partner === null || partnerTheta === null ? measureFirst(deps.rng) : measureSecond(partner, partnerTheta, theta, deps.rng);
+    pr[side] = valve;
+    pr.theta[side] = theta;
+    return valve;
+  }
 
   function startBatch() {
     clearTimer();
@@ -209,7 +270,15 @@ export function createRoom(code: string, deps: RoomDeps) {
     const byPair = new Map<number, PairRound>();
     for (const pair of pairs) {
       const { x, y } = drawInputs(deps.rng);
-      byPair.set(pair.id, { x, y, a: pair.a ? null : botValve(x), b: pair.b ? null : botValve(y) });
+      const pr: PairRound = { x, y, a: null, b: null, theta: { a: null, b: null } };
+      // AI crewmates answer at once. DECISION: in Act III the bot measures at the start of the round, so it is
+      // always first and its human partner's result is the conditioned one.
+      for (const side of ["a", "b"] as const) {
+        if (pair[side]) continue;
+        if (act === 2) pr[side] = botValve(side === "a" ? x : y);
+        else measureSide(pair, pr, side);
+      }
+      byPair.set(pair.id, pr);
     }
     live = { id, deadline: now + MP_ROUND_MS, byPair };
     phase = "round";
@@ -224,21 +293,47 @@ export function createRoom(code: string, deps: RoomDeps) {
     const pr = live.byPair.get(pair.id);
     if (!pr) return;
     const base = { type: "round:start" as const, roundId: live.id, act, deadline: live.deadline, serverNow: deps.now() };
-    if (pair.a && (!only || only === pair.a) && pr.a === null) toPlayer(pair.a, { ...base, light: pr.x });
-    if (pair.b && (!only || only === pair.b) && pr.b === null) toPlayer(pair.b, { ...base, light: pr.y });
+    for (const side of ["a", "b"] as const) {
+      const p = pair[side];
+      if (!p || (only && only !== p) || pr[side] !== null) continue;
+      const light = side === "a" ? pr.x : pr.y;
+      toPlayer(p, { ...base, light, ...(act === 3 ? { dialDeg: seatDial(pair, side, light) } : {}) });
+    }
   }
 
-  function answer(player: Player, roundId: string, valve: Valve) {
+  /** Act II: a valve tap. Act III: a MEASURE tap (`valve` undefined). */
+  function answer(player: Player, roundId: string, valve?: Valve) {
     if (phase !== "round" || !live || live.id !== roundId || deps.now() > live.deadline) return;
     const pair = pairs.find((p) => p.a === player || p.b === player);
     const pr = pair && live.byPair.get(pair.id);
     if (!pair || !pr) return;
-    if (pair.a === player && pr.a === null) pr.a = valve;
-    else if (pair.b === player && pr.b === null) pr.b = valve;
-    else return;
+    const side: Side = pair.a === player ? "a" : "b";
+    if (pr[side] !== null) return;
+    if (act === 2) {
+      if (valve === undefined) return;
+      pr[side] = valve;
+    } else {
+      toPlayer(player, { type: "round:measured", roundId, valve: measureSide(pair, pr, side) });
+    }
     const done = [...live.byPair.values()].every((r) => r.a !== null && r.b !== null);
     if (done) resolveRound();
     else broadcast();
+  }
+
+  function recordMarginal(pair: Pair, side: Side, valve: Valve | null, partnerLight: Light) {
+    if (act !== 3 || valve === null) return;
+    const p = pair[side];
+    const key = p?.id ?? `bot-${pair.id}-${side}`;
+    const m = marginals.get(key) ?? {
+      name: p?.name ?? `${BOT_NAME} (pair ${pair.id})`,
+      table: side === "a" ? "A" : "B",
+      green: { open: 0, n: 0 },
+      red: { open: 0, n: 0 },
+    };
+    const bucket = partnerLight === 0 ? m.green : m.red;
+    bucket.n++;
+    if (valve === 0) bucket.open++;
+    marginals.set(key, m);
   }
 
   function resolveRound() {
@@ -255,6 +350,8 @@ export function createRoom(code: string, deps: RoomDeps) {
       addResult(pairStats.get(pair.id)![act], outcome);
       if (batchStats) addResult(batchStats, outcome);
       rolling.push(r.win);
+      recordMarginal(pair, "a", pr.a, pr.y);
+      recordMarginal(pair, "b", pr.b, pr.x);
       const msg: ServerMsg = { type: "round:result", roundId: live.id, ...outcome };
       toPlayer(pair.a, msg);
       toPlayer(pair.b, msg);
@@ -301,9 +398,19 @@ export function createRoom(code: string, deps: RoomDeps) {
         ceilingRevealed = true;
         return broadcast();
       case "unlockTool":
+        if (inBatch() || toolUnlocked) return notNow();
+        clearTimer();
+        act = 3;
+        toolUnlocked = true;
+        phase = "tool";
+        deadline = null;
+        return broadcast();
       case "debrief":
-        // The Entanglement Tool and the TV debrief arrive in M4.
-        return error(conn, "not-now", "Act III and the debrief arrive in the next build.");
+        if (inBatch()) return notNow();
+        clearTimer();
+        phase = "debrief";
+        deadline = null;
+        return broadcast();
       case "reset":
         clearTimer();
         phase = "lobby";
@@ -315,6 +422,7 @@ export function createRoom(code: string, deps: RoomDeps) {
         rolling = [];
         actStats = { 2: emptyRate(), 3: emptyRate() };
         pairStats = new Map();
+        marginals = new Map();
         batchStats = lastBatch = null;
         for (const p of players) {
           p.classical = DEFAULT_PLAN;
@@ -383,13 +491,14 @@ export function createRoom(code: string, deps: RoomDeps) {
         case "player:strategy":
           if (!player) return;
           if (msg.classical) player.classical = msg.classical;
-          if (msg.tuning) player.tuning = msg.tuning;
+          if (msg.tuning) player.tuning = { greenDeg: snapDial(msg.tuning.greenDeg), redDeg: snapDial(msg.tuning.redDeg) };
           return;
         case "player:valve":
           if (!player || act !== 2) return;
           return answer(player, msg.roundId, msg.valve);
         case "player:measure":
-          return; // Act III, M4
+          if (!player || act !== 3) return;
+          return answer(player, msg.roundId);
       }
     },
 

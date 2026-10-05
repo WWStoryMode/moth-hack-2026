@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BATCH_SIZE, MP_RESULT_MS, MP_ROUND_MS, ROLLING_WINDOW, STRATEGY_MS } from "../src/config.ts";
 import type { ClientMsg, RoomState, ServerMsg } from "../src/shared/protocol.ts";
+import { OPTIMAL_TUNING, QUANTUM_LIMIT } from "../src/shared/chsh.ts";
 import { mulberry32 } from "../src/shared/rng.ts";
 import { BOT_NAME } from "./room.ts";
 import { createStation } from "./station.ts";
@@ -193,5 +194,100 @@ describe("Act II rounds", () => {
     t.host("startBatch");
     expect(t.roomState("tv").pairs[0]!.b.name).toBe("Bo");
     expect(t.last("b1", "round:start")).toBeDefined();
+  });
+});
+
+describe("Act III rounds", () => {
+  /** Two human pairs (tuned optimally) plus one human with an AI crewmate. */
+  function act3Room(seed: number) {
+    const t = setup(seed);
+    const seats = [
+      ["a1", "Ada", "A"],
+      ["b1", "Bo", "B"],
+      ["a2", "Cy", "A"],
+      ["b2", "Di", "B"],
+      ["a3", "Ed", "A"],
+    ] as const;
+    for (const [conn, name, table] of seats) t.join(conn, name, table);
+    t.host("startBatch");
+    t.advance((MP_ROUND_MS + MP_RESULT_MS) * BATCH_SIZE);
+    t.host("revealCeiling");
+    t.host("unlockTool");
+    for (const [conn, , table] of seats) t.send(conn, { type: "player:strategy", act: 3, tuning: OPTIMAL_TUNING[table] });
+    return { t, conns: seats.map((s) => s[0]) };
+  }
+
+  /** Plays `batches` batches; `order` picks which phones tap MEASURE first in each round. */
+  function play(t: ReturnType<typeof setup>, conns: readonly string[], batches: number, order: (round: number) => string[]) {
+    for (let b = 0; b < batches; b++) {
+      t.host("startBatch");
+      for (let r = 0; r < BATCH_SIZE; r++) {
+        for (const conn of order(r).filter((c) => conns.includes(c))) {
+          const start = t.last(conn, "round:start")!;
+          t.send(conn, { type: "player:measure", roundId: start.roundId });
+        }
+        t.advance(MP_RESULT_MS + 1);
+      }
+      t.advance(MP_RESULT_MS);
+    }
+  }
+
+  it("unlocks the tool into Act III; valve taps no longer count", () => {
+    const { t } = act3Room(1);
+    expect(t.roomState("tv")).toMatchObject({ phase: "tool", act: 3, toolUnlocked: true });
+    t.host("startBatch");
+    const start = t.last("a1", "round:start")!;
+    expect(start).toMatchObject({ act: 3, dialDeg: OPTIMAL_TUNING.A[start.light === 0 ? "greenDeg" : "redDeg"] });
+    t.send("a1", { type: "player:valve", roundId: start.roundId, valve: 0 });
+    expect(t.roomState("tv").pairs[0]!.answered.a).toBe(false);
+  });
+
+  it("sends the measured valve only to the phone that measured", () => {
+    const { t } = act3Room(2);
+    t.host("startBatch");
+    t.clear("b1");
+    t.send("a1", { type: "player:measure", roundId: t.last("a1", "round:start")!.roundId });
+    expect(t.last("a1", "round:measured")).toBeDefined();
+    expect(t.last("b1", "round:measured")).toBeUndefined();
+  });
+
+  it.each([
+    ["A first", () => ["a1", "a2", "a3", "b1", "b2"]],
+    ["B first", () => ["b1", "b2", "a1", "a2", "a3"]],
+    ["alternating", (r: number) => (r % 2 ? ["a1", "a2", "a3", "b1", "b2"] : ["b2", "b1", "a3", "a2", "a1"])],
+  ])("optimal dials beat the classical limit, whoever measures first (%s)", (_, order) => {
+    const { t, conns } = act3Room(3);
+    play(t, conns, 80, order);
+    const { act3 } = t.roomState("tv").stability;
+    expect(act3.rounds).toBe(80 * BATCH_SIZE * 3);
+    expect(act3.timeouts).toBe(0);
+    expect(Math.abs(act3.wins / act3.rounds - QUANTUM_LIMIT)).toBeLessThan(0.025);
+  });
+
+  it("no-signalling: every seat's OPEN rate is ≈ 50% whatever its partner saw (debrief only)", () => {
+    const { t, conns } = act3Room(4);
+    play(t, conns, 80, (r) => (r % 2 ? ["a1", "a2", "a3", "b1", "b2"] : ["b1", "b2", "a1", "a2", "a3"]));
+    expect(t.roomState("tv").marginals).toBeNull();
+    t.host("debrief");
+    const { rows, crew } = t.roomState("tv").marginals!;
+    expect(crew.rounds).toBe(6 * 80 * BATCH_SIZE);
+    expect(Math.abs(crew.partnerGreen! - 0.5)).toBeLessThan(0.03);
+    expect(Math.abs(crew.partnerRed! - 0.5)).toBeLessThan(0.03);
+    expect(rows.map((r) => r.name).sort()).toEqual(["AI crewmate (pair 3)", "Ada", "Bo", "Cy", "Di", "Ed"]);
+    for (const row of rows) {
+      expect(row.rounds).toBe(80 * BATCH_SIZE);
+      expect(Math.abs(row.partnerGreen! - 0.5)).toBeLessThan(0.07);
+      expect(Math.abs(row.partnerRed! - 0.5)).toBeLessThan(0.07);
+    }
+  });
+
+  it("a timeout in Act III is a loss; tunings snap to the dial", () => {
+    const { t } = act3Room(5);
+    t.send("a1", { type: "player:strategy", act: 3, tuning: { greenDeg: 46, redDeg: -22 } });
+    t.host("startBatch");
+    const start = t.last("a1", "round:start")!;
+    expect(start.dialDeg).toBe(start.light === 0 ? 45 : 157.5);
+    t.advance(MP_ROUND_MS);
+    expect(t.last("a1", "round:result")).toMatchObject({ win: false, timedOut: true });
   });
 });

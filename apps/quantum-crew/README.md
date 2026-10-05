@@ -39,8 +39,14 @@ Two tables of players, one phone each, and a TV or projector. A facilitator runs
 4. Each round, every phone shows only its own light, two valve buttons and a countdown. The TV shows the round
    timer, who has answered and each pair's result. Stability is pooled over the last 48 rounds across all pairs, and
    each pair also has its own mini-meter.
-5. Play a few batches, then **Reveal the ceiling**. Act III (the Entanglement Tool) and the TV debrief arrive in
-   the next build.
+5. Play a few batches, then **Reveal ceiling**: the TV shows the engineering report (no plan beats 75%).
+6. **Unlock tool**: every pair gets the Entanglement Tool. Phones show two dials (one for GREEN, one for RED); use a
+   huddle to agree settings. In each round a phone shows its light, the dial angle in use and a **MEASURE** button.
+   The server decides who measured first: that result is a fair coin, and the partner's result is conditioned on it.
+   The TV adds the 85.4% line. **Show hint** puts the engineering hint on the TV.
+7. **Debrief** on the TV (Back / Next): the Bell/CHSH wall with the crew's Act II score, the Tsirelson bound with
+   the best dial settings and the crew's Act III score, then **no-signalling**: every crew member's OPEN rate split
+   by what their partner saw (≈ 50/50 both ways, pooled for the whole crew), then credits.
 
 A phone that reloads or drops out rejoins its seat automatically (same name, same table).
 

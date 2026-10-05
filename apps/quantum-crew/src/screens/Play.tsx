@@ -1,7 +1,8 @@
 // A phone in event mode: join a room at a table, then show only what the round needs (own light, valve
-// buttons, countdown). Everything else is on the TV.
-import { useEffect, useState } from "react";
+// buttons or MEASURE with the dial in use, countdown). Everything else is on the TV.
+import { useEffect, useState, type ReactNode } from "react";
 import { Countdown } from "../components/Countdown.tsx";
+import { Dial } from "../components/Dial.tsx";
 import { SensorLight } from "../components/SensorLight.tsx";
 import { navigate } from "../lib/router.ts";
 import { usePlayer } from "../net/playerStore.ts";
@@ -104,50 +105,73 @@ function JoinForm({ error }: { error: string | null }) {
 }
 
 function InRoom() {
-  const { state, seat, playerId, round, flash, plan, status, localDeadline, answer, setPlan, leave } = usePlayer();
+  const p = usePlayer();
+  const { state, seat, playerId, round, flash, plan, tuning, status, localDeadline, answer, measure, setPlan, setTuning, leave } = p;
   const left = useRemainingMs(localDeadline);
 
-  // Keyboard for laptop testing: O / C.
+  // Keyboard for laptop testing: O / C in Act II, Space / Enter = MEASURE in Act III.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase();
       if (k === "o") answer(OPEN);
       if (k === "c") answer(CLOSED);
+      if (k === " " || k === "enter") {
+        e.preventDefault();
+        measure();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answer]);
+  }, [answer, measure]);
 
   if (!state || !seat) return null;
 
-  const me = state.players.find((p) => p.id === playerId);
-  const pair = state.pairs.find((p) => p.id === me?.pairId);
+  const me = state.players.find((pl) => pl.id === playerId);
+  const pair = state.pairs.find((pr) => pr.id === me?.pairId);
   const partner = pair ? (seat.table === "A" ? pair.b : pair.a) : null;
   const otherTable = seat.table === "A" ? "B" : "A";
+  const quantum = state.act === 3 && state.phase !== "debrief";
+  const wrap = (children: ReactNode) => <div className={quantum ? "quantum" : undefined}>{children}</div>;
 
-  // During a live round the phone shows only the light, the valves and the countdown.
+  // During a live round the phone shows only the light, the control and the countdown.
   if (round && round.answered === null) {
-    return (
+    return wrap(
       <main className="screen">
-        <Countdown id={round.roundId} ms={round.ms} paused={false} />
+        <Countdown id={round.roundId} ms={round.ms} paused={round.measuring} />
         <SensorLight light={round.light} label={S.batch.yourLight} />
         <div className="spacer" />
-        <div className="valves">
-          {[OPEN, CLOSED].map((v) => (
-            <button key={v} className="btn valve" onPointerDown={() => answer(v)} onClick={() => answer(v)}>
-              <span className="valve__icon" aria-hidden="true">
-                {v === OPEN ? "═ ═" : "═╪═"}
-              </span>
-              {S.valve[v]}
-              {plannedValve(plan, round.light) === v && <span className="valve__plan">{S.batch.planTag}</span>}
+        {round.act === 2 ? (
+          <div className="valves">
+            {[OPEN, CLOSED].map((v) => (
+              <button key={v} className="btn valve" onPointerDown={() => answer(v)} onClick={() => answer(v)}>
+                <span className="valve__icon" aria-hidden="true">
+                  {v === OPEN ? "═ ═" : "═╪═"}
+                </span>
+                {S.valve[v]}
+                {plannedValve(plan, round.light) === v && <span className="valve__plan">{S.batch.planTag}</span>}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <>
+            {round.dialDeg !== null && <Dial value={round.dialDeg} small />}
+            <button className="btn measure" disabled={round.measuring} onPointerDown={measure} onClick={measure}>
+              {S.batch.measure}
             </button>
-          ))}
-        </div>
-      </main>
+          </>
+        )}
+      </main>,
     );
   }
 
-  return (
+  const tuningPanel = (
+    <div className="row panel">
+      <Dial value={tuning.greenDeg} onChange={(d) => setTuning({ ...tuning, greenDeg: d })} label={<SensorLight light={GREEN} small />} />
+      <Dial value={tuning.redDeg} onChange={(d) => setTuning({ ...tuning, redDeg: d })} label={<SensorLight light={RED} small />} />
+    </div>
+  );
+
+  return wrap(
     <main className="screen">
       <div className="meter__head">
         <span className="kicker">{S.phone.seat(seat.table, seat.name)}</span>
@@ -170,25 +194,52 @@ function InRoom() {
         </div>
       )}
 
+      {!round && state.phase === "tool" && (
+        <div className="stack reveal">
+          <div className="reveal__crystals" aria-hidden="true">
+            <div className="crystal" />
+            <div className="crystal" />
+          </div>
+          <h2 className="reveal__title">{S.tool.title}</h2>
+          {S.tool.lines.slice(0, 2).map((l) => (
+            <p key={l}>{l}</p>
+          ))}
+          <p>{S.phone.tuneNow}</p>
+          {tuningPanel}
+        </div>
+      )}
+
       {!round && state.phase === "strategy" && (
         <div className="stack">
           <h2>{S.phone.huddle}</h2>
           {left !== null && <div className="tv__clock">{Math.ceil(left / 1000)}</div>}
-          <p>{S.phone.huddleBody}</p>
+          <p>{state.act === 2 ? S.phone.huddleBody : S.phone.huddleBody3}</p>
           <div className="panel rule">
             <p className="kicker">{S.rule.head}</p>
             <p>{S.rule.body}</p>
           </div>
-          <PlanPicker
-            plan={plan}
-            onChange={(light, v) => setPlan(light === GREEN ? { ...plan, onGreen: v } : { ...plan, onRed: v })}
-          />
+          {state.act === 2 ? (
+            <PlanPicker
+              plan={plan}
+              onChange={(light, v) => setPlan(light === GREEN ? { ...plan, onGreen: v } : { ...plan, onRed: v })}
+            />
+          ) : (
+            tuningPanel
+          )}
         </div>
       )}
 
       {!round && !me?.pairId && state.phase !== "lobby" && <p className="muted">{S.phone.waitingSeat}</p>}
       {!round && state.phase === "lobby" && <p className="spacer">{S.phone.lobby}</p>}
-      {!round && (state.phase === "batchDone" || state.phase === "ceiling") && <p className="spacer">{S.phone.watch}</p>}
+      {!round && (state.phase === "batchDone" || state.phase === "ceiling" || state.phase === "debrief") && (
+        <p className="spacer">{S.phone.watch}</p>
+      )}
+      {!round && state.phase === "batchDone" && state.act === 3 && (
+        <details className="panel">
+          <summary className="kicker">{S.phone.retune}</summary>
+          {tuningPanel}
+        </details>
+      )}
 
       <div className="spacer" />
       <button
@@ -200,7 +251,7 @@ function InRoom() {
       >
         {S.phone.leave}
       </button>
-    </main>
+    </main>,
   );
 }
 
