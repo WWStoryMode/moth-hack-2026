@@ -1,7 +1,7 @@
 // pnpm --filter @moth-hack/quantum-crew assets
 // Checklist for the Atlas assets: which files are in src/assets/atlas/, which are still placeholders, which have
 // no params for the credits yet, and anything git would refuse (gitignored types) or that's too big for the repo.
-import { readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ATLAS_ASSETS } from "../src/assets/atlas/list.ts";
@@ -26,7 +26,7 @@ for (const a of ATLAS_ASSETS) {
   }
   present++;
   const size = statSync(join(DIR, file)).size;
-  console.log(`  ✓  ${a.key.padEnd(20)} ${file} (${mb(size)})   [${engine}]${a.params ? "" : "   ⚠ no params for credits"}`);
+  console.log(`  ✓  ${a.key.padEnd(20)} ${file} (${mb(size)})   [${engine}]${a.params || existsSync(join(DIR, `${file}.provenance.json`)) ? "" : "   ⚠ no params for credits"}`);
   if (GITIGNORED.has(extname(file).toLowerCase())) notes.push(`${file}: this type is gitignored at the repo root; convert it (png/webp/webm/mp3) or add an exception.`);
   if (size > MAX_BYTES) notes.push(`${file}: over 5 MB; keep repo assets small (compress or shorten).`);
 }

@@ -17,6 +17,14 @@ for (const [path, url] of Object.entries(files)) {
   byKey.set(name, url);
 }
 
+/** What produced an asset (written by `pnpm gen-assets` next to the file): shown in the credits. */
+export type AssetProvenance = { engineId: string; jobId: string; params: Record<string, unknown> | null };
+const provenance = import.meta.glob<AssetProvenance>("./*.provenance.json", { eager: true, import: "default" });
+
+export function assetProvenance(key: string): AssetProvenance | undefined {
+  return Object.entries(provenance).find(([path]) => path.slice(2).replace(/\.[^.]+\.provenance\.json$/, "") === key)?.[1];
+}
+
 // The Entanglement Shader asset is data (lookup tables), not a media file.
 const shaderLut = import.meta.glob("./entanglement-lut.json");
 

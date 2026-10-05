@@ -1306,3 +1306,9 @@ p {
 .tv .crystals {
   height: clamp(90px, 14vh, 160px);
 }
+
+/* Atlas pixel art (Tessa works at ≤ 64×64): scale up with crisp pixels. */
+.station img,
+.crew-icon {
+  image-rendering: pixelated;
+}

@@ -57,6 +57,9 @@ importers:
 
   apps/quantum-crew:
     dependencies:
+      '@moth-hack/atlas-client':
+        specifier: workspace:*
+        version: link:../../packages/atlas-client
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
