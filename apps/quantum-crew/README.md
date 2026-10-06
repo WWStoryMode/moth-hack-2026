@@ -15,15 +15,15 @@ beat the wall.
 Open the app and choose **Solo demo**. It takes about 6 minutes on a phone or a laptop.
 
 1. **Briefing.** You are Table A. An AI crewmate is Table B. Each round your sensor lights **GREEN** or **RED**, and
-   you set your valve **OPEN** or **CLOSED** within 2.5 seconds. The station rule is always on screen:
+   you set your valve **OPEN** or **CLOSED** within 5 seconds. The station rule is always on screen:
    *valves must MATCH, unless BOTH sensors are RED, then they must DIFFER.* The station needs **80%**.
 2. **Act II: plans.** Your crewmate tells you their plan ("I always OPEN"). Pick yours, then play batches of 12
    rounds. After each batch, **Run 1,000 rounds** tests your plan without small-sample luck. Whatever you try,
    it never beats 75%.
-3. **Engineering report.** After 3 batches, call engineering: no plan beats 75%.
+3. **Engineering report.** After the first batch you can call engineering (or try more plans first): no plan beats 75%.
 4. **Act III: the Entanglement Tool.** You get two dials, one for GREEN and one for RED. In each round, tap
-   **MEASURE** and the tool sets your valve. Experiment until the 1,000-round test passes 80%. If you're stuck after
-   three failed batches, there's a hint.
+   **MEASURE** and the tool sets your valve. Experiment until the 1,000-round test passes 80%. After a batch under
+   80%, a hint appears; after two batches the debrief opens either way.
 5. **Debrief.** You learn the physics and see your own numbers, then the credits.
 
 Keyboard: **O / ←** = OPEN, **C / →** = CLOSED, **Space / Enter** = MEASURE.

@@ -1,5 +1,6 @@
 // All player-facing text in one place. Edit freely.
 // In-world copy only, up to the debrief: physics words (qubit, Bell, CHSH…) appear only in `debrief`.
+import { ROUND_MS } from "./config.ts";
 
 export const S = {
   title: "Quantum Crew",
@@ -26,7 +27,7 @@ export const S = {
     lines: [
       "The station's coolant runs through two sections. You are at Table A. Your crewmate, an AI, is at Table B.",
       "Each round, your section's sensor lights GREEN or RED. You each set a valve: OPEN or CLOSED.",
-      "No talking between sections during a round. You have 2.5 seconds.",
+      `No talking between sections during a round. You have ${ROUND_MS / 1000} seconds.`,
     ],
     survival: "The station needs 80% stability to survive.",
     go: "Take your post",
