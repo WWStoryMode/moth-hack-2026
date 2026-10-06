@@ -5,6 +5,10 @@
 
 **Moth Hack 2026 — 11 FQxI Challenge**
 
+![Quantum Crew poster](showcase/poster.png)
+
+**Play the solo demo:** _demo URL to come_ · **Demo video:** _link to come_
+
 Quantum Crew is inspired by *Spaceteam*. Players never sit through a physics lecture. They feel a limit first, and
 only then learn what it is.
 
@@ -116,6 +120,10 @@ Every screen has a mute button. Sound is on by default in solo and on the TV, an
 (a room of 8 phones chiming is a lot); each device remembers its choice.
 
 ## Run it locally
+In the standalone submission repo, use npm: `npm install`, then `npm run dev`, `npm test`, `npm run sim`,
+`npm run build` and `npm start` (the event server; needs Node ≥ 22.18, which runs its TypeScript directly).
+In the moth-hack-2026 monorepo:
+
 ```sh
 pnpm install
 pnpm --filter @moth-hack/quantum-crew dev        # http://localhost:5173/solo

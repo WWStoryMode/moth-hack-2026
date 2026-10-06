@@ -163,6 +163,15 @@ export const S = {
 
   sound: { mute: "Mute sound", unmute: "Turn sound on" },
 
+  poster: {
+    kicker: "A co-op party game · FQxI Challenge · Moth Hack 2026",
+    tagline: "Two tables. No talking. A wall no plan can beat, until the crystals arrive.",
+    classical: "Best any plan can do. The station needs 80%.",
+    quantum: "With shared entanglement, and still no messages.",
+    foot: "Play the CHSH game: feel the Bell limit, then break it.",
+    engines: "Moth Quantum Atlas: Entanglement Shader (live) · Quantum Blur",
+  },
+
   credits: {
     title: "Credits",
     lead: "Made for Moth Hack 2026 (FQxI Challenge) with Moth Quantum Atlas engines.",

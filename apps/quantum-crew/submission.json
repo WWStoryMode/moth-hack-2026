@@ -6,22 +6,29 @@
     "11": {}
   },
   "title": "Quantum Crew",
-  "pitch": "A co-op party game where two tables of players hit the 75% limit of any classical plan, then beat it with a shared entanglement tool.",
-  "description": "",
-  "technical": "",
-  "enginesViaPlatform": [],
-  "hardware": "auto",
+  "pitch": "A co-op party game in which two tables of players hit the 75% wall that no plan can beat, then break through it with a shared entanglement tool that still can't send a message.",
+  "description": "Quantum Crew teaches a Bell inequality by letting players feel it before they hear the words. Two tables of players keep a space station's coolant stable. Each round, every player sees only their own sensor light, GREEN or RED, and sets a valve. The rule: valves must match, unless both lights are red. Talking across tables is banned during rounds, so partners agree a plan in a strategy huddle, and discover that no plan holds more than 75% of rounds while the station needs 80%. Then each pair receives the Entanglement Tool: two linked crystals with dials. By experimenting with the angles, players climb to about 85%, the most quantum mechanics allows. The debrief names what they just did: the CHSH game, the Tsirelson bound, and no-signalling, shown with their own numbers, because each player's valve stayed a 50/50 coin whatever their partner saw. It runs as a live event on a TV plus phones for up to four pairs, and as a five-minute solo demo with an AI crewmate. The physics arrives only after the wall has been felt: players learn entanglement by losing first, then winning.",
+  "technical": "React, TypeScript and Vite; solo mode is a static site, and event mode adds a Node WebSocket server that draws every input, applies the measurement order and scores rounds. The entangled pair is simulated exactly (|Φ+⟩, P(match) = cos²Δθ), with tests proving the 75% classical limit, the 85.4% optimum and no-signalling. Atlas: the Entanglement Shader's output (shader plus reflectance and transmittance lookup tables) renders live through a WebGL 2 port of its GLSL as the tool's crystals; Quantum Blur, called through the API at five strengths, makes the station's degradation levels.",
+  "enginesViaPlatform": [
+    "entanglement-shader-v1"
+  ],
+  "hardware": "emu",
   "genAI": {
     "used": true,
     "tools": [
       "Claude Code"
     ],
-    "notes": "Code written with Claude Code."
+    "notes": "Code written with Claude Code. The game art is drawn in code and processed by Atlas engines; no generative image or audio models."
   },
   "nonMothApis": [],
   "media": {
     "poster": "showcase/poster.png",
-    "images": [],
+    "images": [
+      "showcase/solo-tool-reveal.png",
+      "showcase/solo-readout.png",
+      "showcase/tv-act3.png",
+      "showcase/solo-debrief-no-signalling.png"
+    ],
     "slides": null
   },
   "links": {
@@ -29,5 +36,5 @@
     "demo": null,
     "video": null
   },
-  "status": "building"
+  "status": "ready"
 }

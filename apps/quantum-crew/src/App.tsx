@@ -3,6 +3,7 @@ import { usePath } from "./lib/router.ts";
 import { Credits } from "./screens/Credits.tsx";
 import { Landing } from "./screens/Landing.tsx";
 import { Play } from "./screens/Play.tsx";
+import { Poster } from "./screens/Poster.tsx";
 import { Screen } from "./screens/Screen.tsx";
 import { Solo } from "./solo/Solo.tsx";
 
@@ -16,6 +17,8 @@ export function App() {
       return <Screen />;
     case "/play":
       return <Play />;
+    case "/poster":
+      return <Poster />;
     default:
       return <Landing />;
   }

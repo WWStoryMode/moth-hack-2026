@@ -103,9 +103,13 @@ function walk(dir: string): string[] {
   });
 }
 
-/** Provenance from `*.provenance.json` and saveRun() files in an app's output/ and showcase/. */
+/**
+ * Provenance from `*.provenance.json` and saveRun() files in an app's output/, showcase/ and src/assets/
+ * (apps that ship Atlas results as game assets keep their provenance next to them).
+ */
 export function collectProvenance(appDir: string): ProvenanceRecord[] {
-  const files = [...walk(join(appDir, "output")), ...walk(join(appDir, "showcase"))].filter((f) =>
+  const dirs = ["output", "showcase", join("src", "assets")];
+  const files = dirs.flatMap((d) => walk(join(appDir, d))).filter((f) =>
     f.endsWith(".json"),
   );
   const out: ProvenanceRecord[] = [];
@@ -113,7 +117,8 @@ export function collectProvenance(appDir: string): ProvenanceRecord[] {
     try {
       const json = JSON.parse(readFileSync(f, "utf8"));
       const p = f.endsWith(".provenance.json") ? json : json?.provenance;
-      if (p?.engineId && p?.jobId) out.push({ ...p, file: relative(appDir, f) });
+      // The same job can be recorded twice (raw download in output/ and the shipped asset); list it once.
+      if (p?.engineId && p?.jobId && !out.some((o) => o.jobId === p.jobId)) out.push({ ...p, file: relative(appDir, f) });
     } catch {
       // Not JSON we understand; skip.
     }

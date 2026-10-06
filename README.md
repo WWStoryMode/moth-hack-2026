@@ -52,7 +52,7 @@ Generated from each app's `submission.json`; run `pnpm tracker` to refresh.
 | 08 | Make a web app <sub>Intermediate</sub> | [`faded-passport`](apps/faded-passport) | `telablur-v1` | ready | [demo](https://faded-passport.vercel.app) |
 | 09 | Quantum-native 1 <sub>Expert</sub> | — | — | — | — |
 | 10 | Quantum-native 2 <sub>Expert</sub> | — | — | — | — |
-| 11 | FQxI Challenge <sub>Guest</sub> | [`quantum-crew`](apps/quantum-crew) | — | building | — |
+| 11 | FQxI Challenge <sub>Guest</sub> | [`quantum-crew`](apps/quantum-crew) | `blur-v1`, `entanglement-shader-v1` | ready | — |
 <!-- tracker:end -->
 
 ## Setup
