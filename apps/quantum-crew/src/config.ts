@@ -26,9 +26,9 @@ export const DEFAULT_TUNING: TuningConfig = { greenDeg: 0, redDeg: 0 };
 /** Solo: Act II batches before the engineering report (the player may keep going). */
 export const ACT2_BATCHES = 1;
 /** Solo: Act III batches below the survival line before the hint unlocks. */
-export const HINT_AFTER_FAILED_BATCHES = 3;
+export const HINT_AFTER_FAILED_BATCHES = 1;
 /** Solo: Act III batches after which the debrief unlocks even without reaching 80%. */
-export const DEBRIEF_AFTER_BATCHES = 4;
+export const DEBRIEF_AFTER_BATCHES = 2;
 
 // --- Event mode (multiplayer) -------------------------------------------------------------------
 

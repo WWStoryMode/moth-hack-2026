@@ -22,8 +22,8 @@ Open the app and choose **Solo demo**. It takes about 6 minutes on a phone or a 
    it never beats 75%.
 3. **Engineering report.** After the first batch you can call engineering (or try more plans first): no plan beats 75%.
 4. **Act III: the Entanglement Tool.** You get two dials, one for GREEN and one for RED. In each round, tap
-   **MEASURE** and the tool sets your valve. Experiment until the 1,000-round test passes 80%. If you're stuck after
-   three failed batches, there's a hint.
+   **MEASURE** and the tool sets your valve. Experiment until the 1,000-round test passes 80%. After a batch under
+   80%, a hint appears; after two batches the debrief opens either way.
 5. **Debrief.** You learn the physics and see your own numbers, then the credits.
 
 Keyboard: **O / ←** = OPEN, **C / →** = CLOSED, **Space / Enter** = MEASURE.

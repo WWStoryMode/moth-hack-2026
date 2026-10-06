@@ -51,8 +51,8 @@ M0–M6. See the root CLAUDE.md for repo rules.
   flip per round unless `order` is given. Solo: the player always measures first; Act II plan pickers feed the
   1,000-round test (rounds are tapped live); solo pacing (2026-10-06, user request): 5 s rounds, 2.2 s result,
   1 Act II batch before the engineering report; the meter spans 50–100%; the 75 line appears from the ceiling reveal
-  and 85.4 in Act III; debrief unlocks at a ≥ 80% 1,000-round test or after 4 Act III batches; hint after 3 Act III
-  batches under 80%. No framer-motion yet (CSS animations suffice); sounds and mute toggle are M5.
+  and 85.4 in Act III; debrief unlocks at a ≥ 80% 1,000-round test or after 2 Act III batches; hint after 1 Act III
+  batch under 80% (both lowered 2026-10-06 at the user's request). No framer-motion yet (CSS animations suffice); sounds and mute toggle are M5.
   Event: rounds 3.5 s (MP_ROUND_MS); the huddle's end auto-starts the batch; a round resolves early once everyone
   answered; joiners mid-batch are seated after it; max 4 per table; empty seat = bot (always OPEN in Act II);
   the TV QR uses the URL the TV was opened at. Act III: bots measure at round start (always first); tunings snap to
