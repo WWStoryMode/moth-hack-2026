@@ -85,9 +85,11 @@ if (sub.media.slides && extname(sub.media.slides).toLowerCase() !== ".pdf") prob
 const SKIP = new Set(["node_modules", "output", "dist", "CLAUDE.md", "BRIEF.md", "submission.json", "package.json", ".env"]);
 for (const entry of readdirSync(app.dir)) {
   // public/samples/ may hold personal test photos: export only files git doesn't ignore there.
+  // macOS .DS_Store files never go out.
   const keep = (src: string) =>
-    !/[\\/]public[\\/]samples[\\/][^\\/]+$/.test(src) ||
-    spawnSync("git", ["check-ignore", "-q", src], { cwd: ROOT }).status !== 0;
+    !src.endsWith(".DS_Store") &&
+    (!/[\\/]public[\\/]samples[\\/][^\\/]+$/.test(src) ||
+      spawnSync("git", ["check-ignore", "-q", src], { cwd: ROOT }).status !== 0);
   if (!SKIP.has(entry)) cpSync(join(app.dir, entry), join(repo, entry), { recursive: true, filter: keep });
 }
 
@@ -177,7 +179,7 @@ function formMarkdown(): string {
   return `# Submission form — ${sub.title || name}
 
 Form: https://airtable.com/appsrkUE9iVgeGsH5/pagdAHP56ovMdYX7x/form
-Deadline: **Fri 2 Oct 2026, 11:59 PM Pacific** (= Sat 3 Oct 07:59 London)
+Deadline: **Mon 5 Oct 2026, 11:59 PM Pacific** (= Tue 6 Oct 07:59 London)
 
 ${problems.length ? `> ⚠ Not ready:\n${problems.map((p) => `> - ${p}`).join("\n")}\n` : "> ✓ All checks pass.\n"}
 ## About you / team
