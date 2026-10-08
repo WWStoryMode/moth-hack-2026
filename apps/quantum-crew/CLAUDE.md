@@ -51,6 +51,8 @@ M0–M6. See the root CLAUDE.md for repo rules.
   engines blur-v1 (from provenance in src/assets) + entanglement-shader-v1 (enginesViaPlatform), hardware emu.
   Poster = screenshot of the hidden `/poster` route at 1600×1200 → `showcase/poster.png`; 4 extra screenshots in
   showcase/. `pnpm export quantum-crew --challenge 11` passes except links.repo / links.video (user).
+- **Submitted (by 2026-10-06):** both Quantum Crew (challenge 11) and Faded Passport; demo https://quantum-crew-iota.vercel.app/solo
+  (Vercel). links.repo / links.video not recorded in submission.json.
 - **Decisions:** marginals in `simulate` are the fraction of CLOSED valves. In simulation, who measures first is a coin
   flip per round unless `order` is given. Solo: the player always measures first; Act II plan pickers feed the
   1,000-round test (rounds are tapped live); solo pacing (2026-10-06, user request): 5 s rounds, 2.2 s result,

@@ -7,7 +7,7 @@
 
 ![Quantum Crew poster](showcase/poster.png)
 
-**Play the solo demo:** _demo URL to come_ · **Demo video:** _link to come_
+**Play the solo demo:** https://quantum-crew-iota.vercel.app/solo
 
 Quantum Crew is inspired by *Spaceteam*. Players never sit through a physics lecture. They feel a limit first, and
 only then learn what it is.
