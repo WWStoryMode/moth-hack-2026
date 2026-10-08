@@ -85,8 +85,8 @@
   --page-height: calc(100dvh - 2 * var(--space-4));
   --photo-max: 42vh;
   --photo-max: 42dvh; /* longest side of a square photo */
-  --passport-max-h: 36vh;
-  --passport-max-h: 36dvh; /* height of a 35:45 passport photo */
+  --passport-max-h: 35vh;
+  --passport-max-h: 35dvh; /* height of a 35:45 passport photo */
   --passport-width: min(78%, calc(var(--passport-max-h) * 35 / 45));
   /* Processing and verdict have little else on screen, so their passport photo can be bigger. */
   --passport-large-h: 51vh;

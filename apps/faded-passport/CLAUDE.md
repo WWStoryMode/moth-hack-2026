@@ -36,6 +36,8 @@ for repo rules.
   stamp `--stamp-granted`; both stamp inks clamped ≥ 3:1 when aged. The sweep CSV reports likeness/homeness/outcome.
 - **Processing record (branch faded-passport/process-record):** the Document screen downloads the raw Teleblur output,
   `parameters.json` (`lib/record.ts`, real values only) or a zip with the permit + output + params + the exact inputs.
+- **Samples for everyone (branch faded-passport/samples-for-all):** sample buttons show without `?debug` (before a photo is
+  chosen); a sample home photo gets an "Another place" corner tab. Loading lives in `screens/PhotoStep.tsx`.
 - **Tuning TODO:** verdict thresholds come from one photo pair; re-check with other faces/homes via a sweep's summary.csv. Teleblur `size` may
   round up to a power of two (as Quantum Blur does), so sizes 65–128 could look identical; unverified.
 - **Sweep:** `?debug` home step → "Download inputs" zip → `pnpm sweep <zip> --years …` (1 credit/year, `--dry-run`

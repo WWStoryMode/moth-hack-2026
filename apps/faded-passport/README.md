@@ -59,6 +59,12 @@ On the final screen, under the permit, **Processing record** offers:
 
 These are assembled in the browser from what the game already holds: no extra API calls, nothing stored.
 
+## Sample photos
+
+Players who'd rather not use their own face, or have no camera, can pick **Use a sample portrait** and **Use a
+sample place** (pixel-art images in `public/samples/`, paths in `src/samples.ts`). On a sample home photo, the
+**Another place** tab cycles street → canal → park. Samples go through exactly the same processing as an upload.
+
 ## Privacy
 
 Photos are sent to Moth Quantum's API for processing. After the result is fetched, the server deletes the
