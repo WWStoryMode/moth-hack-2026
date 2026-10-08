@@ -41,6 +41,7 @@ export const S = {
     next: "Hand it over",
     retake: "Retake selfie",
     chooseAgain: "Upload another",
+    sample: "Use a sample portrait", // for players who'd rather not use their own face, or have no camera
     dragHint: "Slide your passport into the slot, or",
   },
 
@@ -64,6 +65,8 @@ export const S = {
     next: "Home",
     retake: "Retake photo",
     chooseAgain: "Upload another",
+    sample: "Use a sample place", // shown before a photo is chosen
+    sampleAgain: "Another place", // corner tab over a sample photo: cycles the sample homes (src/samples.ts)
   },
 
   processing: {

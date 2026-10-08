@@ -1,9 +1,10 @@
 # Sample photos (debug only)
 
-Put sample images here to use the **Use sample photo** button, which appears only with `?debug`:
+Every player can use these instead of their own photos: **Use a sample portrait** and **Use a sample place**
+(shown before a photo is chosen), and **Another place** on a sample home photo to cycle the homes:
 
 - `portrait.png`: a passport-style portrait
-- `home-street.png`, `home-canal.png`, `home-park.png`: places to call "home" (the button cycles through them)
+- `home-street.png`, `home-canal.png`, `home-park.png`: places to call "home"
 
 Any size or orientation works: the app crops and re-encodes them exactly like a player's upload.
 Paths are set in `src/samples.ts`.
